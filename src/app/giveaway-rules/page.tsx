@@ -7,15 +7,8 @@ export const metadata: Metadata = {
   description: "Official Rules for the LifeSaver $100 Weekly Giveaway. No purchase necessary. One winner is drawn at random each week.",
 };
 
-const SPONSOR_NAME = "Royal Contracting LLC";
-
-function Confirm({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline rounded-md bg-sun px-1.5 py-0.5 font-semibold text-ink">
-      [CONFIRM: {children}]
-    </span>
-  );
-}
+const SPONSOR = "Royal Contracting LLC, Lexington, Missouri";
+const CONTACT_EMAIL = "8yp1yxba@mail.grokbot.com";
 
 function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
@@ -41,11 +34,6 @@ export default function GiveawayRulesPage() {
         </header>
 
         <p className="rounded-2xl bg-sun px-4 py-3 text-sm font-semibold leading-6 text-ink">
-          Draft for review. Highlighted [CONFIRM] items need Jason&apos;s sign-off before this page is published or
-          promoted. Do not treat those lines as final official terms.
-        </p>
-
-        <p className="rounded-2xl bg-sun px-4 py-3 text-sm font-semibold leading-6 text-ink">
           NO PURCHASE OR PAYMENT OF ANY KIND IS NECESSARY TO ENTER OR WIN. A PURCHASE OR PAID MEMBERSHIP WILL NOT
           INCREASE YOUR CHANCES OF WINNING. VOID WHERE PROHIBITED.
         </p>
@@ -56,11 +44,7 @@ export default function GiveawayRulesPage() {
 
         <Section n={1} title="Sponsor">
           <p>
-            The LifeSaver $100 Weekly Giveaway (the &ldquo;Giveaway&rdquo;) is sponsored by {SPONSOR_NAME},{" "}
-            <Confirm>
-              mailing address for Royal Contracting LLC. A previous draft used 160 Hwy 224, Lexington, MO 64067, which
-              was a placeholder. Other LifeSaver records use 314 South 6th St, Lexington, MO 64067.
-            </Confirm>{" "}
+            The LifeSaver $100 Weekly Giveaway (the &ldquo;Giveaway&rdquo;) is sponsored by {SPONSOR}{" "}
             (&ldquo;Sponsor&rdquo;).
           </p>
         </Section>
@@ -102,25 +86,17 @@ export default function GiveawayRulesPage() {
         <Section n={5} title="Drawing and odds">
           <p>
             One (1) winner will be selected in a random drawing from all eligible entries received during each entry
-            period, conducted on or about the Sunday the period closes (Sunday at 8:00 PM Central).{" "}
-            <Confirm>
-              confirm the winner is drawn Sunday evening when entries close, not on a later day. The admin tool
-              currently draws winners manually.
-            </Confirm>{" "}
-            Each eligible entry has an equal chance of being selected. Odds of winning depend on the number of eligible
+            period. The winner is drawn Sunday at or after 8:00 PM Central Time, when the entry period closes. Each
+            eligible entry has an equal chance of being selected. Odds of winning depend on the number of eligible
             entries received for that period.
           </p>
         </Section>
 
         <Section n={6} title="Prize">
           <p>
-            One (1) prize per entry period: $100 USD. Approximate retail value (ARV): $100.{" "}
-            <Confirm>
-              payout method. A previous draft said paid by PayPal, Venmo, or Cash App, or as a $100 gift card, at
-              Sponsor&apos;s choice in consultation with the winner.
-            </Confirm>{" "}
-            Prize is not transferable. No substitution except by Sponsor if the stated prize is unavailable, in which
-            case a prize of equal or greater value will be awarded.
+            One (1) prize per entry period: $100 USD, paid by the winner&apos;s choice of Cash App, PayPal, Venmo, or a
+            $100 gift card. Approximate retail value (ARV): $100. Prize is not transferable. No substitution except by
+            Sponsor if the stated prize is unavailable, in which case a prize of equal or greater value will be awarded.
           </p>
         </Section>
 
@@ -175,9 +151,12 @@ export default function GiveawayRulesPage() {
 
         <Section n={13} title="Winners list and contact">
           <p>
-            For the name of a weekly winner, see the giveaway page or contact Sponsor at the address in Section 1 within
-            60 days after the drawing.{" "}
-            <Confirm>contact email and/or phone for questions, winner claims, and winners-list requests.</Confirm>
+            For questions, winner claims, and winners-list requests, email{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-primary underline">
+              {CONTACT_EMAIL}
+            </a>
+            . For the name of a weekly winner, see the giveaway page or email that address within 60 days after the
+            drawing.
           </p>
         </Section>
       </article>

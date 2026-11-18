@@ -203,7 +203,7 @@ export function HelpScreen() {
               <h2 className="font-serif text-2xl">Ask for a ride</h2>
               <div>
                 <label htmlFor="h-pickup" className="text-sm font-medium">Pickup address</label>
-                <input id="h-pickup" required value={pickup} onChange={(e) => setPickup(e.target.value)} placeholder="160 Hwy 224, Lexington, MO" className="h-12 w-full rounded-2xl border px-3 text-base" />
+                <input id="h-pickup" required value={pickup} onChange={(e) => setPickup(e.target.value)} placeholder="Street address, City, ST" className="h-12 w-full rounded-2xl border px-3 text-base" />
                 <p className="text-xs text-muted-foreground">Only the helper who accepts sees your pickup address.</p>
               </div>
               <div>
