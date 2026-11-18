@@ -240,14 +240,33 @@ export function PlanScreen() {
     }));
   }
 
+  // Mirror saved trips to the server so the user's own AI (with their token) can see them.
+  useEffect(() => {
+    let cancel = false;
+    fetch("/api/me/trips")
+      .then((r) => r.json())
+      .then((data: { trips?: Itinerary[] }) => {
+        if (cancel || !Array.isArray(data.trips) || !data.trips.length) return;
+        const local = readSaved();
+        const extra = data.trips.filter((t) => t && Array.isArray(t.days) && !local.some((l) => l.id === t.id));
+        if (extra.length) persist([...extra, ...local]);
+      })
+      .catch(() => {});
+    return () => {
+      cancel = true;
+    };
+  }, []);
+
   function save() {
     if (!plan) return;
     persist([plan, ...saved.filter((item) => item.id !== plan.id)]);
+    void fetch("/api/me/trips", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(plan) }).catch(() => {});
   }
 
   function remove(id: string) {
     persist(saved.filter((item) => item.id !== id));
     if (plan?.id === id) setPlan(null);
+    void fetch(`/api/me/trips?id=${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => {});
   }
 
   if (!profile) return null;
@@ -377,7 +396,7 @@ export function PlanScreen() {
       {saved.length > 0 && (
         <section aria-labelledby="saved-trips" className="space-y-2">
           <h2 id="saved-trips" className="font-serif text-2xl">Saved trips</h2>
-          <p className="text-xs text-muted-foreground">Saved on this device.</p>
+          <p className="text-xs text-muted-foreground">Saved on this device. Want your own AI to see them? <Link href="/ai" className="underline">Connect it</Link>.</p>
           <ul className="space-y-2">
             {saved.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-2 rounded-2xl border bg-card px-3 py-3 text-sm">

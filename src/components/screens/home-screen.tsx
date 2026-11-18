@@ -5,6 +5,7 @@ import { DemoNote } from "@/components/demo-note";
 import { FuelCard } from "@/components/fuel-card";
 import { GetAHand } from "@/components/get-a-hand";
 import { GiveawayCard } from "@/components/giveaway/giveaway-card";
+import { AiBadge, AiSection } from "@/components/ai/ai-badge";
 import { PlanChip } from "@/components/plan-chip";
 import { WeatherCard } from "@/components/weather-card";
 import { alerts, bills, DEMO_AS_OF, institutions, ledger, MONTH_SAVED } from "@/lib/demo-data";
@@ -37,6 +38,7 @@ export function HomeScreen() {
         <div>
           <p className="text-sm text-muted-foreground">Hello, {firstName}</p>
           <p className="font-serif text-2xl tracking-tight">Today</p>
+          <AiBadge className="mt-1" />
         </div>
         <PlanChip />
       </header>
@@ -76,6 +78,8 @@ export function HomeScreen() {
         <p className="font-serif text-2xl leading-tight">Cheapest flights, hotels, and cars</p>
         <p className="mt-1 text-sm">All in one search. Free and Premium get an upgrade prompt.</p>
       </Link>
+
+      <AiSection />
 
       <DemoNote>
         Figures are a made-up November for {areaLabel(profile.zip)}, as of {DEMO_AS_OF}. Connected

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AiBadge, AiSection } from "@/components/ai/ai-badge";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { Wordmark } from "@/components/wordmark";
 import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, HELPER_PRICE_LABEL, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
@@ -52,6 +53,8 @@ export default function HomePage() {
               <p className="mt-3 max-w-md text-lg font-semibold">Need a hand fixing the mower? Tap once.</p>
               <p className="mt-2 max-w-md text-lg font-semibold">Cheapest flights, hotels, and cars, all in one app.</p>
               <p className="mt-2 max-w-md text-lg font-semibold">Your own AI money-saver in your pocket.</p>
+              <p className="mt-2 max-w-md text-lg font-semibold">Plan a whole trip and know what to wear today.</p>
+              <AiBadge className="mt-3" />
               <p className="mt-2 max-w-md text-lg font-semibold">
                 Monthly Girls&apos; Night and Guys&apos; Night Out in your city.
               </p>
@@ -123,6 +126,10 @@ export default function HomePage() {
             </article>
           ))}
         </section>
+
+        <div className="mx-auto w-full max-w-6xl px-4 py-8">
+          <AiSection dark />
+        </div>
 
         <section id="pricing" className="bg-white">
           <div className="mx-auto w-full max-w-6xl px-4 py-14">

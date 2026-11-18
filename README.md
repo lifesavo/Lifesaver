@@ -165,3 +165,10 @@ Tasks have a category, title, timing, ZIP, and status. Offers have a helper, pri
 **Work For All.** Send booked tasks to that platform when the owner connects it. Keep vetting and payouts there.
 
 **Uber, Lyft, Uber Eats, DoorDash.** Public deep links are already wired. Partner APIs need a business approval before any affiliate tracking or live fare quotes.
+
+## Works with your AI
+
+- `/ai` setup guide for ChatGPT, Claude, Gemini, and Grok (no partnership claimed). `/settings` creates and revokes personal access tokens (only a SHA-256 hash is stored, table `ai_tokens`).
+- Remote MCP server at `/api/mcp` (JSON-RPC 2.0 over Streamable HTTP, JSON responses, stateless). Public tools: `get_gas_prices`, `what_to_wear`, `plan_trip`, `roadside_help_info`, `giveaway_info`. Token tools: `list_my_trips`, `save_trip`, `delete_my_trip` (table `user_trips`, keyed by the device's `lifesaver_owner` cookie).
+- `/openapi.json`, `/llms.txt`, and `/.well-known/ai-plugin.json` describe the same endpoints.
+- TODO: help requests and partner roadside dispatch are not exposed yet.

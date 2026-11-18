@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
@@ -108,6 +109,28 @@ function ensureSchema(db: Database.Database) {
       hour TEXT NOT NULL,
       count INTEGER NOT NULL,
       PRIMARY KEY (client_key, hour)
+    )
+  `);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS ai_tokens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      owner_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      prefix TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      last_used_at TEXT,
+      revoked_at TEXT
+    )
+  `);
+  db.exec("CREATE INDEX IF NOT EXISTS ai_tokens_owner ON ai_tokens (owner_id)");
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS user_trips (
+      owner_id TEXT NOT NULL,
+      trip_id TEXT NOT NULL,
+      data TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (owner_id, trip_id)
     )
   `);
 }
@@ -521,4 +544,82 @@ export function setGiveawayWinnerStatus(id: number, status: "paid" | "forfeited"
     )
     .run(status, status, note, id);
   return info.changes > 0;
+}
+
+// ---- Personal AI access tokens. Only a SHA-256 hash of each token is stored. ----
+
+export type AiTokenRow = { id: number; name: string; prefix: string; createdAt: string; lastUsedAt: string | null; revokedAt: string | null };
+
+function hashToken(raw: string) {
+  return crypto.createHash("sha256").update(raw).digest("hex");
+}
+
+export function createAiToken(ownerId: string, name: string) {
+  const db = getDb();
+  const active = db.prepare("SELECT COUNT(*) AS n FROM ai_tokens WHERE owner_id = ? AND revoked_at IS NULL").get(ownerId) as { n: number };
+  if (active.n >= 10) return { ok: false as const, message: "You can have up to 10 active tokens. Revoke one first." };
+  const raw = `ls_pat_${crypto.randomBytes(24).toString("base64url")}`;
+  const info = db
+    .prepare("INSERT INTO ai_tokens (owner_id, name, token_hash, prefix) VALUES (?, ?, ?, ?)")
+    .run(ownerId, name.slice(0, 40) || "My AI", hashToken(raw), raw.slice(0, 11));
+  return { ok: true as const, id: Number(info.lastInsertRowid), token: raw };
+}
+
+export function listAiTokens(ownerId: string): AiTokenRow[] {
+  return getDb()
+    .prepare(
+      `SELECT id, name, prefix, created_at AS createdAt, last_used_at AS lastUsedAt, revoked_at AS revokedAt
+       FROM ai_tokens WHERE owner_id = ? ORDER BY id DESC LIMIT 50`,
+    )
+    .all(ownerId) as AiTokenRow[];
+}
+
+export function revokeAiToken(ownerId: string, id: number) {
+  return (
+    getDb().prepare("UPDATE ai_tokens SET revoked_at = datetime('now') WHERE owner_id = ? AND id = ? AND revoked_at IS NULL").run(ownerId, id)
+      .changes > 0
+  );
+}
+
+/** Returns the owner for an active token, or null. */
+export function ownerForToken(raw: string): string | null {
+  if (!/^ls_pat_[A-Za-z0-9_-]{20,64}$/.test(raw)) return null;
+  const db = getDb();
+  const row = db.prepare("SELECT id, owner_id AS ownerId FROM ai_tokens WHERE token_hash = ? AND revoked_at IS NULL").get(hashToken(raw)) as
+    | { id: number; ownerId: string }
+    | undefined;
+  if (!row) return null;
+  db.prepare("UPDATE ai_tokens SET last_used_at = datetime('now') WHERE id = ?").run(row.id);
+  return row.ownerId;
+}
+
+// ---- Trips saved to the server so a user's own AI can read them. ----
+
+export function listUserTrips(ownerId: string): unknown[] {
+  const rows = getDb()
+    .prepare("SELECT data FROM user_trips WHERE owner_id = ? ORDER BY updated_at DESC LIMIT 50")
+    .all(ownerId) as { data: string }[];
+  return rows.flatMap((row) => {
+    try {
+      return [JSON.parse(row.data) as unknown];
+    } catch {
+      return [];
+    }
+  });
+}
+
+export function saveUserTrip(ownerId: string, tripId: string, data: unknown) {
+  const db = getDb();
+  const count = db.prepare("SELECT COUNT(*) AS n FROM user_trips WHERE owner_id = ?").get(ownerId) as { n: number };
+  const exists = db.prepare("SELECT 1 FROM user_trips WHERE owner_id = ? AND trip_id = ?").get(ownerId, tripId);
+  if (!exists && count.n >= 50) return false;
+  db.prepare(
+    `INSERT INTO user_trips (owner_id, trip_id, data) VALUES (?, ?, ?)
+     ON CONFLICT(owner_id, trip_id) DO UPDATE SET data = excluded.data, updated_at = datetime('now')`,
+  ).run(ownerId, tripId.slice(0, 64), JSON.stringify(data).slice(0, 200_000));
+  return true;
+}
+
+export function deleteUserTrip(ownerId: string, tripId: string) {
+  return getDb().prepare("DELETE FROM user_trips WHERE owner_id = ? AND trip_id = ?").run(ownerId, tripId).changes > 0;
 }
