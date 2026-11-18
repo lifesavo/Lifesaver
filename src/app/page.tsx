@@ -180,6 +180,19 @@ export default function HomePage() {
           </div>
           <WaitlistForm />
         </section>
+
+        <section className="mx-auto w-full max-w-6xl px-4 pb-14">
+          <Link
+            href="/giveaway"
+            className="block rounded-3xl bg-gradient-to-br from-[#ffb800] via-[#ff4fa3] to-[#7c3aed] px-6 py-6 text-white shadow-lg"
+          >
+            <p className="text-xs font-bold tracking-wide uppercase">Weekly giveaway</p>
+            <p className="mt-1 font-serif text-3xl leading-tight sm:text-4xl">$100 every week — free to enter</p>
+            <p className="mt-1 text-sm text-white/90">
+              One entry per person, drawn every Sunday at 8 PM Central. No purchase necessary. See Official Rules.
+            </p>
+          </Link>
+        </section>
       </main>
 
       <footer className="border-t-2 border-ink/10">

@@ -74,6 +74,42 @@ function ensureSchema(db: Database.Database) {
       UNIQUE(city_id, email)
     )
   `);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS giveaway_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      week_key TEXT NOT NULL,
+      email TEXT NOT NULL,
+      dedupe_key TEXT NOT NULL,
+      first_name TEXT,
+      last_initial TEXT,
+      method TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      UNIQUE(week_key, dedupe_key)
+    )
+  `);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS giveaway_winners (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      week_key TEXT NOT NULL,
+      entry_id INTEGER NOT NULL,
+      email TEXT NOT NULL,
+      first_name TEXT,
+      last_initial TEXT,
+      entrants INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      drawn_at TEXT NOT NULL DEFAULT (datetime('now')),
+      paid_at TEXT,
+      paid_note TEXT
+    )
+  `);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS giveaway_rate (
+      client_key TEXT NOT NULL,
+      hour TEXT NOT NULL,
+      count INTEGER NOT NULL,
+      PRIMARY KEY (client_key, hour)
+    )
+  `);
 }
 
 export function isFoundingEmail(email: string) {
@@ -305,4 +341,184 @@ export function createNightEvent(input: {
       input.publicRsvp ? 1 : 0,
     );
   return Number(info.lastInsertRowid);
+}
+
+// ---------------------------------------------------------------------------
+// Weekly $100 giveaway. One equal entry per person per week. Plan tier is
+// never read here: free and paid members have exactly the same single chance.
+
+export type GiveawayMethod = "signup" | "app" | "amoe";
+
+/** Gmail ignores dots and +tags, so treat those as the same person. */
+export function giveawayDedupeKey(email: string) {
+  const [local, domain] = email.trim().toLowerCase().split("@");
+  if (!domain) return email.trim().toLowerCase();
+  let name = local.split("+")[0];
+  const host = domain === "googlemail.com" ? "gmail.com" : domain;
+  if (host === "gmail.com") name = name.replace(/\./g, "");
+  return `${name}@${host}`;
+}
+
+export function enterGiveaway(input: {
+  weekKey: string;
+  email: string;
+  firstName: string | null;
+  lastInitial: string | null;
+  method: GiveawayMethod;
+}) {
+  const db = getDb();
+  const dedupe = giveawayDedupeKey(input.email);
+  const existing = db
+    .prepare("SELECT id, first_name FROM giveaway_entries WHERE week_key = ? AND dedupe_key = ?")
+    .get(input.weekKey, dedupe) as { id: number; first_name: string | null } | undefined;
+  if (existing) {
+    if (!existing.first_name && input.firstName) {
+      db.prepare("UPDATE giveaway_entries SET first_name = ?, last_initial = ? WHERE id = ?").run(
+        input.firstName,
+        input.lastInitial,
+        existing.id,
+      );
+    }
+    return { already: true, id: existing.id };
+  }
+  const info = db
+    .prepare(
+      `INSERT INTO giveaway_entries (week_key, email, dedupe_key, first_name, last_initial, method)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+    )
+    .run(input.weekKey, input.email.trim().toLowerCase(), dedupe, input.firstName, input.lastInitial, input.method);
+  return { already: false, id: Number(info.lastInsertRowid) };
+}
+
+export function hasGiveawayEntry(weekKey: string, email: string) {
+  return Boolean(
+    getDb()
+      .prepare("SELECT 1 AS ok FROM giveaway_entries WHERE week_key = ? AND dedupe_key = ?")
+      .get(weekKey, giveawayDedupeKey(email)),
+  );
+}
+
+export function countGiveawayEntries(weekKey: string) {
+  const row = getDb()
+    .prepare("SELECT COUNT(*) AS n FROM giveaway_entries WHERE week_key = ?")
+    .get(weekKey) as { n: number };
+  return row.n;
+}
+
+/** Simple fixed-window limiter. Returns false when the client is over the limit. */
+export function takeGiveawayRate(clientKey: string, limitPerHour: number) {
+  const db = getDb();
+  const hour = new Date().toISOString().slice(0, 13);
+  const row = db
+    .prepare("SELECT count FROM giveaway_rate WHERE client_key = ? AND hour = ?")
+    .get(clientKey, hour) as { count: number } | undefined;
+  if ((row?.count ?? 0) >= limitPerHour) return false;
+  db.prepare(
+    `INSERT INTO giveaway_rate (client_key, hour, count) VALUES (?, ?, 1)
+     ON CONFLICT(client_key, hour) DO UPDATE SET count = count + 1`,
+  ).run(clientKey, hour);
+  db.prepare("DELETE FROM giveaway_rate WHERE hour < ?").run(
+    new Date(Date.now() - 48 * 3600 * 1000).toISOString().slice(0, 13),
+  );
+  return true;
+}
+
+export type GiveawayEntryRow = {
+  id: number;
+  email: string;
+  firstName: string | null;
+  lastInitial: string | null;
+  method: GiveawayMethod;
+  createdAt: string;
+};
+
+export function listGiveawayEntries(weekKey: string): GiveawayEntryRow[] {
+  return getDb()
+    .prepare(
+      `SELECT id, email, first_name AS firstName, last_initial AS lastInitial, method, created_at AS createdAt
+       FROM giveaway_entries WHERE week_key = ? ORDER BY id ASC`,
+    )
+    .all(weekKey) as GiveawayEntryRow[];
+}
+
+export type GiveawayWinnerRow = {
+  id: number;
+  weekKey: string;
+  entryId: number;
+  email: string;
+  firstName: string | null;
+  lastInitial: string | null;
+  entrants: number;
+  status: "pending" | "paid" | "forfeited";
+  drawnAt: string;
+  paidAt: string | null;
+  paidNote: string | null;
+};
+
+const WINNER_COLUMNS = `id, week_key AS weekKey, entry_id AS entryId, email, first_name AS firstName,
+  last_initial AS lastInitial, entrants, status, drawn_at AS drawnAt, paid_at AS paidAt, paid_note AS paidNote`;
+
+export function listGiveawayWinners(limit = 52): GiveawayWinnerRow[] {
+  return getDb()
+    .prepare(`SELECT ${WINNER_COLUMNS} FROM giveaway_winners ORDER BY week_key DESC, id DESC LIMIT ?`)
+    .all(limit) as GiveawayWinnerRow[];
+}
+
+/** Latest non-forfeited winner for a week, for the public "last week" line. */
+export function publicWinnerFor(weekKey: string) {
+  const row = getDb()
+    .prepare(
+      `SELECT first_name AS firstName, last_initial AS lastInitial, status FROM giveaway_winners
+       WHERE week_key = ? AND status != 'forfeited' ORDER BY id DESC LIMIT 1`,
+    )
+    .get(weekKey) as { firstName: string | null; lastInitial: string | null; status: string } | undefined;
+  return row ?? null;
+}
+
+/**
+ * Uniform random pick among the week's entries. Each entry is one equal
+ * chance. People who already won (or forfeited) this week are excluded so an
+ * alternate can be drawn. Uses a cryptographically secure RNG.
+ */
+export function drawGiveawayWinner(weekKey: string, randomIndex: (n: number) => number) {
+  const db = getDb();
+  return db.transaction(() => {
+    const active = db
+      .prepare("SELECT id FROM giveaway_winners WHERE week_key = ? AND status IN ('pending', 'paid')")
+      .get(weekKey) as { id: number } | undefined;
+    if (active) {
+      return { ok: false as const, message: "This week already has a winner. Mark them forfeited before drawing an alternate." };
+    }
+    const pool = db
+      .prepare(
+        `SELECT id, email, first_name AS firstName, last_initial AS lastInitial FROM giveaway_entries
+         WHERE week_key = ? AND dedupe_key NOT IN (
+           SELECT e.dedupe_key FROM giveaway_winners w JOIN giveaway_entries e ON e.id = w.entry_id
+           WHERE w.week_key = ?
+         ) ORDER BY id ASC`,
+      )
+      .all(weekKey, weekKey) as Array<{ id: number; email: string; firstName: string | null; lastInitial: string | null }>;
+    if (pool.length === 0) return { ok: false as const, message: "No eligible entries for that week." };
+    const pick = pool[randomIndex(pool.length)];
+    const info = db
+      .prepare(
+        `INSERT INTO giveaway_winners (week_key, entry_id, email, first_name, last_initial, entrants)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+      )
+      .run(weekKey, pick.id, pick.email, pick.firstName, pick.lastInitial, pool.length);
+    const winner = db
+      .prepare(`SELECT ${WINNER_COLUMNS} FROM giveaway_winners WHERE id = ?`)
+      .get(Number(info.lastInsertRowid)) as GiveawayWinnerRow;
+    return { ok: true as const, winner };
+  })();
+}
+
+export function setGiveawayWinnerStatus(id: number, status: "paid" | "forfeited", note: string | null) {
+  const info = getDb()
+    .prepare(
+      `UPDATE giveaway_winners SET status = ?, paid_at = CASE WHEN ? = 'paid' THEN datetime('now') ELSE paid_at END,
+       paid_note = COALESCE(?, paid_note) WHERE id = ?`,
+    )
+    .run(status, status, note, id);
+  return info.changes > 0;
 }

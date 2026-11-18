@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -160,6 +161,12 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
             : `${success.count} people are waiting with you.`}
           {success.source ? ` Tagged from ${success.source}.` : ""}
         </p>
+        <Link
+          href="/giveaway"
+          className="mt-3 block rounded-2xl bg-white/20 px-3 py-2 text-sm font-semibold"
+        >
+          🎁 Now enter this week&apos;s free $100 giveaway →
+        </Link>
         {success.founding && success.shareCode && (
           <div className="mt-4 rounded-2xl bg-white/15 p-3 text-sm leading-6">
             <p className="font-semibold">Founding Member rate, locked for life</p>

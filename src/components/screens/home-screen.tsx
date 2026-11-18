@@ -4,6 +4,7 @@ import Link from "next/link";
 import { DemoNote } from "@/components/demo-note";
 import { FuelCard } from "@/components/fuel-card";
 import { GetAHand } from "@/components/get-a-hand";
+import { GiveawayCard } from "@/components/giveaway/giveaway-card";
 import { PlanChip } from "@/components/plan-chip";
 import { alerts, bills, DEMO_AS_OF, institutions, ledger, MONTH_SAVED } from "@/lib/demo-data";
 import { areaLabel, money } from "@/lib/money";
@@ -45,6 +46,8 @@ export function HomeScreen() {
         </h2>
         <p className="mt-1 text-sm leading-6">{tip}</p>
       </section>
+
+      <GiveawayCard email={profile.email} />
 
       <FuelCard zip={profile.zip} />
       <GetAHand zip={profile.zip} />
