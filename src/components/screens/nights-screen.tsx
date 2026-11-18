@@ -168,14 +168,14 @@ export function NightsScreen() {
             <div className="rounded-2xl bg-muted px-3 py-3 text-sm">
               <p className="font-semibold">Ride there</p>
               <p className="text-muted-foreground">
-                Sample fares, not live quotes. {cheap.name} is {money(cheap.price)} in the usual sample. LifeSaver is not an Uber or Lyft partner.
+                Estimated fares, not live quotes. {cheap.name} is usually about {money(cheap.price)}. LifeSaver is not an Uber or Lyft partner.
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <a href={uberHref} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center rounded-full bg-ink px-3 text-sm font-bold text-white">
-                  Uber · sample {uber ? money(uber.price) : ""}
+                  Uber · about {uber ? money(uber.price) : ""}
                 </a>
                 <a href={lyftHref} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center rounded-full bg-ink px-3 text-sm font-bold text-white">
-                  Lyft · sample {lyft ? money(lyft.price) : ""}
+                  Lyft · about {lyft ? money(lyft.price) : ""}
                 </a>
               </div>
             </div>

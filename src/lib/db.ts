@@ -168,7 +168,7 @@ export function isFoundingEmail(email: string) {
   return Boolean(row && row.founding !== 0);
 }
 
-function getDb() {
+export function getDb() {
   if (!globalForDb.lifesaverDb) {
     const dir = process.env.DATA_DIR || path.join(process.cwd(), "data");
     fs.mkdirSync(dir, { recursive: true });
@@ -856,4 +856,33 @@ export function updateRoadside(publicId: string, viewer: string, action: "cancel
     db.prepare("UPDATE roadside_requests SET status = ?, updated_at = datetime('now') WHERE public_id = ?").run(action === "cancel" ? "cancelled" : "done", publicId);
   }
   return { ok: true as const, request: getRoadsideRequest(publicId, viewer)! };
+}
+
+// Founding-rate interest from the plan buttons while billing is not open yet.
+function ensureInterest(db: Database.Database) {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS plan_interest (
+      email TEXT NOT NULL,
+      plan TEXT NOT NULL,
+      founding INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (email, plan)
+    )
+  `);
+}
+
+export function savePlanInterest(email: string, plan: "premium" | "hand", zip: string | null) {
+  const db = getDb();
+  ensureInterest(db);
+  const clean = email.trim().toLowerCase();
+  addSignup(clean, zip, { ref: null, utmSource: null, utmMedium: null, utmCampaign: null });
+  db.prepare("INSERT OR IGNORE INTO plan_interest (email, plan) VALUES (?, ?)").run(clean, plan);
+  const row = db.prepare("SELECT COUNT(*) AS n FROM plan_interest WHERE plan = ?").get(plan) as { n: number };
+  return { founding: isFoundingEmail(clean), count: row.n };
+}
+
+export function planInterestStats() {
+  const db = getDb();
+  ensureInterest(db);
+  return db.prepare("SELECT plan, COUNT(*) AS n FROM plan_interest GROUP BY plan").all() as { plan: string; n: number }[];
 }

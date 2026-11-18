@@ -3,18 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
-import { Check } from "lucide-react";
 import { cn } from "cn";
 import { PhoneFrame } from "@/components/phone-frame";
 import { Wordmark } from "@/components/wordmark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { institutions, type InstitutionId } from "@/lib/demo-data";
+import { type InstitutionId } from "@/lib/demo-data";
 import { useProfile } from "@/lib/profile";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SAMPLE_ACCOUNTS: InstitutionId[] = ["chase", "capitalone", "pge"];
+// Example bill set shown (and labeled "Example") until bank linking opens.
+const EXAMPLE_ACCOUNTS: InstitutionId[] = ["chase", "capitalone", "pge"];
 
 export function StartScreen() {
   const router = useRouter();
@@ -24,8 +24,6 @@ export function StartScreen() {
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
   const [zip, setZip] = useState("");
-  const [selected, setSelected] = useState<InstitutionId[]>([]);
-  const [connecting, setConnecting] = useState<InstitutionId | null>(null);
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
 
@@ -33,7 +31,7 @@ export function StartScreen() {
     return (
       <PhoneFrame>
         <p className="pt-16 text-sm text-muted-foreground" role="status">
-          Opening your demo…
+          Opening LifeSaver…
         </p>
       </PhoneFrame>
     );
@@ -50,7 +48,7 @@ export function StartScreen() {
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             {profile.email}
             <br />
-            Deals aimed at {profile.zip}. Sample accounts only.
+            Weather, alerts, and deals near {profile.zip}.
           </p>
           <div className="mt-8 flex flex-col gap-3">
             <Button asChild className="h-12 rounded-full text-base">
@@ -66,7 +64,6 @@ export function StartScreen() {
                 setStep(0);
                 setEmail("");
                 setZip("");
-                setSelected([]);
               }}
             >
               Start over
@@ -75,15 +72,6 @@ export function StartScreen() {
         </div>
       </PhoneFrame>
     );
-  }
-
-  function useSample() {
-    completeOnboarding({
-      email: "alex@example.com",
-      zip: "94110",
-      institutions: SAMPLE_ACCOUNTS,
-    });
-    router.push("/home");
   }
 
   function nextFromEmail() {
@@ -97,36 +85,13 @@ export function StartScreen() {
     setStep(1);
   }
 
-  function nextFromZip() {
+  function finishFromZip() {
     if (!/^\d{5}$/.test(zip)) {
       setError("Use a 5-digit ZIP code.");
       return;
     }
     setError("");
-    setStep(2);
-  }
-
-  function toggleInstitution(id: InstitutionId) {
-    if (connecting) return;
-    if (selected.includes(id)) {
-      setSelected((current) => current.filter((item) => item !== id));
-      setError("");
-      return;
-    }
-    setConnecting(id);
-    window.setTimeout(() => {
-      setSelected((current) => (current.includes(id) ? current : [...current, id]));
-      setConnecting(null);
-      setError("");
-    }, 650);
-  }
-
-  function finish() {
-    if (selected.length === 0) {
-      setError("Connect at least one sample account.");
-      return;
-    }
-    completeOnboarding({ email, zip, institutions: selected });
+    completeOnboarding({ email, zip, institutions: EXAMPLE_ACCOUNTS });
     router.push("/home");
   }
 
@@ -135,15 +100,12 @@ export function StartScreen() {
       <div className="flex min-h-full flex-col">
         <div className="flex items-center justify-between gap-3">
           <Wordmark compact />
-          <Button type="button" variant="ghost" className="h-10 rounded-full px-3" onClick={useSample}>
-            Sample profile
-          </Button>
         </div>
         <p className="mt-6 text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-          Step {step + 1} of 3
+          Step {step + 1} of 2
         </p>
         <div className="mt-2 flex gap-1.5" aria-hidden="true">
-          {[0, 1, 2].map((index) => (
+          {[0, 1].map((index) => (
             <span
               key={index}
               className={cn("h-1 flex-1 rounded-full", index <= step ? "bg-primary" : "bg-border")}
@@ -160,11 +122,11 @@ export function StartScreen() {
             }}
           >
             <h1 className="font-serif text-4xl leading-[1.05] tracking-tight">
-              Where should we send savings notes?
+              Let&apos;s get you set up.
             </h1>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              This demo keeps your email in the browser only. The public waitlist, on the home page of
-              the site, is the one we store.
+              Your email is how you sign in on any phone or computer. We will also tell you before
+              billing opens. No spam, no selling your info.
             </p>
             <div className="mt-6 space-y-1.5">
               <Label htmlFor={emailId}>Email</Label>
@@ -188,9 +150,6 @@ export function StartScreen() {
               <Button type="submit" className="h-12 rounded-full text-base">
                 Continue
               </Button>
-              <Button type="button" variant="outline" className="h-12 rounded-full text-base" onClick={useSample}>
-                Use alex@example.com in 94110
-              </Button>
             </div>
           </form>
         )}
@@ -200,15 +159,15 @@ export function StartScreen() {
             className="mt-6 flex flex-1 flex-col"
             onSubmit={(event) => {
               event.preventDefault();
-              nextFromZip();
+              finishFromZip();
             }}
           >
             <h1 className="font-serif text-4xl leading-[1.05] tracking-tight">
-              Where should we look for deals?
+              What&apos;s your ZIP code?
             </h1>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Gas, groceries, and food are sorted around this ZIP. Prices in the demo are labeled
-              samples, not a live feed.
+              Weather, alerts, gas, and help requests are sorted around this ZIP. You can change it
+              any time.
             </p>
             <div className="mt-6 space-y-1.5">
               <Label htmlFor={zipId}>ZIP code</Label>
@@ -248,92 +207,6 @@ export function StartScreen() {
           </form>
         )}
 
-        {step === 2 && (
-          <div className="mt-6 flex flex-1 flex-col">
-            <h1 className="font-serif text-4xl leading-[1.05] tracking-tight">
-              Connect your accounts
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Pick the sample accounts to watch. Nothing here reaches a bank.
-            </p>
-            <aside className="mt-4 rounded-2xl border border-dashed border-primary/30 bg-secondary/60 p-4">
-              <p className="text-xs font-semibold tracking-[0.12em] text-primary uppercase">
-                Future integration · Plaid
-              </p>
-              <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                The live app will use Plaid to read transactions and spot recurring bills. Read-only.
-                We never see your bank password. This prototype does not call Plaid.
-              </p>
-            </aside>
-            <ul className="mt-4 space-y-2" aria-label="Sample institutions">
-              {institutions.map((institution) => {
-                const on = selected.includes(institution.id);
-                const busy = connecting === institution.id;
-                return (
-                  <li key={institution.id}>
-                    <button
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => toggleInstitution(institution.id)}
-                      className={cn(
-                        "flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left",
-                        on ? "border-primary bg-secondary" : "border-border bg-card",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "flex size-9 items-center justify-center rounded-full text-sm font-semibold",
-                          on ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
-                        )}
-                        aria-hidden="true"
-                      >
-                        {on ? <Check className="size-4" /> : institution.name.slice(0, 1)}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-medium">{institution.name}</span>
-                        <span className="block text-xs text-muted-foreground">
-                          {busy ? "Connecting sample account…" : `${institution.kind} · ${institution.detail}`}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-            {error && (
-              <p className="mt-3 text-sm text-destructive" role="alert">
-                {error}
-              </p>
-            )}
-            <div className="mt-auto flex flex-col gap-3 pt-6">
-              <Button type="button" className="h-12 rounded-full text-base" onClick={finish}>
-                See what you&apos;d save
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="h-12 rounded-full text-base"
-                onClick={() => {
-                  setSelected(SAMPLE_ACCOUNTS);
-                  setError("");
-                }}
-              >
-                Load sample accounts
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-12 rounded-full text-base"
-                onClick={() => {
-                  setError("");
-                  setStep(1);
-                }}
-              >
-                Back
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </PhoneFrame>
   );

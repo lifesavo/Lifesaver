@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { DemoNote } from "@/components/demo-note";
+import { DemoNote, ExampleTag } from "@/components/demo-note";
 import { FuelCard } from "@/components/fuel-card";
 import { GetAHand } from "@/components/get-a-hand";
 import { GiveawayCard } from "@/components/giveaway/giveaway-card";
@@ -9,8 +9,8 @@ import { AiBadge, AiSection } from "@/components/ai/ai-badge";
 import { PlanChip } from "@/components/plan-chip";
 import { WeatherCard } from "@/components/weather-card";
 import { AlertsBanner } from "@/components/alerts";
-import { alerts, bills, DEMO_AS_OF, institutions, ledger, MONTH_SAVED } from "@/lib/demo-data";
-import { areaLabel, money } from "@/lib/money";
+import { alerts, bills, institutions, ledger, MONTH_SAVED } from "@/lib/demo-data";
+import { money } from "@/lib/money";
 import { PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 import { useProfile } from "@/lib/profile";
 
@@ -106,18 +106,23 @@ export function HomeScreen() {
 
       <AiSection />
 
-      <DemoNote>
-        Figures are a made-up November for {areaLabel(profile.zip)}, as of {DEMO_AS_OF}. Connected
-        accounts are samples: {connected.map((item) => item.name).join(", ")}.
-      </DemoNote>
+      <section aria-labelledby="bill-example-heading" className="space-y-1 pt-2">
+        <h2 id="bill-example-heading" className="font-serif text-2xl tracking-tight">
+          Bill tracking <ExampleTag className="ml-1 align-middle" />
+        </h2>
+        <DemoNote>
+          Bank linking is coming soon. Until then, this is an example of what LifeSaver catches in a
+          typical month ({connected.map((item) => item.name).join(", ")}). These are not your accounts.
+        </DemoNote>
+      </section>
 
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#e01470] via-[#6d28d9] to-[#0891b2] px-5 py-6 text-white">
         <div aria-hidden="true" className="pointer-events-none absolute -top-12 -right-8 size-40 rounded-full bg-white/10" />
-        <p className="text-sm text-white/80">You saved</p>
+        <p className="text-sm text-white/80">Example: what one month can look like</p>
         <p className="mt-1 font-serif text-5xl tracking-tight">{money(MONTH_SAVED)}</p>
-        <h2 className="mt-1 text-lg">this month</h2>
+        <h2 className="mt-1 text-lg">kept in a month</h2>
         <p className="mt-3 max-w-[18rem] text-sm leading-6 text-white/85">
-          Deals you used, a trial you caught, and a duplicate that came back. Sample ledger.
+          Deals used, a trial caught, and a duplicate charge refunded.
         </p>
         <details className="mt-4 rounded-2xl bg-white/10 px-3 py-2 text-sm">
           <summary className="cursor-pointer font-medium">Where this came from</summary>
@@ -140,8 +145,8 @@ export function HomeScreen() {
           <p className="text-xs text-muted-foreground">Instant alerts · Premium</p>
         </div>
         <p className="text-sm leading-6 text-muted-foreground">
-          Four leaks in the sample. On the free on-ramp you can read them here; live instant alerts
-          are part of Premium ({PREMIUM_PRICE_LABEL}/mo).
+          Four leaks in the example. Instant alerts on your own bills are part of Premium
+          ({PREMIUM_PRICE_LABEL}/mo) once bank linking opens.
         </p>
         <ul className="space-y-2">
           {alerts.map((alert) => (
@@ -185,10 +190,10 @@ export function HomeScreen() {
         </ul>
       </section>
 
-      <Link href="/deals" className="block rounded-2xl bg-secondary px-4 py-4">
+      <Link href="/fuel" className="block rounded-2xl bg-secondary px-4 py-4">
         <p className="text-xs font-semibold tracking-wide text-primary uppercase">Near you</p>
-        <p className="mt-1 font-medium">Cheapest gas in the sample is $4.19 at Costco</p>
-        <p className="mt-1 text-sm text-muted-foreground">1.6 miles · save $0.46 a gallon vs the area average</p>
+        <p className="mt-1 font-medium">Find the cheapest gas near you</p>
+        <p className="mt-1 text-sm text-muted-foreground">Stations sorted by price and distance</p>
       </Link>
 
       <div className="grid grid-cols-2 gap-2">
@@ -198,7 +203,7 @@ export function HomeScreen() {
         <Link href="/savings" className="rounded-2xl bg-card px-3 py-3 text-sm font-semibold shadow-sm">
           Savings
         </Link>
-        <Link href="/hand" className="rounded-2xl bg-lime px-3 py-3 text-sm font-bold text-ink">
+        <Link href="/help" className="rounded-2xl bg-lime px-3 py-3 text-sm font-bold text-ink">
           Lend a Hand
         </Link>
         <Link href="/rides" className="rounded-2xl bg-cyan px-3 py-3 text-sm font-bold text-ink">
@@ -216,12 +221,12 @@ export function HomeScreen() {
             {PREMIUM_PRICE_LABEL}.
           </p>
           <p className="mt-3 text-sm leading-6 text-white/80">
-            Premium is $9.99 after launch. Lend a Hand is $19.99 after launch, or $14.99 for life on the waitlist.
+            Founding members lock in $7.99/mo for life (regular $9.99). Lend a Hand: $14.99/mo for life (regular $19.99). Billing opens soon.
           </p>
         </Link>
       ) : (
         <p className="rounded-2xl bg-secondary px-4 py-3 text-sm leading-6">
-          Premium demo is on. Every feature in this prototype is unlocked, and no card was charged.
+          Your founding rate is locked in. Everything is unlocked free until billing opens, and we will email you before any charge.
         </p>
       )}
     </div>

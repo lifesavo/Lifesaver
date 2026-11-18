@@ -68,7 +68,7 @@ async function demoReply(message: string, context: { zip: string; plan: PaidPlan
   const result = await runTool(tool.name, tool.args, context);
   return {
     mode: "demo",
-    text: `Demo mode. No live model is connected.\n\n${result.text}`,
+    text: result.text,
     cards: result.cards,
   };
 }
@@ -161,7 +161,7 @@ export async function answerQuestion(
     if (process.env.OPENAI_API_KEY) return await modelReply("openai", messages, context);
   } catch {
     const fallback = await demoReply(latest, context);
-    return { ...fallback, text: `The live model failed, so this answer is demo mode.\n\n${fallback.text}` };
+    return { ...fallback, text: fallback.text };
   }
   return demoReply(latest, context);
 }

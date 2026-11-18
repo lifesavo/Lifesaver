@@ -116,7 +116,7 @@ export function AskLifeSaver() {
                 <p className="text-[11px] text-lime">
                   {messages.some((message) => message.mode === "openai" || message.mode === "xai")
                     ? "Live model"
-                    : "Demo mode. No live model is connected."}
+                    : "Quick answers."}
                   {plan === "free" && remaining != null ? ` ${remaining} left today.` : ""}
                   {plan !== "free" ? " Unlimited on your plan." : ""}
                 </p>

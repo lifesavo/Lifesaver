@@ -16,63 +16,63 @@ export function includesPremium(plan: PaidPlan) {
   return plan === "premium" || plan === "hand";
 }
 
-export const handIncludes = [
+type Feature = { title: string; body: string; soon?: boolean };
+
+export const handIncludes: readonly Feature[] = [
   {
     title: "Everything in Premium",
-    body: "Auto-cancel, negotiation, instant alerts, every deal, and savings goals.",
+    body: "Every deal, weather and travel alerts, the trip planner, and bill tools as they roll out.",
   },
   {
-    title: "Post an odd job",
-    body: "Yard work, moving help, assembly, cleanup, or an errand around home or a business.",
+    title: "Ask for a hand",
+    body: "A ride, yard work, moving help, a repair, or roadside help at your home or business.",
   },
   {
-    title: "Helper offers",
-    body: "Nearby vetted helpers send a price. You pick one. Sample people in this demo.",
+    title: "Nearby members respond",
+    body: "Lend a Hand members near you see your request and can accept it. You agree on the price together.",
   },
   {
     title: "Earn by helping",
-    body: "Helping is included. See nearby odd jobs and roadside requests, accept one, and get paid by the person you help.",
+    body: "Helping is included. See nearby requests, accept one, and get paid by the person you help.",
   },
-  {
-    title: "Book and confirm",
-    body: "A booking stays on the task. The live network can later plug into Work For All.",
-  },
-] as const;
+];
 
-export const premiumIncludes = [
-  {
-    title: "Auto-cancel",
-    body: "We ask the company to cancel, then check with you before anything is final.",
-  },
-  {
-    title: "Bill negotiation",
-    body: "We request a lower rate on internet, wireless, and other negotiable bills.",
-  },
-  {
-    title: "Instant alerts",
-    body: "Price hikes, duplicate charges, forgotten trials, and unused subscriptions.",
-  },
+export const premiumIncludes: readonly Feature[] = [
   {
     title: "All local deals",
-    body: "Cheapest gas, grocery specials, and food deals near your ZIP — the full list.",
+    body: "Cheapest gas, grocery price compare, and food deals near your ZIP.",
+  },
+  {
+    title: "Weather, alerts, and trips",
+    body: "What to wear today, National Weather Service alerts, and a day-by-day trip planner.",
+  },
+  {
+    title: "Unlimited Ask LifeSaver",
+    body: "Ask in plain words, or run LifeSaver from the AI you already use.",
+  },
+  {
+    title: "Bill alerts, auto-cancel, and negotiation",
+    body: "Price hikes, double charges, and forgotten trials on your own bills, once bank linking opens.",
+    soon: true,
   },
   {
     title: "Savings goals",
-    body: "Targets for the money you find, plus a history of what you already kept.",
+    body: "Targets for the money you find, plus a history of what you kept.",
+    soon: true,
   },
-] as const;
+];
 
-export const freeIncludes = [
+export const freeIncludes: readonly Feature[] = [
   {
-    title: "Track bills",
-    body: "Amounts, renewal dates, and when you last used a subscription.",
+    title: "Weekly $100 giveaway",
+    body: "Free to enter, every week. No purchase necessary.",
+  },
+  {
+    title: "Weather, alerts, grocery list, trip planner",
+    body: "The everyday tools, free.",
   },
   {
     title: "A few deals",
-    body: "A short daily taste of local prices. Not the full board.",
+    body: "A short daily taste of local prices.",
   },
-  {
-    title: "Manual reminders",
-    body: "Set your own nudge before a renewal. We won't chase the company for you.",
-  },
-] as const;
+];

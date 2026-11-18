@@ -27,14 +27,14 @@ export function RidesScreen() {
         <PlanChip />
       </header>
       <DemoNote>
-        Sample fares, not live quotes. Buttons open Uber, Lyft, Uber Eats, or DoorDash on their own
+        Estimated fares, not live quotes. Buttons open Uber, Lyft, Uber Eats, or DoorDash on their own
         sites. LifeSaver is not their partner and does not book the ride.
       </DemoNote>
 
       <section aria-labelledby="rides-heading" className="space-y-2">
         <h2 id="rides-heading" className="font-serif text-2xl">Rides</h2>
         <p className="rounded-2xl bg-lime px-4 py-3 text-sm font-semibold text-ink">
-          Cheapest in this sample: {cheapRide.name} at {money(cheapRide.price)}. About {money(rideGap)}{" "}
+          Cheapest estimate: {cheapRide.name} at {money(cheapRide.price)}. About {money(rideGap)}{" "}
           under the other one. Fares move, so check both apps.
         </p>
         <ul className="space-y-2">
@@ -48,7 +48,7 @@ export function RidesScreen() {
                 <p className="font-serif text-2xl">{money(option.price)}</p>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {option.id === cheapRide.id && <Badge>Cheapest sample</Badge>}
+                {option.id === cheapRide.id && <Badge>Cheapest estimate</Badge>}
                 <a
                   href={option.href}
                   target="_blank"
@@ -66,7 +66,7 @@ export function RidesScreen() {
       <section aria-labelledby="delivery-heading" className="space-y-2">
         <h2 id="delivery-heading" className="font-serif text-2xl">Delivery</h2>
         <p className="text-sm text-muted-foreground">
-          {cheapDelivery.name} has the lower sample fee at {money(cheapDelivery.price)}.
+          {cheapDelivery.name} has the lower estimated fee at {money(cheapDelivery.price)}.
         </p>
         <ul className="space-y-2">
           {deliveryOptions.map((option) => (
@@ -79,7 +79,7 @@ export function RidesScreen() {
                 <p className="font-serif text-2xl">{money(option.price)}</p>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                {option.id === cheapDelivery.id && <Badge className="bg-lime text-ink">Lower sample fee</Badge>}
+                {option.id === cheapDelivery.id && <Badge className="bg-lime text-ink">Lower estimated fee</Badge>}
                 <a
                   href={option.href}
                   target="_blank"

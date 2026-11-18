@@ -46,10 +46,9 @@ export function DealsScreen() {
         <PlanChip />
       </header>
       <DemoNote>
-        Not live prices. Store names are a San Francisco sample
-        {profile.zip === "94110" ? " for 94110." : `, shown for ZIP ${profile.zip}.`} Free includes a
-        few deals a day. Every deal is part of Premium ({PREMIUM_PRICE_LABEL}/mo). You can open the
-        full sample either way.
+        These deals are examples from San Francisco stores while local deal feeds for
+        {` ${profile.zip}`} come online. Not live prices. For gas near you, use Gas. Every deal will be
+        part of Premium ({PREMIUM_PRICE_LABEL}/mo).
       </DemoNote>
 
       <div
@@ -165,12 +164,12 @@ export function DealsScreen() {
               </p>
               <p className="text-sm text-muted-foreground">
                 {active.tier === "free"
-                  ? "This one is the kind of deal the free on-ramp would show."
+                  ? "This one is the kind of deal the free plan shows."
                   : `The full board, including this deal, is included with Premium for ${PREMIUM_PRICE_LABEL}/mo.`}
               </p>
               {noted === active.id ? (
                 <p className="rounded-2xl bg-secondary px-3 py-3 text-sm" role="status">
-                  Saved to this demo. Directions would open here in the live app. No map was launched.
+                  Saved. This is an example deal, so there are no directions to open.
                 </p>
               ) : (
                 <Button

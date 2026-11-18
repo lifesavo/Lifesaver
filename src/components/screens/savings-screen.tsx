@@ -5,7 +5,6 @@ import { DemoNote } from "@/components/demo-note";
 import { PlanChip } from "@/components/plan-chip";
 import { Progress } from "@/components/ui/progress";
 import {
-  DEMO_AS_OF,
   goals,
   ledger,
   MONTH_SAVED,
@@ -28,20 +27,20 @@ export function SavingsScreen() {
       <header className="flex items-start justify-between gap-3">
         <div>
           <h1 className="font-serif text-3xl tracking-tight">Savings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">History and goals through {DEMO_AS_OF}</p>
+          <p className="mt-1 text-sm text-muted-foreground">History and goals</p>
         </div>
         <PlanChip />
       </header>
       <DemoNote>
-        A sample year, not your accounts. Savings goals unlock with Premium ({PREMIUM_PRICE_LABEL}
-        /mo). {premium ? "You're previewing them now." : "The bars below are a preview of the real screen."}
+        An example year, not your accounts. Your own history fills in once bank linking opens.
+        Savings goals are part of Premium ({PREMIUM_PRICE_LABEL}/mo).
       </DemoNote>
 
       <section aria-labelledby="history-heading" className="rounded-3xl border bg-card p-4">
         <h2 id="history-heading" className="font-serif text-2xl tracking-tight">
           {money(YEAR_SAVED)} kept
         </h2>
-        <p className="text-sm text-muted-foreground">June through November, sample year</p>
+        <p className="text-sm text-muted-foreground">June through November, example year</p>
         <div className="mt-4 flex h-32 items-end gap-2" aria-hidden="true">
           {savingsHistory.map((month) => (
             <div key={month.month} className="flex h-full flex-1 items-end">
@@ -80,7 +79,7 @@ export function SavingsScreen() {
         <h2 id="ledger-heading" className="font-serif text-2xl tracking-tight">
           This month
         </h2>
-        <p className="text-sm text-muted-foreground">{money(MONTH_SAVED)} in the November sample.</p>
+        <p className="text-sm text-muted-foreground">{money(MONTH_SAVED)} in the example November.</p>
         <ul className="overflow-hidden rounded-2xl border bg-card">
           {ledger.map((row) => (
             <li key={row.label} className="flex items-center justify-between gap-3 border-b px-4 py-3 last:border-b-0">
@@ -100,8 +99,8 @@ export function SavingsScreen() {
         </div>
         {!premium && (
           <Link href="/pricing" className="block rounded-2xl bg-secondary px-4 py-3 text-sm leading-6">
-            Goals are part of everything for {PREMIUM_PRICE_LABEL}/mo. You can still read this sample.
-            Unlock the real ones with Premium.
+            Goals are part of everything for {PREMIUM_PRICE_LABEL}/mo. This is an example.
+            Your own goals come with Premium.
           </Link>
         )}
         <ul className="space-y-3">

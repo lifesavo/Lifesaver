@@ -66,15 +66,15 @@ export default function HomePage() {
                 Monthly Girls&apos; Night and Guys&apos; Night Out in your city.
               </p>
               <p className="mt-3 max-w-md text-base leading-7 text-white/85">
-                LifeSaver flags the sneaky charges, sorts real nearby stations by price, and can
-                send a helper for a small engine, a repair, or a heavy lift.
+                LifeSaver sorts nearby gas by price, tells you what to wear, warns you about storms,
+                and connects you with neighbors who can lend a hand. Bill tracking is rolling out next.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/start"
                   className="inline-flex h-14 items-center justify-center rounded-full bg-lime px-6 text-lg font-bold text-ink shadow-[4px_4px_0_#14081f]"
                 >
-                  Open the demo
+                  Get started
                 </Link>
                 <a
                   href="#waitlist"
@@ -87,13 +87,13 @@ export default function HomePage() {
             </div>
             <div className="relative mx-auto w-full max-w-sm">
               <div className="rounded-[2rem] bg-white p-5 text-ink shadow-[8px_8px_0_rgba(0,0,0,0.25)]">
-                <p className="text-xs font-bold tracking-wide text-primary uppercase">Sample month</p>
+                <p className="text-xs font-bold tracking-wide text-primary uppercase">Example month</p>
                 <p className="mt-2 font-serif text-5xl leading-none">$186.40</p>
                 <p className="mt-1 font-semibold">kept. without a spreadsheet.</p>
                 <ul className="mt-4 space-y-2 text-sm">
                   <li className="rounded-2xl bg-muted px-3 py-2">Adobe hiked the price. We saw it.</li>
                   <li className="rounded-2xl bg-muted px-3 py-2">Hulu charged you twice.</li>
-                  <li className="rounded-2xl bg-muted px-3 py-2">Cheapest gas in the sample: $4.19.</li>
+                  <li className="rounded-2xl bg-muted px-3 py-2">Cheapest gas nearby: $4.19.</li>
                 </ul>
               </div>
               {stickers.map((sticker) => (
@@ -126,7 +126,7 @@ export default function HomePage() {
           {[
             ["Snitch on subscriptions", "Price jumps, double charges, trials you forgot. We tap you before they tap your card."],
             ["Cheap, nearby", "Gas, groceries, and lunch. Distance and the savings, in one list."],
-            ["Need a person?", "Lend a Hand posts the odd job. Helpers offer. You book. Sample people for now."],
+            ["Need a person?", "Ask for a ride, a hand at home, or roadside help. Lend a Hand members nearby can pick it up."],
           ].map(([title, body]) => (
             <article key={title} className="rounded-3xl border-2 border-ink/10 bg-card p-5 shadow-[4px_4px_0_#2a1038]">
               <h2 className="font-serif text-2xl leading-tight">{title}</h2>
@@ -153,10 +153,10 @@ export default function HomePage() {
                 <p className="text-xs font-bold tracking-wide text-lime uppercase">Premium</p>
                 <p className="mt-2 font-serif text-5xl">{FOUNDING_PREMIUM_LABEL}</p>
                 <p className="text-sm text-white/75">
-                  a month for life if you join the waitlist. After launch: {PREMIUM_PRICE_LABEL}/mo.
+                  a month for life as a founding member. Regular price: {PREMIUM_PRICE_LABEL}/mo. Billing opens soon.
                 </p>
                 <ul className="mt-4 space-y-2 text-sm">
-                  <li>Auto-cancel and bill negotiation</li>
+                  <li>Auto-cancel and bill negotiation (rolling out with bank linking)</li>
                   <li>Instant alerts</li>
                   <li>Every local deal</li>
                   <li>Savings goals</li>
@@ -166,12 +166,12 @@ export default function HomePage() {
                 <p className="text-xs font-bold tracking-wide text-lime uppercase">Lend a Hand</p>
                 <p className="mt-2 font-serif text-5xl">{FOUNDING_HAND_LABEL}</p>
                 <p className="text-sm text-white/80">
-                  a month for life on the waitlist. After launch: {HAND_PRICE_LABEL}/mo. Everything in Premium, plus helpers.
+                  a month for life as a founding member. Regular price: {HAND_PRICE_LABEL}/mo. Everything in Premium, plus helpers.
                 </p>
                 <ul className="mt-4 space-y-2 text-sm">
                   <li>Post yard work, moving, assembly, cleanup, errands</li>
-                  <li>See offers from nearby helpers</li>
-                  <li>Book and confirm in the app</li>
+                  <li>Nearby members can take your request</li>
+                  <li>Weather alerts, trip planner, roadside help</li>
                   <li>All of Premium, included</li>
                   <li>Earn by helping neighbors and stranded drivers. Included.</li>
                 </ul>
@@ -187,11 +187,11 @@ export default function HomePage() {
         <section id="waitlist" className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-14 lg:grid-cols-2 lg:items-start">
           <div>
             <h2 className="font-serif text-4xl leading-[0.95] tracking-tight sm:text-5xl">
-              Get the drop.
+              Lock in your rate.
             </h2>
             <p className="mt-3 text-base leading-7 text-muted-foreground">
-              The waitlist is stored for real. Drop your email. If a friend sent you, their code
-              rides along. TikTok, Instagram, X, Reddit, and Facebook links are tagged too.
+              Lock in founding pricing for life before billing opens. Drop your email and we will tell you
+              before anything is charged. If a friend sent you, their code rides along.
             </p>
           </div>
           <WaitlistForm />
@@ -215,8 +215,7 @@ export default function HomePage() {
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-8 sm:flex-row sm:items-center sm:justify-between">
           <Wordmark compact />
           <p className="max-w-md text-sm text-muted-foreground">
-            LifeSaver is a prototype. Sample prices, sample helpers, sample rides. No bank is
-            connected.
+            Gas and deal prices are estimates, so check at the pump or store. Rides open Uber, Lyft, and others in their own apps.
           </p>
         </div>
       </footer>

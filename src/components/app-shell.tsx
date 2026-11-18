@@ -11,7 +11,7 @@ import { useProfile } from "@/lib/profile";
 const tabs = [
   { href: "/home", label: "Home", icon: House },
   { href: "/deals", label: "Deals", icon: Tag },
-  { href: "/hand", label: "Hand", icon: HandHelping },
+  { href: "/help", label: "Hand", icon: HandHelping },
   { href: "/rides", label: "Rides", icon: Car },
   { href: "/pricing", label: "Plans", icon: Sparkles },
 ] as const;
@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return (
       <PhoneFrame>
         <p className="pt-16 text-sm text-muted-foreground" role="status">
-          Opening your demo…
+          Opening LifeSaver…
         </p>
       </PhoneFrame>
     );

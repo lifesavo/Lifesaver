@@ -4,7 +4,7 @@ import { RidesScreen } from "@/components/screens/rides-screen";
 
 export const metadata: Metadata = {
   title: "Rides",
-  description: "Compare sample Uber and Lyft fares and open their public apps. Not an official partnership.",
+  description: "Compare estimated Uber and Lyft fares and open their public apps. Not an official partnership.",
 };
 
 export default function RidesPage() {

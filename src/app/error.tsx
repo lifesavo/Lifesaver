@@ -10,7 +10,7 @@ export default function Error({
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6">
       <h1 className="font-serif text-4xl tracking-tight">Something hiccuped.</h1>
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        The demo hit a snag. Your waitlist signups are still in the database.
+        LifeSaver hit a snag loading this screen. Your account and sign-ups are safe.
       </p>
       <button
         type="button"

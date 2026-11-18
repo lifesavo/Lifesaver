@@ -72,14 +72,14 @@ export function BillsScreen() {
         <div>
           <h1 className="font-serif text-3xl tracking-tight">Bills & subscriptions</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {sorted.length} sample items · renewals, last used, and flags
+            {sorted.length} example items · renewals, last used, and flags
           </p>
         </div>
         <PlanChip />
       </header>
       <DemoNote>
-        Cancel and negotiate are Premium actions ({PREMIUM_PRICE_LABEL}/mo). Reminders are on the
-        free on-ramp. Confirmations stay in this browser. Nothing is sent.
+        Bank linking is coming soon. These are example bills, not yours, so you can see how it
+        works. Cancel and negotiate will be Premium ({PREMIUM_PRICE_LABEL}/mo). Nothing is sent to any company.
       </DemoNote>
 
       <ul className="space-y-3">
@@ -140,7 +140,7 @@ export function BillsScreen() {
                       {action.kind === "negotiate" && "Negotiation queued"}
                       {action.kind === "remind" && "Reminder set"}
                     </p>
-                    <p className="mt-1 text-sm text-muted-foreground">{action.detail} Demo only.</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{action.detail} Example only. Nothing was sent.</p>
                     <Button
                       type="button"
                       variant="ghost"
@@ -179,13 +179,13 @@ export function BillsScreen() {
                 <DialogTitle className="font-serif text-2xl">That&apos;s part of everything.</DialogTitle>
                 <DialogDescription>
                   {kind === "cancel" ? "Auto-cancel" : "Bill negotiation"} is included with Premium
-                  for {PREMIUM_PRICE_LABEL} a month — the whole product, not an add-on. Free is only
-                  the on-ramp. This demo can still walk the flow.
+                  for {PREMIUM_PRICE_LABEL} a month once bank linking opens. You can try it on this
+                  example bill now.
                 </DialogDescription>
               </DialogHeader>
               <div className="flex flex-col gap-2">
                 <Button type="button" className="h-12 rounded-full" onClick={() => setStep("confirm")}>
-                  Preview the demo
+                  Try it on the example
                 </Button>
                 <Button type="button" variant="outline" className="h-12 rounded-full" asChild>
                   <Link href="/pricing" onClick={() => setOpen(false)}>
@@ -206,11 +206,11 @@ export function BillsScreen() {
                 </DialogTitle>
                 <DialogDescription>
                   {kind === "cancel" &&
-                    `We'll request the cancellation and pause for your OK before it is final. ${money(bill.amount)} is the sample charge. Nothing is sent to ${bill.name}.`}
+                    `We'll request the cancellation and pause for your OK before it is final. ${money(bill.amount)} is the example charge. Nothing is sent to ${bill.name}.`}
                   {kind === "negotiate" &&
                     `We'll ask them to lower ${money(bill.amount)}. People often see about $10 to $20 off a bill like this. Results vary. Nothing is sent.`}
                   {kind === "remind" &&
-                    `Pick when to nudge yourself. ${bill.renewsLabel}. No notification leaves this demo.`}
+                    `Pick when to nudge yourself. ${bill.renewsLabel}. This one is an example, so no reminder is sent.`}
                 </DialogDescription>
               </DialogHeader>
               {kind === "remind" && (

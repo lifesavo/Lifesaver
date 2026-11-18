@@ -45,7 +45,7 @@ export const rideOptions: RideOption[] = [
     name: "Uber",
     kind: "ride",
     price: 18.4,
-    detail: "Sample pickup in 6 min",
+    detail: "Est. pickup in 6 min",
     href: uberRide(),
   },
   {
@@ -53,7 +53,7 @@ export const rideOptions: RideOption[] = [
     name: "Lyft",
     kind: "ride",
     price: 16.2,
-    detail: "Sample pickup in 8 min",
+    detail: "Est. pickup in 8 min",
     href: lyftRide(),
   },
 ];
@@ -64,7 +64,7 @@ export const deliveryOptions: RideOption[] = [
     name: "Uber Eats",
     kind: "delivery",
     price: 3.99,
-    detail: "Sample delivery fee",
+    detail: "Estimated delivery fee",
     href: "https://www.ubereats.com/",
   },
   {
@@ -72,7 +72,7 @@ export const deliveryOptions: RideOption[] = [
     name: "DoorDash",
     kind: "delivery",
     price: 2.49,
-    detail: "Sample delivery fee",
+    detail: "Estimated delivery fee",
     href: "https://www.doordash.com/",
   },
 ];

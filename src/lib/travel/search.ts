@@ -153,7 +153,7 @@ function sampleFlights(from: string, to: string, query: TripQuery): TravelOption
       kind: "flight",
       provider: "Kayak",
       title: `${from} to ${to}`,
-      detail: "Sample fare for the layout. Open Kayak for a real search.",
+      detail: "Example fare. Open Kayak for a real search.",
       amount: sampleAmount(seed, 140, 280),
       priceKind: "sample",
       href: links.kayak,
@@ -163,7 +163,7 @@ function sampleFlights(from: string, to: string, query: TripQuery): TravelOption
       kind: "flight",
       provider: "Google Flights",
       title: `${from} to ${to}`,
-      detail: "Sample fare for the layout. Open Google Flights for a real search.",
+      detail: "Example fare. Open Google Flights for a real search.",
       amount: sampleAmount(`${seed}-g`, 150, 260),
       priceKind: "sample",
       href: links.google,
@@ -180,7 +180,7 @@ function sampleStays(toLabel: string, query: TripQuery): TravelOption[] {
       kind: "stay",
       provider: "Booking.com",
       title: `Stays in ${toLabel}`,
-      detail: "Sample nightly total. Open Booking.com for live rates.",
+      detail: "Example nightly total. Open Booking.com for live rates.",
       amount: sampleAmount(seed, 110, 180),
       priceKind: "sample",
       href: links.booking,
@@ -190,7 +190,7 @@ function sampleStays(toLabel: string, query: TripQuery): TravelOption[] {
       kind: "stay",
       provider: "Expedia",
       title: `Stays in ${toLabel}`,
-      detail: "Sample nightly total. Open Expedia for live rates.",
+      detail: "Example nightly total. Open Expedia for live rates.",
       amount: sampleAmount(`${seed}-e`, 120, 170),
       priceKind: "sample",
       href: links.expedia,
@@ -207,7 +207,7 @@ function sampleCars(from: string, to: string, query: TripQuery): TravelOption[] 
       kind: "car",
       provider: "Kayak",
       title: `Car from ${from}`,
-      detail: "Sample total. Open Kayak for live rental rates.",
+      detail: "Example total. Open Kayak for live rental rates.",
       amount: sampleAmount(seed, 35, 50) * 7,
       priceKind: "sample",
       href: links.kayak,
@@ -217,7 +217,7 @@ function sampleCars(from: string, to: string, query: TripQuery): TravelOption[] 
       kind: "car",
       provider: "Expedia",
       title: `Car from ${from}`,
-      detail: "Sample total. Open Expedia for live rental rates.",
+      detail: "Example total. Open Expedia for live rental rates.",
       amount: sampleAmount(`${seed}-e`, 40, 45) * 7,
       priceKind: "sample",
       href: links.expedia,
@@ -259,15 +259,15 @@ export async function searchTrip(query: TripQuery): Promise<TravelSearch> {
     ? `Estimated fuel only, about ${miles} road miles at 28 mpg and $3.89 a gallon. Not a live gas quote. ${
         cheapestFlight?.priceKind === "live"
           ? "The flight figure next to it is a live fare."
-          : "The flight figure next to it is a sample, not a live fare."
+          : "The flight figure next to it is an example, not a live fare."
       }`
     : "Use two cities or airport codes LifeSaver recognizes to estimate driving fuel. The map link still opens.";
 
   return {
     liveConnected: liveFlights,
     notice: liveFlights
-      ? "Flight prices are live. Stays, rental cars, and the driving fuel figure are samples or estimates unless a row says otherwise."
-      : "No live flight, hotel, or rental feed is connected. Dollar amounts below are samples so the layout is visible. Each button opens a real search on that site. Do not treat the samples as fares.",
+      ? "Flight prices are live. Stays, rental cars, and the driving fuel figure are examples or estimates unless a row says otherwise."
+      : "No live flight, hotel, or rental feed is connected. Dollar amounts below are examples. Each button opens a real search on that site. Do not treat the examples as fares.",
     flights,
     stays,
     cars,

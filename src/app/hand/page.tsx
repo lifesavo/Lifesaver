@@ -1,16 +1,6 @@
-import type { Metadata } from "next";
-import { AppShell } from "@/components/app-shell";
-import { HandScreen } from "@/components/screens/hand-screen";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Lend a Hand",
-  description: "Post an odd job and book a sample helper. Included with Lend a Hand at $19.99 a month, or $14.99 for life for founding members.",
-};
-
+// The old odd-job preview used example helpers. Real requests live at /help.
 export default function HandPage() {
-  return (
-    <AppShell>
-      <HandScreen />
-    </AppShell>
-  );
+  redirect("/help");
 }

@@ -255,14 +255,14 @@ export const goals = [
     name: "Drop unused memberships",
     saved: 24.99,
     target: 50,
-    detail: "Planet Fitness is the idle one in this sample.",
+    detail: "Planet Fitness is the idle one in this example.",
   },
   {
     id: "grocery",
     name: "Grocery deals this month",
     saved: 62.4,
     target: 80,
-    detail: "From the sample basket, not a live receipt.",
+    detail: "From the example basket, not a live receipt.",
   },
   {
     id: "buffer",
@@ -311,7 +311,7 @@ export const deals: Deal[] = [
     tier: "free",
     highlight: "Cheapest gas nearby",
     detail:
-      "Lowest price in this sample set. A 12-gallon fill is about $5.52 under the neighborhood average.",
+      "Lowest price in this example set. A 12-gallon fill is about $5.52 under the neighborhood average.",
   },
   {
     id: "arco",
@@ -350,7 +350,7 @@ export const deals: Deal[] = [
     distance: "0.3 mi",
     address: "2700 Mission St, San Francisco",
     tier: "premium",
-    detail: "Closest station in the sample, and the most expensive. Shown so the cheap option is obvious.",
+    detail: "Closest station in the example, and the most expensive. Shown so the cheap option is obvious.",
   },
   {
     id: "outlet-eggs",
@@ -364,7 +364,7 @@ export const deals: Deal[] = [
     address: "1765 Mission St, San Francisco",
     tier: "free",
     highlight: "Best grocery save",
-    detail: "Sample weekly ad price. The live app would pull this from a grocery flyer or retailer API.",
+    detail: "Example weekly ad price, not a live flyer.",
   },
   {
     id: "tj-berries",
@@ -390,7 +390,7 @@ export const deals: Deal[] = [
     distance: "0.8 mi",
     address: "2020 Market St, San Francisco",
     tier: "premium",
-    detail: "Club price in this sample. Two pounds is about $3.00 under the regular tag.",
+    detail: "Club price in this example. Two pounds is about $3.00 under the regular tag.",
   },
   {
     id: "birite-bread",
@@ -403,7 +403,7 @@ export const deals: Deal[] = [
     distance: "0.7 mi",
     address: "3639 18th St, San Francisco",
     tier: "premium",
-    detail: "Afternoon markdown. Sample only — the real loaf count changes by the hour.",
+    detail: "Afternoon markdown. Example only — the real loaf count changes by the hour.",
   },
   {
     id: "farolito",
@@ -417,7 +417,7 @@ export const deals: Deal[] = [
     address: "2779 Mission St, San Francisco",
     tier: "free",
     highlight: "Closest meal deal",
-    detail: "Late-afternoon special in this sample. Not a coupon code — just a posted window.",
+    detail: "Late-afternoon special in this example. Not a coupon code — just a posted window.",
   },
   {
     id: "burma",
@@ -430,7 +430,7 @@ export const deals: Deal[] = [
     distance: "0.8 mi",
     address: "211 Valencia St, San Francisco",
     tier: "premium",
-    detail: "Tea leaf salad and a main, sample lunch price. Ends at 3pm in this demo.",
+    detail: "Tea leaf salad and a main, example lunch price. Ends at 3pm.",
   },
   {
     id: "tartine",
@@ -443,7 +443,7 @@ export const deals: Deal[] = [
     distance: "1.0 mi",
     address: "595 Alabama St, San Francisco",
     tier: "premium",
-    detail: "End-of-day bag. Sample contents: two pastries. Real availability would come from the shop.",
+    detail: "End-of-day bag. Example contents: two pastries. Real availability would come from the shop.",
   },
   {
     id: "arizmendi",
@@ -456,7 +456,7 @@ export const deals: Deal[] = [
     distance: "1.2 mi",
     address: "1331 9th Ave, San Francisco",
     tier: "premium",
-    detail: "Today's pizza is roasted potato and rosemary in this sample. Cooperative bakery, posted combo.",
+    detail: "Today's pizza is roasted potato and rosemary in this example. Cooperative bakery, posted combo.",
   },
 ];
 

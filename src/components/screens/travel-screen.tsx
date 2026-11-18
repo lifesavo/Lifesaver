@@ -55,7 +55,7 @@ function OptionList({ title, options }: { title: string; options: TravelOption[]
               </div>
               <p className="text-right font-serif text-2xl leading-none">
                 {option.priceKind === "sample" && (
-                  <span className="mb-1 block font-sans text-[10px] font-bold uppercase">Sample</span>
+                  <span className="mb-1 block font-sans text-[10px] font-bold uppercase">Example</span>
                 )}
                 {option.amount == null ? "See site" : money(option.amount)}
               </p>
@@ -63,7 +63,7 @@ function OptionList({ title, options }: { title: string; options: TravelOption[]
             <div className="mt-3 flex flex-wrap gap-2">
               {best?.id === option.id && option.amount != null && (
                 <span className="inline-flex h-10 items-center rounded-full bg-lime px-3 text-xs font-bold text-ink">
-                  {option.priceKind === "live" ? "Cheapest live" : "Lowest sample"}
+                  {option.priceKind === "live" ? "Cheapest live" : "Lowest example"}
                 </span>
               )}
               <a
@@ -173,7 +173,7 @@ export function TravelScreen() {
       alert:
         flight?.priceKind === "live"
           ? "Watching this trip. No live price drop since you saved it."
-          : "Saved. Sample prices are not a live feed, so LifeSaver will not call a drop until a real fare is connected.",
+          : "Saved. This fare is an example, not a live feed, so LifeSaver will not call a price drop on it.",
     };
     persist([trip, ...saved.filter((item) => item.id !== trip.id)]);
   }
@@ -249,7 +249,7 @@ export function TravelScreen() {
             </p>
             {result.drive.flightCost != null && (
               <p className="text-sm">
-                {result.drive.flightKind === "sample" ? "Sample" : "Live"} flight {money(result.drive.flightCost)}
+                {result.drive.flightKind === "sample" ? "Example" : "Live"} flight {money(result.drive.flightCost)}
               </p>
             )}
             <a href={result.drive.href} target="_blank" rel="noreferrer" className="mt-3 inline-flex h-11 items-center rounded-full bg-lime px-4 text-sm font-bold text-ink">
@@ -287,8 +287,8 @@ export function TravelScreen() {
             <DialogTitle className="font-serif text-2xl">Travel is in Lend a Hand.</DialogTitle>
             <DialogDescription>
               Cheapest flights, hotels, and cars are included with Lend a Hand. Founding members lock{" "}
-              {FOUNDING_HAND_LABEL}/mo for life. After launch it is {HAND_PRICE_LABEL}/mo. It includes
-              everything in Premium. This demo does not charge a card.
+              {FOUNDING_HAND_LABEL}/mo for life. Regular price {HAND_PRICE_LABEL}/mo. It includes
+              everything in Premium. Billing opens soon.
             </DialogDescription>
           </DialogHeader>
           <Button asChild className="h-12 rounded-full">

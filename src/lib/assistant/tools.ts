@@ -3,7 +3,7 @@ import { lookupFuel } from "@/lib/fuel/providers";
 import { formatMiles } from "@/lib/fuel/types";
 import { money } from "@/lib/money";
 import { cheapest, deliveryOptions, rideOptions } from "@/lib/rides";
-import { offersFor, type TaskCategory } from "@/lib/tasks";
+import { type TaskCategory } from "@/lib/tasks";
 import { searchTrip } from "@/lib/travel/search";
 import { alertsAt } from "@/lib/weather/alerts";
 import { HELP_DISCLAIMER, PRO_CATEGORIES, proCategory } from "@/lib/help/types";
@@ -79,9 +79,9 @@ export async function runTool(
     const ride = cheapest(rideOptions);
     const delivery = cheapest(deliveryOptions);
     return {
-      text: `These are sample fares, not live quotes. LifeSaver is not an Uber or Lyft partner. In this sample, ${ride.name} is cheaper for the ride and ${delivery.name} has the lower delivery fee.`,
+      text: `These are estimated fares, not live quotes. LifeSaver is not an Uber or Lyft partner. In this estimate, ${ride.name} is cheaper for the ride and ${delivery.name} has the lower delivery fee.`,
       cards: [...rideOptions, ...deliveryOptions].map((option) => ({
-        title: `${option.name} · sample ${money(option.price)}`,
+        title: `${option.name} · about ${money(option.price)}`,
         body: option.detail,
         href: option.href,
       })),
@@ -107,7 +107,7 @@ export async function runTool(
       text: result.notice,
       cards: [
         flight && {
-          title: `${flight.provider}: ${flight.priceKind === "sample" ? "sample " : ""}${flight.amount == null ? "see site" : money(flight.amount)}`,
+          title: `${flight.provider}: ${flight.priceKind === "sample" ? "example " : ""}${flight.amount == null ? "see site" : money(flight.amount)}`,
           body: flight.detail,
           href: flight.href,
         },
@@ -212,10 +212,10 @@ export async function runTool(
   if (name === "cut_bills") {
     const flagged = bills.filter((bill) => bill.flags.length > 0);
     return {
-      text: "These are sample subscriptions, not your live accounts. The ones with flags are the first to review.",
+      text: "Bank linking is coming soon. Here is an example of what LifeSaver flags; these are not your accounts.",
       cards: flagged.map((bill) => ({
         title: bill.name,
-        body: `${bill.note ?? bill.renewsLabel} Sample charge ${money(bill.amount)}.`,
+        body: `${bill.note ?? bill.renewsLabel} Example charge ${money(bill.amount)}.`,
         href: `/bills#${bill.id}`,
       })),
     };
@@ -223,10 +223,10 @@ export async function runTool(
 
   if (name === "local_deals") {
     return {
-      text: "Sample deals, not a live flyer. The full list is on Deals.",
+      text: "Example deals, not a live flyer. The full list is on Deals.",
       cards: deals.slice(0, 4).map((deal) => ({
         title: deal.merchant,
-        body: `${deal.title}. ${deal.priceLabel}. ${deal.savingsLabel}. Sample.`,
+        body: `${deal.title}. ${deal.priceLabel}. ${deal.savingsLabel}. Example.`,
         href: "/deals",
       })),
     };
@@ -260,14 +260,9 @@ export async function runTool(
         cards: [{ title: "Upgrade to Lend a Hand", body: "$19.99/mo after launch. Founding members lock $14.99/mo for life.", href: "/pricing" }],
       };
     }
-    const offers = offersFor(category).slice(0, 2);
     return {
-      text: `Try this first:\n${tips.map((tip, index) => `${index + 1}. ${tip}`).join("\n")}\n\nIf that does not fix it, here is a sample Get a Hand request. Nobody was notified.`,
-      cards: offers.map((offer) => ({
-        title: `${offer.name} · sample ${money(offer.price)}`,
-        body: `${offer.blurb} ${offer.eta}.`,
-        href: "/hand",
-      })),
+      text: `Try this first:\n${tips.map((tip, index) => `${index + 1}. ${tip}`).join("\n")}\n\nIf that does not fix it, post it on Get a Hand. Lend a Hand members nearby can see it and accept.`,
+      cards: [{ title: "Post a Get a Hand request", body: "Ride, home or pro help, or roadside. Nearby members can accept.", href: "/help" }],
     };
   }
 
