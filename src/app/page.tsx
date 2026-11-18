@@ -52,6 +52,9 @@ export default function HomePage() {
               <p className="mt-3 max-w-md text-lg font-semibold">Need a hand fixing the mower? Tap once.</p>
               <p className="mt-2 max-w-md text-lg font-semibold">Cheapest flights, hotels, and cars, all in one app.</p>
               <p className="mt-2 max-w-md text-lg font-semibold">Your own AI money-saver in your pocket.</p>
+              <p className="mt-2 max-w-md text-lg font-semibold">
+                Monthly Girls&apos; Night and Guys&apos; Night Out in your city.
+              </p>
               <p className="mt-3 max-w-md text-base leading-7 text-white/85">
                 LifeSaver flags the sneaky charges, sorts real nearby stations by price, and can
                 send a helper for a small engine, a repair, or a heavy lift.

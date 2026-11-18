@@ -101,6 +101,20 @@ See [DEPLOY.md](DEPLOY.md) for Render.
 
 A chat button sits on every screen. It calls the app's own fuel, ride, travel, deal, bill, budget, and Get a Hand tools. Set `XAI_API_KEY` or `OPENAI_API_KEY` for a live model. With neither key, answers stay in a labeled demo mode. Free accounts get 3 questions a day. Premium and Lend a Hand are unlimited. Turning "my mower won't start" into a helper request is included for Lend a Hand, after short DIY tips.
 
+## LifeSaver Nights
+
+Monthly Girls' Night Out and Guys' Night Out for the seeded US metros. Cities start as Coming soon. There is no date, venue, or deal until someone posts one. Members request a city from `/nights`; requests are ranked by count. Founding waitlist emails can RSVP while an event is still early-access. Everyone else can RSVP after the admin marks it public.
+
+Post a real event from `/admin/nights`, or:
+
+```bash
+curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \
+  -d '{"cityId":"nyc","kind":"girls","eventDate":"2026-12-12","venue":"A real venue name","deal":"Member dinner price","capacity":40}' \
+  http://localhost:43123/api/admin/nights
+```
+
+Ride buttons on a posted night are sample Uber and Lyft fares plus public deep links. LifeSaver is not a partner of either company.
+
 ## Deploy
 
 Signups only stick on a host with a real disk. This image is that host.

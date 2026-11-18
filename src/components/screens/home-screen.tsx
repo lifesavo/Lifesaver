@@ -20,19 +20,46 @@ export function HomeScreen() {
     .split("@")[0]
     .replace(/[._-]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const tips = [
+    "Cancel a free trial the same day you start it, and put the reminder on your calendar before the password is gone.",
+    "Check the regular grade first. Premium only helps if the car actually asks for it.",
+    "A duplicate charge is often the same merchant twice in one week. Open Bills and mark it.",
+    "A price hike on a subscription is easier to catch the week it hits, not three months later.",
+    "If a station is an estimate, treat it as a shortlist, then confirm the pump price before you fill up.",
+  ];
+  const tip = tips[new Date().getUTCDate() % tips.length];
 
   return (
     <div className="space-y-5">
       <header className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm text-muted-foreground">Hello, {firstName}</p>
-          <p className="font-serif text-2xl tracking-tight">Your month, so far</p>
+          <p className="font-serif text-2xl tracking-tight">Today</p>
         </div>
         <PlanChip />
       </header>
 
+      <section aria-labelledby="tip-heading" className="rounded-3xl bg-lime px-4 py-4 text-ink">
+        <h2 id="tip-heading" className="text-xs font-bold tracking-wide uppercase">
+          Today&apos;s savings tip
+        </h2>
+        <p className="mt-1 text-sm leading-6">{tip}</p>
+      </section>
+
       <FuelCard zip={profile.zip} />
       <GetAHand zip={profile.zip} />
+
+      <div className="grid grid-cols-2 gap-2">
+        <Link href="/deals" className="rounded-3xl bg-secondary px-3 py-4">
+          <p className="text-xs font-bold tracking-wide text-primary uppercase">Deals</p>
+          <p className="mt-1 font-serif text-xl leading-tight">Grocery, gas, food</p>
+        </Link>
+        <Link href="/nights" className="rounded-3xl bg-ink px-3 py-4 text-white">
+          <p className="text-xs font-bold tracking-wide text-lime uppercase">Events</p>
+          <p className="mt-1 font-serif text-xl leading-tight">LifeSaver Nights</p>
+          <p className="mt-1 text-xs text-white/80">Girls&apos; Night and Guys&apos; Night. Coming soon until posted.</p>
+        </Link>
+      </div>
       <Link href="/travel" className="block rounded-3xl bg-cyan px-4 py-4 text-ink">
         <p className="text-xs font-bold tracking-wide uppercase">Lend a Hand</p>
         <p className="font-serif text-2xl leading-tight">Cheapest flights, hotels, and cars</p>

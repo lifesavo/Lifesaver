@@ -17,7 +17,18 @@ const prompts = [
   "My mower won't start",
 ];
 
-const tabbed = new Set(["/home", "/bills", "/deals", "/savings", "/hand", "/rides", "/pricing", "/fuel", "/travel"]);
+const tabbed = new Set([
+  "/home",
+  "/bills",
+  "/deals",
+  "/savings",
+  "/hand",
+  "/rides",
+  "/pricing",
+  "/fuel",
+  "/travel",
+  "/nights",
+]);
 
 export function AskLifeSaver() {
   const pathname = usePathname();
