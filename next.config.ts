@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
+  // The dev server is bound on 0.0.0.0, so browsers that open 127.0.0.1
+  // are treated as a different origin. Allow them or hydration never finishes.
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
+  devIndicators: false,
   serverExternalPackages: ["better-sqlite3"],
   turbopack: {
     rules: {
