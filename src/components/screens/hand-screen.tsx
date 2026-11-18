@@ -16,7 +16,7 @@ import {
   type TaskCategory,
 } from "@/lib/tasks";
 import { money } from "@/lib/money";
-import { HAND_PRICE_LABEL } from "@/lib/pricing";
+import { FOUNDING_HAND_LABEL, HAND_PRICE_LABEL } from "@/lib/pricing";
 import { useProfile } from "@/lib/profile";
 
 const STORAGE_KEY = "lifesaver.tasks.v1";
@@ -108,7 +108,7 @@ export function HandScreen() {
       </DemoNote>
       {!unlocked && (
         <Link href="/pricing" className="block rounded-2xl bg-lime px-4 py-3 text-sm font-semibold text-ink">
-          Helpers come with Lend a Hand, {HAND_PRICE_LABEL}/mo. That includes everything in Premium.
+          Helpers come with Lend a Hand: {FOUNDING_HAND_LABEL}/mo for life on the waitlist, or {HAND_PRICE_LABEL}/mo after launch. That includes everything in Premium.
           You can still walk the sample flow.
         </Link>
       )}

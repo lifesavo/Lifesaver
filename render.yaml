@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: lifesaver
+    runtime: docker
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: DATA_DIR
+        value: /data
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: AMADEUS_CLIENT_ID
+        sync: false
+      - key: AMADEUS_CLIENT_SECRET
+        sync: false
+      - key: KIWI_API_KEY
+        sync: false
+      - key: BOOKING_AFFILIATE_ID
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: XAI_API_KEY
+        sync: false
+    disk:
+      name: lifesaver-data
+      mountPath: /data
+      sizeGB: 1

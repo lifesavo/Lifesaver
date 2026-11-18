@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { DemoNote } from "@/components/demo-note";
+import { FuelCard } from "@/components/fuel-card";
+import { GetAHand } from "@/components/get-a-hand";
 import { PlanChip } from "@/components/plan-chip";
 import { alerts, bills, DEMO_AS_OF, institutions, ledger, MONTH_SAVED } from "@/lib/demo-data";
 import { areaLabel, money } from "@/lib/money";
@@ -24,10 +26,18 @@ export function HomeScreen() {
       <header className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm text-muted-foreground">Hello, {firstName}</p>
-          <h1 className="font-serif text-3xl tracking-tight">Your month, so far</h1>
+          <p className="font-serif text-2xl tracking-tight">Your month, so far</p>
         </div>
         <PlanChip />
       </header>
+
+      <FuelCard zip={profile.zip} />
+      <GetAHand zip={profile.zip} />
+      <Link href="/travel" className="block rounded-3xl bg-cyan px-4 py-4 text-ink">
+        <p className="text-xs font-bold tracking-wide uppercase">Lend a Hand</p>
+        <p className="font-serif text-2xl leading-tight">Cheapest flights, hotels, and cars</p>
+        <p className="mt-1 text-sm">All in one search. Free and Premium get an upgrade prompt.</p>
+      </Link>
 
       <DemoNote>
         Figures are a made-up November for {areaLabel(profile.zip)}, as of {DEMO_AS_OF}. Connected
@@ -139,7 +149,7 @@ export function HomeScreen() {
             {PREMIUM_PRICE_LABEL}.
           </p>
           <p className="mt-3 text-sm leading-6 text-white/80">
-            Premium is $9.99. Lend a Hand is $29.99 and includes Premium plus a helper.
+            Premium is $9.99 after launch. Lend a Hand is $24.99 after launch, or $20.00 for life on the waitlist.
           </p>
         </Link>
       ) : (

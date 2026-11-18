@@ -1,4 +1,6 @@
 export const taskCategories = [
+  { id: "engine", label: "Small engine" },
+  { id: "repair", label: "Home repair" },
   { id: "yard", label: "Yard work" },
   { id: "moving", label: "Moving help" },
   { id: "assembly", label: "Assembly" },
@@ -31,6 +33,16 @@ export type PostedTask = {
 };
 
 const offerPools: Record<TaskCategory, HelperOffer[]> = {
+  engine: [
+    { id: "eng-maya", name: "Maya R.", rating: 4.9, jobs: 64, distance: "0.5 mi", price: 65, eta: "Today, 5pm", blurb: "Mowers, trimmers, and other small engines." },
+    { id: "eng-otis", name: "Otis N.", rating: 4.8, jobs: 41, distance: "0.8 mi", price: 55, eta: "Tomorrow morning", blurb: "Usually a carburetor or a dull blade." },
+    { id: "eng-ruth", name: "Ruth P.", rating: 5, jobs: 22, distance: "1.3 mi", price: 70, eta: "Saturday", blurb: "Brings common small-engine parts." },
+  ],
+  repair: [
+    { id: "fix-jon", name: "Jon E.", rating: 4.9, jobs: 110, distance: "0.4 mi", price: 75, eta: "Today, 6pm", blurb: "Minor repairs: doors, fixtures, a running toilet." },
+    { id: "fix-lena", name: "Lena C.", rating: 4.8, jobs: 53, distance: "0.9 mi", price: 60, eta: "Tomorrow", blurb: "Patch, tighten, and leave it working." },
+    { id: "fix-amir", name: "Amir S.", rating: 4.7, jobs: 37, distance: "1.2 mi", price: 85, eta: "This weekend", blurb: "Small jobs only. No whole remodels." },
+  ],
   yard: [
     { id: "yard-maya", name: "Maya R.", rating: 4.9, jobs: 86, distance: "0.4 mi", price: 45, eta: "Today, 4pm", blurb: "Mower in the truck. Front and back." },
     { id: "yard-luis", name: "Luis P.", rating: 4.8, jobs: 54, distance: "0.9 mi", price: 40, eta: "Tomorrow morning", blurb: "Weeding and bagging included." },

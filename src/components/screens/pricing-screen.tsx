@@ -7,6 +7,8 @@ import { DemoNote } from "@/components/demo-note";
 import { Button } from "@/components/ui/button";
 import {
   freeIncludes,
+  FOUNDING_HAND_LABEL,
+  FOUNDING_PREMIUM_LABEL,
   HAND_PRICE_LABEL,
   handIncludes,
   PREMIUM_PRICE_LABEL,
@@ -39,15 +41,24 @@ export function PricingScreen() {
         </h1>
       </section>
 
+      <Link href="/#waitlist" className="block rounded-3xl bg-lime px-4 py-4 text-ink">
+        <p className="font-serif text-2xl leading-tight">
+          Founding Member: {FOUNDING_PREMIUM_LABEL}/mo for life — join the waitlist now
+        </p>
+        <p className="mt-2 text-sm">
+          Premium stays {FOUNDING_PREMIUM_LABEL}/mo instead of {PREMIUM_PRICE_LABEL}. Lend a Hand stays{" "}
+          {FOUNDING_HAND_LABEL}/mo instead of {HAND_PRICE_LABEL}. After launch, new members pay the regular rates.
+        </p>
+      </Link>
+
       <DemoNote>
-        Billing is mocked. Picking a plan does not charge a card. Stripe will bill {PREMIUM_PRICE_LABEL}{" "}
-        or {HAND_PRICE_LABEL} a month in the live app.
+        Billing is mocked. Picking a plan does not charge a card. After launch, Stripe bills {PREMIUM_PRICE_LABEL} or {HAND_PRICE_LABEL} a month. Founding members stay at {FOUNDING_PREMIUM_LABEL} and {FOUNDING_HAND_LABEL}.
       </DemoNote>
 
       <article className="rounded-3xl border-2 border-ink/10 bg-card p-4">
         <p className="text-xs font-bold tracking-wide text-primary uppercase">Premium</p>
-        <p className="font-serif text-4xl">{PREMIUM_PRICE_LABEL}<span className="text-lg text-muted-foreground">/mo</span></p>
-        <p className="text-sm text-muted-foreground">The whole money app. Nothing held back.</p>
+        <p className="font-serif text-4xl">{FOUNDING_PREMIUM_LABEL}<span className="text-lg text-muted-foreground">/mo for life</span></p>
+        <p className="text-sm text-muted-foreground">Waitlist lock. After launch: {PREMIUM_PRICE_LABEL}/mo. The whole money app.</p>
         <ul className="mt-3 space-y-2">
           {premiumIncludes.map((feature) => (
             <li key={feature.title} className="flex gap-2 text-sm">
@@ -72,8 +83,8 @@ export function PricingScreen() {
 
       <article className="rounded-3xl bg-ink p-4 text-white">
         <p className="text-xs font-bold tracking-wide text-lime uppercase">Lend a Hand</p>
-        <p className="font-serif text-4xl">{HAND_PRICE_LABEL}<span className="text-lg text-white/70">/mo</span></p>
-        <p className="text-sm text-white/75">Everything in Premium, plus helpers for the odd jobs.</p>
+        <p className="font-serif text-4xl">{FOUNDING_HAND_LABEL}<span className="text-lg text-white/70">/mo for life</span></p>
+        <p className="text-sm text-white/75">Waitlist lock. After launch: {HAND_PRICE_LABEL}/mo. Everything in Premium, plus helpers.</p>
         <ul className="mt-3 space-y-2">
           {handIncludes.map((feature) => (
             <li key={feature.title} className="flex gap-2 text-sm">
@@ -95,7 +106,7 @@ export function PricingScreen() {
             className="mt-4 h-12 w-full rounded-full bg-lime font-bold text-ink hover:bg-lime/90"
             onClick={() => choose("hand")}
           >
-            Add helpers for {HAND_PRICE_LABEL}
+            Add helpers for {FOUNDING_HAND_LABEL} for life
           </Button>
         )}
         <Button asChild variant="ghost" className="mt-2 h-11 w-full rounded-full text-white hover:bg-white/10 hover:text-white">

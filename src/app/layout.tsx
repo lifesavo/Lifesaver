@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fredoka, Outfit } from "next/font/google";
+import { AskLifeSaver } from "@/components/ask-lifesaver";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -52,7 +53,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${outfit.variable} ${fredoka.variable} h-full antialiased`}>
       <body className="min-h-full">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <AskLifeSaver />
+        </Providers>
       </body>
     </html>
   );

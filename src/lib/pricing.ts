@@ -1,7 +1,14 @@
 export const PREMIUM_PRICE = 9.99;
 export const PREMIUM_PRICE_LABEL = "$9.99";
-export const HAND_PRICE = 29.99;
-export const HAND_PRICE_LABEL = "$29.99";
+export const HAND_PRICE = 24.99;
+export const HAND_PRICE_LABEL = "$24.99";
+export const FOUNDING_PREMIUM_LABEL = "$7.99";
+export const FOUNDING_HAND_LABEL = "$20.00";
+
+export function foundingShareMessage(origin: string, shareCode: string) {
+  const root = origin.replace(/\/$/, "");
+  return `Founding Member: Premium is locked at ${FOUNDING_PREMIUM_LABEL}/mo for life (after launch ${PREMIUM_PRICE_LABEL}). Lend a Hand is locked at ${FOUNDING_HAND_LABEL}/mo for life (after launch ${HAND_PRICE_LABEL}). Join LifeSaver with my link: ${root}/?ref=${shareCode}`;
+}
 
 export type PaidPlan = "free" | "premium" | "hand";
 

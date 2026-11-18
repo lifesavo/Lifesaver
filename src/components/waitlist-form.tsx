@@ -4,6 +4,7 @@ import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { foundingShareMessage } from "@/lib/pricing";
 
 const ATTRIBUTION_KEY = "lifesaver.attribution";
 
@@ -19,6 +20,12 @@ type Success = {
   count: number;
   email: string;
   source: string;
+  founding: boolean;
+  shareCode: string;
+  foundingPremium: string;
+  foundingHand: string;
+  regularPremium: string;
+  regularHand: string;
 };
 
 function readStoredAttribution() {
@@ -46,6 +53,7 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
   const [countError, setCountError] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [success, setSuccess] = useState<Success | null>(null);
   const storedAttribution = useSyncExternalStore(
     () => () => {},
@@ -101,6 +109,12 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
         count?: number;
         email?: string;
         utmSource?: string | null;
+        founding?: boolean;
+        shareCode?: string;
+        foundingPremium?: string;
+        foundingHand?: string;
+        regularPremium?: string;
+        regularHand?: string;
       };
       if (!response.ok || !data.ok) {
         setError(data.message || "We couldn't save that. Try again.");
@@ -111,6 +125,12 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
         count: data.count ?? count ?? 1,
         email: data.email || email.trim().toLowerCase(),
         source: data.utmSource || attribution.utm_source,
+        founding: Boolean(data.founding),
+        shareCode: data.shareCode || "",
+        foundingPremium: data.foundingPremium || "$7.99",
+        foundingHand: data.foundingHand || "$20.00",
+        regularPremium: data.regularPremium || "$9.99",
+        regularHand: data.regularHand || "$24.99",
       });
       if (typeof data.count === "number") setCount(data.count);
     } catch {
@@ -140,6 +160,28 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
             : `${success.count} people are waiting with you.`}
           {success.source ? ` Tagged from ${success.source}.` : ""}
         </p>
+        {success.founding && success.shareCode && (
+          <div className="mt-4 rounded-2xl bg-white/15 p-3 text-sm leading-6">
+            <p className="font-semibold">Founding Member rate, locked for life</p>
+            <p>
+              Premium {success.foundingPremium}/mo (after launch {success.regularPremium}). Lend a Hand{" "}
+              {success.foundingHand}/mo (after launch {success.regularHand}).
+            </p>
+            <p className="mt-2 break-words text-primary-foreground/90">
+              {foundingShareMessage(window.location.origin, success.shareCode)}
+            </p>
+            <button
+              type="button"
+              className="mt-3 h-11 rounded-full bg-lime px-4 text-sm font-bold text-ink"
+              onClick={() => {
+                const message = foundingShareMessage(window.location.origin, success.shareCode);
+                void navigator.clipboard.writeText(message).then(() => setCopied(true));
+              }}
+            >
+              {copied ? "Share message copied" : "Copy referral share message"}
+            </button>
+          </div>
+        )}
       </div>
     );
   }

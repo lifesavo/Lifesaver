@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { Wordmark } from "@/components/wordmark";
-import { HAND_PRICE_LABEL, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
+import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 
 const stickers = [
   { text: "price hike? caught", className: "bg-lime text-ink -top-4 -left-6", tilt: "-8deg" },
@@ -39,16 +39,22 @@ export default function HomePage() {
         <section className="gradient-move overflow-hidden bg-gradient-to-br from-[#e01470] via-[#6d28d9] to-[#0891b2] text-white">
           <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
-              <p className="inline-block -rotate-2 rounded-full bg-lime px-3 py-1 text-xs font-bold tracking-wide text-ink uppercase">
-                Bills + deals + a human
-              </p>
+              <a
+                href="#waitlist"
+                className="inline-block -rotate-2 rounded-full bg-lime px-3 py-2 text-sm font-bold tracking-wide text-ink"
+              >
+                Founding Member: {FOUNDING_PREMIUM_LABEL}/mo for life — join the waitlist now
+              </a>
               <h1 className="mt-4 max-w-xl font-serif text-5xl leading-[0.92] tracking-tight sm:text-7xl">
                 Stop getting robbed by your bills.
               </h1>
-              <p className="mt-4 max-w-md text-xl font-semibold">Save money without trying.</p>
+              <p className="mt-4 max-w-md text-xl font-semibold">Open the app, see the cheapest gas near you.</p>
+              <p className="mt-3 max-w-md text-lg font-semibold">Need a hand fixing the mower? Tap once.</p>
+              <p className="mt-2 max-w-md text-lg font-semibold">Cheapest flights, hotels, and cars, all in one app.</p>
+              <p className="mt-2 max-w-md text-lg font-semibold">Your own AI money-saver in your pocket.</p>
               <p className="mt-3 max-w-md text-base leading-7 text-white/85">
-                LifeSaver flags the sneaky charges, finds the cheap stuff nearby, and can send a
-                helper when the couch will not move itself.
+                LifeSaver flags the sneaky charges, sorts real nearby stations by price, and can
+                send a helper for a small engine, a repair, or a heavy lift.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -127,8 +133,10 @@ export default function HomePage() {
             <div className="mt-8 grid gap-4 lg:grid-cols-2">
               <article className="rounded-3xl bg-ink p-6 text-white">
                 <p className="text-xs font-bold tracking-wide text-lime uppercase">Premium</p>
-                <p className="mt-2 font-serif text-5xl">{PREMIUM_PRICE_LABEL}</p>
-                <p className="text-sm text-white/75">a month. The whole money app.</p>
+                <p className="mt-2 font-serif text-5xl">{FOUNDING_PREMIUM_LABEL}</p>
+                <p className="text-sm text-white/75">
+                  a month for life if you join the waitlist. After launch: {PREMIUM_PRICE_LABEL}/mo.
+                </p>
                 <ul className="mt-4 space-y-2 text-sm">
                   <li>Auto-cancel and bill negotiation</li>
                   <li>Instant alerts</li>
@@ -138,8 +146,10 @@ export default function HomePage() {
               </article>
               <article id="help" className="rounded-3xl bg-gradient-to-br from-[#e01470] to-[#6d28d9] p-6 text-white">
                 <p className="text-xs font-bold tracking-wide text-lime uppercase">Lend a Hand</p>
-                <p className="mt-2 font-serif text-5xl">{HAND_PRICE_LABEL}</p>
-                <p className="text-sm text-white/80">a month. Everything in Premium, plus helpers.</p>
+                <p className="mt-2 font-serif text-5xl">{FOUNDING_HAND_LABEL}</p>
+                <p className="text-sm text-white/80">
+                  a month for life on the waitlist. After launch: {HAND_PRICE_LABEL}/mo. Everything in Premium, plus helpers.
+                </p>
                 <ul className="mt-4 space-y-2 text-sm">
                   <li>Post yard work, moving, assembly, cleanup, errands</li>
                   <li>See offers from nearby helpers</li>

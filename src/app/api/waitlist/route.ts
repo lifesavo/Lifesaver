@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { readAttribution } from "@/lib/attribution";
 import { addSignup, countSignups } from "@/lib/db";
+import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -41,7 +42,14 @@ export async function POST(request: Request) {
   };
 
   if (typeof body.company === "string" && body.company.trim()) {
-    return json({ ok: true, already: false, count: countSignups(), email: "" });
+    return json({
+      ok: true,
+      already: false,
+      count: countSignups(),
+      email: "",
+      founding: false,
+      shareCode: "",
+    });
   }
 
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
@@ -66,5 +74,11 @@ export async function POST(request: Request) {
     email,
     ref: result.already ? null : attribution.ref,
     utmSource: result.already ? null : attribution.utmSource,
+    founding: result.founding,
+    shareCode: result.shareCode,
+    foundingPremium: FOUNDING_PREMIUM_LABEL,
+    foundingHand: FOUNDING_HAND_LABEL,
+    regularPremium: PREMIUM_PRICE_LABEL,
+    regularHand: HAND_PRICE_LABEL,
   });
 }

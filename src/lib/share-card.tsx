@@ -51,7 +51,7 @@ export function ShareCard() {
                 fontSize: 28,
               }}
             >
-              $9.99 unlocks everything
+              $7.99/mo for life
             </div>
             <div
               style={{
@@ -62,7 +62,7 @@ export function ShareCard() {
                 fontSize: 28,
               }}
             >
-              Waitlist open
+              Lend a Hand $20.00
             </div>
           </div>
         </div>
