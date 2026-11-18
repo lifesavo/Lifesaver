@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AiBadge, AiSection } from "@/components/ai/ai-badge";
+import { InstallButton } from "@/components/pwa/install-button";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { Wordmark } from "@/components/wordmark";
 import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
@@ -27,12 +28,18 @@ export default function HomePage() {
             <a href="#help" className="hover:text-primary">Helpers</a>
             <a href="#pricing" className="hover:text-primary">Pricing</a>
           </nav>
-          <Link
-            href="/start"
-            className="inline-flex h-11 items-center rounded-full bg-ink px-4 text-sm font-bold text-white"
-          >
-            Try it
-          </Link>
+          <div className="flex items-center gap-2">
+            <InstallButton
+              label="Get the app"
+              className="h-11 rounded-full border-2 border-ink/15 px-3 text-sm font-bold"
+            />
+            <Link
+              href="/start"
+              className="inline-flex h-11 items-center rounded-full bg-ink px-4 text-sm font-bold text-white"
+            >
+              Try it
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -75,6 +82,7 @@ export default function HomePage() {
                 >
                   Get on the list
                 </a>
+                <InstallButton className="h-14 rounded-full border-2 border-white px-6 text-lg font-bold text-white" />
               </div>
             </div>
             <div className="relative mx-auto w-full max-w-sm">
