@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { Suspense } from "react";
 import { AppShell } from "@/components/app-shell";
 import { PricingScreen } from "@/components/screens/pricing-screen";
 import { billingOpen } from "@/lib/billing-config";
@@ -13,7 +14,9 @@ export default async function PricingPage() {
   await connection();
   return (
     <AppShell>
-      <PricingScreen billingOpen={billingOpen()} />
+      <Suspense>
+        <PricingScreen billingOpen={billingOpen()} />
+      </Suspense>
     </AppShell>
   );
 }

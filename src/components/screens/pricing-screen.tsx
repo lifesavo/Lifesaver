@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,10 +44,16 @@ function FeatureList({ items, tone }: { items: readonly { title: string; body: s
 }
 
 export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }) {
-  const { profile, setPlan } = useProfile();
+  const { profile, setPlan, account, refreshAccount } = useProfile();
+  const params = useSearchParams();
+  const router = useRouter();
+  const checkout = params.get("checkout");
   const [notice, setNotice] = useState<Profile["plan"] | null>(null);
   const [busy, setBusy] = useState<Paid | null>(null);
   const [error, setError] = useState("");
+  useEffect(() => {
+    if (checkout === "success") void refreshAccount();
+  }, [checkout, refreshAccount]);
   if (!profile) return null;
   const current = profile;
 
@@ -55,6 +62,10 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
     setBusy(plan);
     try {
       if (billingOpen) {
+        if (!account) {
+          router.push("/start?mode=signin");
+          return;
+        }
         const response = await fetch("/api/billing/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -80,6 +91,10 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
       setBusy(null);
     }
   }
+
+  const founding = billingOpen ? (account?.founding ?? true) : true;
+  const premiumPrice = founding ? FOUNDING_PREMIUM_LABEL : PREMIUM_PRICE_LABEL;
+  const handPrice = founding ? FOUNDING_HAND_LABEL : HAND_PRICE_LABEL;
 
   const lockedNote = (plan: Paid) =>
     billingOpen
@@ -116,6 +131,21 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
         </p>
       </div>
 
+      {checkout === "success" ? (
+        <p className="rounded-2xl bg-lime px-4 py-3 text-sm font-medium text-ink" role="status">
+          Thanks! Your plan is active. It can take a few seconds to show here.
+        </p>
+      ) : null}
+      {checkout === "canceled" ? (
+        <p className="rounded-2xl bg-secondary px-4 py-3 text-sm" role="status">
+          Checkout canceled. Nothing was charged.
+        </p>
+      ) : null}
+      {billingOpen && !account ? (
+        <p className="rounded-2xl bg-sun/40 px-4 py-3 text-sm" role="status">
+          Sign in to your LifeSaver account to pick a plan.
+        </p>
+      ) : null}
       {error ? (
         <p className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
           {error}
@@ -144,7 +174,7 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
             {busy === "premium"
               ? "Saving…"
               : billingOpen
-                ? `Start Premium at ${FOUNDING_PREMIUM_LABEL}/mo`
+                ? `Start Premium at ${premiumPrice}/mo`
                 : `Lock in ${FOUNDING_PREMIUM_LABEL}/mo for life`}
           </Button>
         )}
@@ -175,7 +205,7 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
             {busy === "hand"
               ? "Saving…"
               : billingOpen
-                ? `Start Lend a Hand at ${FOUNDING_HAND_LABEL}/mo`
+                ? `Start Lend a Hand at ${handPrice}/mo`
                 : `Lock in ${FOUNDING_HAND_LABEL}/mo for life`}
           </Button>
         )}
