@@ -3,17 +3,17 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { House, PiggyBank, Receipt, Sparkles, Tag } from "lucide-react";
+import { Car, HandHelping, House, Sparkles, Tag } from "lucide-react";
 import { cn } from "cn";
 import { PhoneFrame } from "@/components/phone-frame";
 import { useProfile } from "@/lib/profile";
 
 const tabs = [
   { href: "/home", label: "Home", icon: House },
-  { href: "/bills", label: "Bills", icon: Receipt },
   { href: "/deals", label: "Deals", icon: Tag },
-  { href: "/savings", label: "Savings", icon: PiggyBank },
-  { href: "/pricing", label: "Premium", icon: Sparkles },
+  { href: "/hand", label: "Hand", icon: HandHelping },
+  { href: "/rides", label: "Rides", icon: Car },
+  { href: "/pricing", label: "Plans", icon: Sparkles },
 ] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {

@@ -6,13 +6,14 @@ import { useProfile } from "@/lib/profile";
 export function PlanChip() {
   const { profile } = useProfile();
   if (!profile) return null;
-  const premium = profile.plan === "premium";
+  const label =
+    profile.plan === "hand" ? "Lend a Hand" : profile.plan === "premium" ? "Premium" : "Free";
   return (
     <Link
       href="/pricing"
-      className="shrink-0 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground"
+      className="shrink-0 -rotate-2 rounded-full bg-lime px-3 py-1.5 text-xs font-bold text-ink"
     >
-      {premium ? "Premium demo" : "Free on-ramp"}
+      {label}
     </Link>
   );
 }

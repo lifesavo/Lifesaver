@@ -4,7 +4,7 @@ import { PricingScreen } from "@/components/screens/pricing-screen";
 
 export const metadata: Metadata = {
   title: "Premium",
-  description: "Everything in Your Money Life Saver, one price, $9.99 a month.",
+  description: "Premium is $9.99 a month. Lend a Hand is $29.99 and includes Premium plus helpers.",
 };
 
 export default function PricingPage() {

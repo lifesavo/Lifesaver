@@ -20,7 +20,7 @@ import {
   type BillActionKind,
 } from "@/lib/demo-data";
 import { money } from "@/lib/money";
-import { PREMIUM_PRICE_LABEL } from "@/lib/pricing";
+import { includesPremium, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 import { useProfile } from "@/lib/profile";
 
 const actionLabel: Record<BillActionKind, string> = {
@@ -49,7 +49,7 @@ export function BillsScreen() {
     setKind(nextKind);
     setRemind("3 days before");
     const needsIntro =
-      nextKind !== "remind" && profile?.plan !== "premium";
+      nextKind !== "remind" && !includesPremium(profile?.plan ?? "free");
     setStep(needsIntro ? "intro" : "confirm");
     setOpen(true);
   }

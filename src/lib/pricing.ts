@@ -1,5 +1,32 @@
 export const PREMIUM_PRICE = 9.99;
 export const PREMIUM_PRICE_LABEL = "$9.99";
+export const HAND_PRICE = 29.99;
+export const HAND_PRICE_LABEL = "$29.99";
+
+export type PaidPlan = "free" | "premium" | "hand";
+
+export function includesPremium(plan: PaidPlan) {
+  return plan === "premium" || plan === "hand";
+}
+
+export const handIncludes = [
+  {
+    title: "Everything in Premium",
+    body: "Auto-cancel, negotiation, instant alerts, every deal, and savings goals.",
+  },
+  {
+    title: "Post an odd job",
+    body: "Yard work, moving help, assembly, cleanup, or an errand around home or a business.",
+  },
+  {
+    title: "Helper offers",
+    body: "Nearby vetted helpers send a price. You pick one. Sample people in this demo.",
+  },
+  {
+    title: "Book and confirm",
+    body: "A booking stays on the task. The live network can later plug into Work For All.",
+  },
+] as const;
 
 export const premiumIncludes = [
   {

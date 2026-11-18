@@ -6,7 +6,7 @@ export default function NotFound() {
       <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase">404</p>
       <h1 className="mt-2 font-serif text-4xl tracking-tight">That page wandered off.</h1>
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        The link doesn&apos;t match a screen in Your Money Life Saver.
+        That link is not a LifeSaver screen.
       </p>
       <Link
         href="/"

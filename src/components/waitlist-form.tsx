@@ -1,15 +1,39 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+const ATTRIBUTION_KEY = "lifesaver.attribution";
+
+type AttributionFields = {
+  ref: string;
+  utm_source: string;
+  utm_medium: string;
+  utm_campaign: string;
+};
 
 type Success = {
   already: boolean;
   count: number;
   email: string;
+  source: string;
 };
+
+function readStoredAttribution() {
+  const params = new URLSearchParams(window.location.search);
+  const incoming: AttributionFields = {
+    ref: params.get("ref") ?? "",
+    utm_source: params.get("utm_source") ?? "",
+    utm_medium: params.get("utm_medium") ?? "",
+    utm_campaign: params.get("utm_campaign") ?? "",
+  };
+  if (Object.values(incoming).some((value) => value.trim())) {
+    sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(incoming));
+  }
+  return sessionStorage.getItem(ATTRIBUTION_KEY) ?? "";
+}
 
 export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
   const emailId = useId();
@@ -23,6 +47,24 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [success, setSuccess] = useState<Success | null>(null);
+  const storedAttribution = useSyncExternalStore(
+    () => () => {},
+    readStoredAttribution,
+    () => "",
+  );
+  let attribution: AttributionFields = {
+    ref: "",
+    utm_source: "",
+    utm_medium: "",
+    utm_campaign: "",
+  };
+  if (storedAttribution) {
+    try {
+      attribution = JSON.parse(storedAttribution) as AttributionFields;
+    } catch {
+      attribution = { ref: "", utm_source: "", utm_medium: "", utm_campaign: "" };
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -50,7 +92,7 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
       const response = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, zip, company }),
+        body: JSON.stringify({ email, zip, company, ...attribution }),
       });
       const data = (await response.json()) as {
         ok: boolean;
@@ -58,6 +100,7 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
         already?: boolean;
         count?: number;
         email?: string;
+        utmSource?: string | null;
       };
       if (!response.ok || !data.ok) {
         setError(data.message || "We couldn't save that. Try again.");
@@ -67,6 +110,7 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
         already: Boolean(data.already),
         count: data.count ?? count ?? 1,
         email: data.email || email.trim().toLowerCase(),
+        source: data.utmSource || attribution.utm_source,
       });
       if (typeof data.count === "number") setCount(data.count);
     } catch {
@@ -94,6 +138,7 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
           {success.count === 1
             ? "You're the first one here."
             : `${success.count} people are waiting with you.`}
+          {success.source ? ` Tagged from ${success.source}.` : ""}
         </p>
       </div>
     );
@@ -102,7 +147,7 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
   return (
     <form onSubmit={onSubmit} className="rounded-3xl border bg-card p-5 shadow-sm" noValidate>
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-serif text-2xl tracking-tight">Join the waitlist</h2>
+        <h2 className="font-serif text-3xl tracking-tight">Put me on the list</h2>
         <p className="text-xs text-muted-foreground" aria-live="polite">
           {count === null && !countError && "Checking the list…"}
           {count === 0 && "Be the first."}
@@ -111,7 +156,7 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
         </p>
       </div>
       <p className="mt-1 text-sm leading-6 text-muted-foreground">
-        A note when we open near you. This prototype stores the email on the server.
+        We save this on the server. It sticks after a refresh.
       </p>
       <div className="mt-4 space-y-3">
         <div className="space-y-1.5">
@@ -161,8 +206,14 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
             {error}
           </p>
         )}
-        <Button type="submit" disabled={pending} className="h-12 w-full rounded-full text-base">
-          {pending ? "Saving…" : "Join the waitlist"}
+        {attribution.utm_source && (
+          <p className="inline-block -rotate-1 rounded-full bg-lime px-3 py-1 text-xs font-bold text-ink">
+            via {attribution.utm_source}
+            {attribution.ref ? ` · ref ${attribution.ref}` : ""}
+          </p>
+        )}
+        <Button type="submit" disabled={pending} className="h-14 w-full rounded-full bg-lime text-lg font-bold text-ink shadow-[4px_4px_0_#2a1038]">
+          {pending ? "Saving…" : "Get the drop"}
         </Button>
       </div>
     </form>

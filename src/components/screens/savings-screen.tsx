@@ -13,7 +13,7 @@ import {
   YEAR_SAVED,
 } from "@/lib/demo-data";
 import { money } from "@/lib/money";
-import { PREMIUM_PRICE_LABEL } from "@/lib/pricing";
+import { includesPremium, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 import { useProfile } from "@/lib/profile";
 
 const maxMonth = Math.max(...savingsHistory.map((month) => month.amount));
@@ -21,7 +21,7 @@ const maxMonth = Math.max(...savingsHistory.map((month) => month.amount));
 export function SavingsScreen() {
   const { profile } = useProfile();
   if (!profile) return null;
-  const premium = profile.plan === "premium";
+  const premium = includesPremium(profile.plan);
 
   return (
     <div className="space-y-5">

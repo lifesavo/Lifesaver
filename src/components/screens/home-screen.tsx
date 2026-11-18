@@ -34,12 +34,12 @@ export function HomeScreen() {
         accounts are samples: {connected.map((item) => item.name).join(", ")}.
       </DemoNote>
 
-      <section className="relative overflow-hidden rounded-3xl bg-primary px-5 py-6 text-primary-foreground">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#e01470] via-[#6d28d9] to-[#0891b2] px-5 py-6 text-white">
         <div aria-hidden="true" className="pointer-events-none absolute -top-12 -right-8 size-40 rounded-full bg-white/10" />
-        <p className="text-sm text-primary-foreground/80">You saved</p>
+        <p className="text-sm text-white/80">You saved</p>
         <p className="mt-1 font-serif text-5xl tracking-tight">{money(MONTH_SAVED)}</p>
         <h2 className="mt-1 text-lg">this month</h2>
-        <p className="mt-3 max-w-[18rem] text-sm leading-6 text-primary-foreground/80">
+        <p className="mt-3 max-w-[18rem] text-sm leading-6 text-white/85">
           Deals you used, a trial you caught, and a duplicate that came back. Sample ledger.
         </p>
         <details className="mt-4 rounded-2xl bg-white/10 px-3 py-2 text-sm">
@@ -114,8 +114,23 @@ export function HomeScreen() {
         <p className="mt-1 text-sm text-muted-foreground">1.6 miles · save $0.46 a gallon vs the area average</p>
       </Link>
 
+      <div className="grid grid-cols-2 gap-2">
+        <Link href="/bills" className="rounded-2xl bg-card px-3 py-3 text-sm font-semibold shadow-sm">
+          Bills
+        </Link>
+        <Link href="/savings" className="rounded-2xl bg-card px-3 py-3 text-sm font-semibold shadow-sm">
+          Savings
+        </Link>
+        <Link href="/hand" className="rounded-2xl bg-lime px-3 py-3 text-sm font-bold text-ink">
+          Lend a Hand
+        </Link>
+        <Link href="/rides" className="rounded-2xl bg-cyan px-3 py-3 text-sm font-bold text-ink">
+          Rides
+        </Link>
+      </div>
+
       {profile.plan === "free" ? (
-        <Link href="/pricing" className="block rounded-3xl bg-forest px-5 py-5 text-primary-foreground">
+        <Link href="/pricing" className="block rounded-3xl bg-ink px-5 py-5 text-white">
           <p className="font-serif text-3xl leading-none tracking-tight">
             Everything.
             <br />
@@ -123,9 +138,8 @@ export function HomeScreen() {
             <br />
             {PREMIUM_PRICE_LABEL}.
           </p>
-          <p className="mt-3 text-sm leading-6 text-primary-foreground/80">
-            Auto-cancel, negotiation, instant alerts, every deal, and savings goals. Free stays a
-            short on-ramp.
+          <p className="mt-3 text-sm leading-6 text-white/80">
+            Premium is $9.99. Lend a Hand is $29.99 and includes Premium plus a helper.
           </p>
         </Link>
       ) : (

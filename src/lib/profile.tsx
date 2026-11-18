@@ -20,7 +20,7 @@ export type Profile = {
   email: string;
   zip: string;
   institutions: InstitutionId[];
-  plan: "free" | "premium";
+  plan: "free" | "premium" | "hand";
   actions: Record<string, BillAction>;
 };
 
@@ -65,7 +65,8 @@ function readProfile(): Profile | null {
       email: parsed.email,
       zip: parsed.zip,
       institutions: parsed.institutions as InstitutionId[],
-      plan: parsed.plan === "premium" ? "premium" : "free",
+      plan:
+        parsed.plan === "hand" || parsed.plan === "premium" ? parsed.plan : "free",
       actions:
         parsed.actions && typeof parsed.actions === "object"
           ? parsed.actions

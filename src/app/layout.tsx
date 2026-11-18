@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Outfit } from "next/font/google";
+import { Fredoka, Outfit } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -9,9 +9,9 @@ const outfit = Outfit({
   display: "swap",
 });
 
-const fraunces = Fraunces({
+const fredoka = Fredoka({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -20,17 +20,28 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:43123";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Your Money Life Saver",
-    template: "%s · Your Money Life Saver",
+    default: "LifeSaver",
+    template: "%s · LifeSaver",
   },
-  description:
-    "A bill and subscription watchdog plus daily local deals. Catch price hikes, forgotten trials, and unused charges, then see cheaper gas, groceries, and food near you.",
-  applicationName: "Your Money Life Saver",
+  description: "Stop getting robbed by your bills. Save money without trying.",
+  applicationName: "LifeSaver",
   icons: { icon: "/icon.svg" },
+  openGraph: {
+    title: "LifeSaver",
+    description: "Stop getting robbed by your bills. Save money without trying.",
+    siteName: "LifeSaver",
+    type: "website",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LifeSaver",
+    description: "Stop getting robbed by your bills. Save money without trying.",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0E4D38",
+  themeColor: "#E01470",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -39,7 +50,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${outfit.variable} ${fraunces.variable} h-full antialiased`}>
+    <html lang="en" className={`${outfit.variable} ${fredoka.variable} h-full antialiased`}>
       <body className="min-h-full">
         <Providers>{children}</Providers>
       </body>
