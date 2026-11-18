@@ -50,6 +50,14 @@ export function HomeScreen() {
         <p className="mt-1 text-sm leading-6">{tip}</p>
       </section>
 
+      <Link href="/roadside" className="flex items-center gap-3 rounded-3xl bg-[#dc2626] px-4 py-4 text-white shadow-[4px_4px_0_#2a1038]">
+        <span className="text-4xl" aria-hidden="true">🛞</span>
+        <span>
+          <span className="block font-serif text-2xl leading-tight">Roadside Help</span>
+          <span className="block text-sm text-white/90">Flat tire, breakdown, out of gas, locked out, dead battery, or an accident. Tap for help now.</span>
+        </span>
+      </Link>
+
       <WeatherCard zip={profile.zip} />
 
       <GiveawayCard email={profile.email} />

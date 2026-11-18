@@ -5,6 +5,7 @@ import { money } from "@/lib/money";
 import { cheapest, deliveryOptions, rideOptions } from "@/lib/rides";
 import { offersFor, type TaskCategory } from "@/lib/tasks";
 import { searchTrip } from "@/lib/travel/search";
+import { detectRoadside, ROADSIDE, ROADSIDE_SAFETY, type RoadsideIssue } from "@/lib/roadside/info";
 import { buildItinerary, normalizeInput, parseTripRequest, summarize, type PlanInput } from "@/lib/travel/itinerary";
 import type { PaidPlan } from "@/lib/pricing";
 
@@ -113,6 +114,21 @@ export async function runTool(
           href: "/travel",
         },
       ].filter(Boolean) as ToolCard[],
+    };
+  }
+
+  if (name === "roadside_help") {
+    const raw = String(args.issue ?? "");
+    const issue: RoadsideIssue =
+      raw in ROADSIDE ? (raw as RoadsideIssue) : detectRoadside(String(args.message ?? raw)) ?? "breakdown";
+    const info = ROADSIDE[issue];
+    const first = issue === "accident" ? "If anyone is hurt or a car is blocking traffic, call 911 now.\n\n" : `${ROADSIDE_SAFETY}\n\n`;
+    return {
+      text: `${first}${info.label}:\n${info.steps.slice(0, 3).map((step, index) => `${index + 1}. ${step}`).join("\n")}\n\nOpen Roadside Help to share your location, find a tow${issue === "out_of_gas" ? ", the nearest gas, or fuel delivery" : ""}, or ask nearby Lend a Hand helpers. Helpers are community members, not pros, and nobody is guaranteed to come.`,
+      cards: [
+        { title: "Call 911", body: "Danger, injury, or stuck in a traffic lane.", href: "tel:911" },
+        { title: `Open Roadside Help · ${info.label}`, body: "Location, tow and service links, nearby helpers.", href: `/roadside?issue=${issue}` },
+      ],
     };
   }
 

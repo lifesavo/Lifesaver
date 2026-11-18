@@ -1,4 +1,5 @@
 import { runTool, type ToolCard } from "@/lib/assistant/tools";
+import { detectRoadside } from "@/lib/roadside/info";
 import type { PaidPlan } from "@/lib/pricing";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -14,6 +15,7 @@ const toolDefs = [
   { name: "compare_rides", description: "Compare sample Uber and Lyft prices.", parameters: {} },
   { name: "cheapest_trip", description: "Search a trip from, to, dates, and travelers.", parameters: { from: "string", to: "string", depart: "string", returnDate: "string", travelers: "number" } },
   { name: "plan_trip", description: "Build a day-by-day travel itinerary with budget split, packing list, and price-comparison links. Pass the user's full trip request in request (destination, dates, travelers, budget, interests).", parameters: { request: "string" } },
+  { name: "roadside_help", description: "Someone is stranded: flat or blown tire, breakdown, out of gas, locked out, dead battery, or accident. Returns safety steps and links into Roadside Help.", parameters: { issue: "string", message: "string" } },
   { name: "cut_bills", description: "List sample subscriptions worth canceling.", parameters: {} },
   { name: "local_deals", description: "Show sample local deals.", parameters: {} },
   { name: "build_budget", description: "Build a simple monthly budget from take-home income.", parameters: { income: "number" } },
@@ -22,6 +24,8 @@ const toolDefs = [
 
 function pickTool(message: string): { name: string; args: Record<string, unknown> } {
   const text = message.toLowerCase();
+  const roadside = detectRoadside(message);
+  if (roadside) return { name: "roadside_help", args: { issue: roadside, message } };
   const income = text.match(/\$?\s*(\d{3,6})/);
   if (/budget|take-home|paycheck|i make|i earn/.test(text)) {
     return { name: "build_budget", args: { income: income ? Number(income[1]) : 0 } };
@@ -96,7 +100,7 @@ async function modelReply(
   const chat: Array<Record<string, unknown>> = [
     {
       role: "system",
-      content: `You are Ask LifeSaver. Help people save money. Use tools for gas, rides, trips, trip itineraries (plan_trip), bills, deals, budgets, and helper requests. ZIP is ${context.zip || "unknown"}. Plan is ${context.plan}. Never call an estimated or sample price a live price. Keep replies short.`,
+      content: `You are Ask LifeSaver. Help people save money. If someone is stranded or had an accident, call roadside_help first. Use tools for gas, rides, trips, trip itineraries (plan_trip), bills, deals, budgets, and helper requests. ZIP is ${context.zip || "unknown"}. Plan is ${context.plan}. Never call an estimated or sample price a live price. Keep replies short.`,
     },
     ...messages.slice(-8).map((message) => ({ role: message.role, content: message.content })),
   ];

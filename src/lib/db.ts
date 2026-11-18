@@ -125,6 +125,27 @@ function ensureSchema(db: Database.Database) {
   `);
   db.exec("CREATE INDEX IF NOT EXISTS ai_tokens_owner ON ai_tokens (owner_id)");
   db.exec(`
+    CREATE TABLE IF NOT EXISTS roadside_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      public_id TEXT NOT NULL UNIQUE,
+      owner_id TEXT NOT NULL,
+      issue TEXT NOT NULL,
+      lat REAL NOT NULL,
+      lng REAL NOT NULL,
+      note TEXT,
+      contact_name TEXT NOT NULL,
+      contact_phone TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'open',
+      helper_owner_id TEXT,
+      helper_name TEXT,
+      helper_phone TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      accepted_at TEXT,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  db.exec("CREATE INDEX IF NOT EXISTS roadside_status ON roadside_requests (status, created_at)");
+  db.exec(`
     CREATE TABLE IF NOT EXISTS user_trips (
       owner_id TEXT NOT NULL,
       trip_id TEXT NOT NULL,
@@ -622,4 +643,150 @@ export function saveUserTrip(ownerId: string, tripId: string, data: unknown) {
 
 export function deleteUserTrip(ownerId: string, tripId: string) {
   return getDb().prepare("DELETE FROM user_trips WHERE owner_id = ? AND trip_id = ?").run(ownerId, tripId).changes > 0;
+}
+
+// ---- Roadside help requests from people stranded, answered by nearby Lend a Hand helpers. ----
+
+export type RoadsideStatus = "open" | "accepted" | "done" | "cancelled";
+
+type RoadsideRow = {
+  id: number;
+  public_id: string;
+  owner_id: string;
+  issue: string;
+  lat: number;
+  lng: number;
+  note: string | null;
+  contact_name: string;
+  contact_phone: string;
+  status: RoadsideStatus;
+  helper_owner_id: string | null;
+  helper_name: string | null;
+  helper_phone: string | null;
+  created_at: string;
+  accepted_at: string | null;
+  updated_at: string;
+};
+
+/** Open requests older than this drop off the helper list. */
+const ROADSIDE_OPEN_HOURS = 6;
+
+export type RoadsideView = {
+  id: string;
+  issue: string;
+  status: RoadsideStatus;
+  note: string | null;
+  createdAt: string;
+  acceptedAt: string | null;
+  updatedAt: string;
+  /** Exact for the requester and the accepted helper; rounded (about 1 km) for everyone else. */
+  lat: number;
+  lng: number;
+  exact: boolean;
+  role: "requester" | "helper" | "viewer";
+  requester?: { name: string; phone: string };
+  helper?: { name: string; phone: string } | null;
+  expired: boolean;
+};
+
+function roadsideView(row: RoadsideRow, viewer: string | null): RoadsideView {
+  const role = viewer && row.owner_id === viewer ? "requester" : viewer && row.helper_owner_id === viewer ? "helper" : "viewer";
+  const exact = role !== "viewer";
+  const ageHours = (Date.now() - Date.parse(`${row.created_at.replace(" ", "T")}Z`)) / 3600000;
+  return {
+    id: row.public_id,
+    issue: row.issue,
+    status: row.status,
+    note: row.note,
+    createdAt: row.created_at,
+    acceptedAt: row.accepted_at,
+    updatedAt: row.updated_at,
+    lat: exact ? row.lat : Math.round(row.lat * 100) / 100,
+    lng: exact ? row.lng : Math.round(row.lng * 100) / 100,
+    exact,
+    role,
+    requester: role === "helper" ? { name: row.contact_name, phone: row.contact_phone } : undefined,
+    helper: role === "requester" ? (row.helper_name ? { name: row.helper_name, phone: row.helper_phone ?? "" } : null) : undefined,
+    expired: row.status === "open" && ageHours > ROADSIDE_OPEN_HOURS,
+  };
+}
+
+export function createRoadsideRequest(input: {
+  ownerId: string;
+  issue: string;
+  lat: number;
+  lng: number;
+  note: string | null;
+  name: string;
+  phone: string;
+}) {
+  const db = getDb();
+  const openMine = db
+    .prepare("SELECT COUNT(*) AS n FROM roadside_requests WHERE owner_id = ? AND status IN ('open','accepted') AND created_at > datetime('now', '-6 hours')")
+    .get(input.ownerId) as { n: number };
+  if (openMine.n >= 3) return { ok: false as const, message: "You already have 3 open requests. Cancel one first." };
+  const publicId = `rh_${crypto.randomBytes(9).toString("base64url")}`;
+  db.prepare(
+    `INSERT INTO roadside_requests (public_id, owner_id, issue, lat, lng, note, contact_name, contact_phone)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(publicId, input.ownerId, input.issue, input.lat, input.lng, input.note, input.name, input.phone);
+  return { ok: true as const, request: getRoadsideRequest(publicId, input.ownerId)! };
+}
+
+export function getRoadsideRequest(publicId: string, viewer: string | null) {
+  const row = getDb().prepare("SELECT * FROM roadside_requests WHERE public_id = ?").get(publicId) as RoadsideRow | undefined;
+  return row ? roadsideView(row, viewer) : null;
+}
+
+export function listMyRoadside(viewer: string) {
+  const rows = getDb()
+    .prepare("SELECT * FROM roadside_requests WHERE owner_id = ? OR helper_owner_id = ? ORDER BY id DESC LIMIT 20")
+    .all(viewer, viewer) as RoadsideRow[];
+  return rows.map((row) => roadsideView(row, viewer));
+}
+
+export function listOpenRoadside(viewer: string | null) {
+  const rows = getDb()
+    .prepare(
+      `SELECT * FROM roadside_requests WHERE status = 'open' AND created_at > datetime('now', '-${ROADSIDE_OPEN_HOURS} hours')
+       ORDER BY id DESC LIMIT 200`,
+    )
+    .all() as RoadsideRow[];
+  return rows.map((row) => roadsideView(row, viewer));
+}
+
+export function acceptRoadside(publicId: string, helper: { ownerId: string; name: string; phone: string }) {
+  const db = getDb();
+  const row = db.prepare("SELECT * FROM roadside_requests WHERE public_id = ?").get(publicId) as RoadsideRow | undefined;
+  if (!row) return { ok: false as const, message: "That request is gone." };
+  if (row.owner_id === helper.ownerId) return { ok: false as const, message: "You can't accept your own request." };
+  const info = db
+    .prepare(
+      `UPDATE roadside_requests SET status = 'accepted', helper_owner_id = ?, helper_name = ?, helper_phone = ?,
+       accepted_at = datetime('now'), updated_at = datetime('now') WHERE public_id = ? AND status = 'open'`,
+    )
+    .run(helper.ownerId, helper.name, helper.phone, publicId);
+  if (!info.changes) return { ok: false as const, message: "Someone already took this one, or it was closed." };
+  return { ok: true as const, request: getRoadsideRequest(publicId, helper.ownerId)! };
+}
+
+/** Requester can cancel or mark done; the helper can mark done or release it back to open. */
+export function updateRoadside(publicId: string, viewer: string, action: "cancel" | "done" | "release") {
+  const db = getDb();
+  const row = db.prepare("SELECT * FROM roadside_requests WHERE public_id = ?").get(publicId) as RoadsideRow | undefined;
+  if (!row) return { ok: false as const, message: "That request is gone." };
+  const isOwner = row.owner_id === viewer;
+  const isHelper = row.helper_owner_id === viewer;
+  if (!isOwner && !isHelper) return { ok: false as const, message: "Only the requester or the helper can change this." };
+  if (row.status === "done" || row.status === "cancelled") return { ok: false as const, message: "This request is already closed." };
+  if (action === "cancel" && !isOwner) return { ok: false as const, message: "Only the requester can cancel." };
+  if (action === "release" && !isHelper) return { ok: false as const, message: "Only the helper can release it." };
+  if (action === "release") {
+    db.prepare(
+      "UPDATE roadside_requests SET status = 'open', helper_owner_id = NULL, helper_name = NULL, helper_phone = NULL, accepted_at = NULL, updated_at = datetime('now') WHERE public_id = ?",
+    ).run(publicId);
+  } else {
+    db.prepare("UPDATE roadside_requests SET status = ?, updated_at = datetime('now') WHERE public_id = ?").run(action === "cancel" ? "cancelled" : "done", publicId);
+  }
+  return { ok: true as const, request: getRoadsideRequest(publicId, viewer)! };
 }

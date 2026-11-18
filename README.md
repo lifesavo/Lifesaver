@@ -4,7 +4,7 @@ A mobile-first prototype that helps people keep more money: a bill and subscript
 
 **Premium is $9.99/month** and includes the whole money product: auto-cancel, bill negotiation, instant alerts, all deals, and savings goals.
 
-**Lend a Hand is $19.99/month after launch** and includes everything in Premium, plus posting odd jobs (yard work, moving, assembly, cleanup, errands), seeing helper offers, and booking one. Founding members who join the waitlist lock it at **$14.99/month for life**. Helpers in the demo are sample people. The task and offer shape is generic so it can later connect to Work For All, a separate gig platform. LifeSaver does not pretend that network is live.
+**Lend a Hand is $19.99/month after launch** and includes everything in Premium, plus posting odd jobs (yard work, moving, assembly, cleanup, errands), seeing helper offers, and booking one. Founding members who join the waitlist lock it at **$14.99/month for life**. Helpers in the demo are sample people. The task and offer shape is generic so it can later connect to Work For All, a separate gig platform. LifeSaver does not pretend that network is live. Every Lend a Hand member also qualifies as a helper and can earn by accepting odd jobs and roadside requests; there is no separate helper plan.
 
 Free is a short on-ramp: track bills, a few deals, and manual reminders.
 
@@ -172,3 +172,12 @@ Tasks have a category, title, timing, ZIP, and status. Offers have a helper, pri
 - Remote MCP server at `/api/mcp` (JSON-RPC 2.0 over Streamable HTTP, JSON responses, stateless). Public tools: `get_gas_prices`, `what_to_wear`, `plan_trip`, `roadside_help_info`, `giveaway_info`. Token tools: `list_my_trips`, `save_trip`, `delete_my_trip` (table `user_trips`, keyed by the device's `lifesaver_owner` cookie).
 - `/openapi.json`, `/llms.txt`, and `/.well-known/ai-plugin.json` describe the same endpoints.
 - TODO: help requests and partner roadside dispatch are not exposed yet.
+
+## Roadside Help
+
+- `/roadside`: issue picker (flat/blown tire, breakdown, out of gas, locked out, dead battery, accident → Call 911 first), geolocation with copy and `sms:` share, Call 911, safety steps, Maps links for tow/tire/fuel delivery/locksmith, AAA members' tel link, nearest gas for out-of-gas, and "Ask nearby Lend a Hand helpers".
+- `/roadside/helpers`: open requests within 50 miles sorted by distance (approximate location until accepted). Accept, mark done, or release. Requesters see status by polling.
+- API: `/api/roadside/requests` (GET `?lat&lng`, `?mine=1`, `?id=`; POST create; PATCH accept/done/cancel/release). Table `roadside_requests`, keyed by the `lifesaver_owner` cookie or a personal access token.
+- MCP: `create_help_request` and `list_my_help_requests` (token required), plus `roadside_help_info`.
+- Helper acceptance is not limited to paid members yet (no payments). Helping is included with Lend a Hand.
+- TODO(dispatch-partner): integrate a professional roadside dispatch API (HONK, Motify, Urgently, or similar). LifeSaver never claims a pro is dispatched or that help is guaranteed.

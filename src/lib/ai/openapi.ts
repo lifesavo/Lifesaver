@@ -69,8 +69,42 @@ export function openApiSpec() {
         get: {
           operationId: "roadsideHelpInfo",
           summary: "Roadside safety steps and nearby-service links",
-          parameters: [{ name: "issue", in: "query", schema: { type: "string", enum: ["flat_tire", "jump_start", "out_of_gas", "lockout", "wont_start", "accident"] } }],
+          parameters: [{ name: "issue", in: "query", schema: { type: "string", enum: ["flat_tire", "breakdown", "out_of_gas", "lockout", "jump_start", "accident"] } }],
           responses: { "200": ok("safety copy and per-issue steps and links") },
+        },
+      },
+      "/api/roadside/requests": {
+        get: {
+          operationId: "listMyHelpRequests",
+          summary: "The user's roadside help requests and their status",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "mine", in: "query", required: true, schema: { type: "string", enum: ["1"] } }],
+          responses: { "200": ok("requests") },
+        },
+        post: {
+          operationId: "createHelpRequest",
+          summary: "Ask nearby Lend a Hand helpers for roadside help (community members, not pros; not guaranteed)",
+          security: [{ bearer: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["issue", "lat", "lng", "name", "phone"],
+                  properties: {
+                    issue: { type: "string", enum: ["flat_tire", "breakdown", "out_of_gas", "lockout", "jump_start", "accident"] },
+                    lat: { type: "number" },
+                    lng: { type: "number" },
+                    name: { type: "string" },
+                    phone: { type: "string" },
+                    note: { type: "string", maxLength: 300 },
+                  },
+                },
+              },
+            },
+          },
+          responses: { "200": ok("request"), "400": err, "401": err, "429": err },
         },
       },
       "/api/giveaway": {
@@ -134,5 +168,10 @@ Rules for assistants:
 - list_my_trips: GET ${SITE}/api/me/trips
 - save_trip: POST ${SITE}/api/me/trips (plan object) or MCP save_trip
 - delete_my_trip: DELETE ${SITE}/api/me/trips?id=trip-...
+- create_help_request: POST ${SITE}/api/roadside/requests {"issue":"flat_tire","lat":39.1,"lng":-94.5,"name":"Sam","phone":"555-555-0100","note":"I-70 WB exit 49"}. Helpers are community members, not pros; not guaranteed.
+- list_my_help_requests: GET ${SITE}/api/roadside/requests?mine=1
+
+## Roadside
+- People who are stranded can open ${SITE}/roadside?issue=flat_tire (or breakdown, out_of_gas, lockout, jump_start, accident).
 `;
 }

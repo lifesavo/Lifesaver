@@ -89,7 +89,7 @@ export function AiScreen({ site }: { site: string }) {
           <li>⛽ Find the cheapest gas near a ZIP</li>
           <li>🧥 Tell you what to wear today</li>
           <li>🧳 Plan a day-by-day trip, and save it with your token</li>
-          <li>🛞 Roadside tips: flat tire, jump start, out of gas, lockout</li>
+          <li>🛞 Roadside help: safety tips, and (with your token) ask nearby Lend a Hand helpers</li>
           <li>💵 Check this week&apos;s free $100 giveaway</li>
         </ul>
         <p className="mt-2 text-xs">No token needed except for your saved trips.</p>

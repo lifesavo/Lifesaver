@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { answerQuestion, type ChatMessage } from "@/lib/assistant/reply";
 import { takeAsk } from "@/lib/db";
 import type { PaidPlan } from "@/lib/pricing";
+import { detectRoadside } from "@/lib/roadside/info";
 
 function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
     clientId = crypto.randomUUID();
     jar.set("lifesaver_ask", clientId, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 400 });
   }
-  const quota = takeAsk(clientId, plan !== "free");
+  // Never block someone who is stranded.
+  const quota = takeAsk(clientId, plan !== "free" || Boolean(detectRoadside(latest.content)));
   if (!quota.allowed) {
     return json(
       { ok: false, message: "Free includes 3 Ask LifeSaver questions a day. Premium and Lend a Hand are unlimited.", remaining: 0 },

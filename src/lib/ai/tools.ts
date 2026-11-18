@@ -2,6 +2,8 @@ import { countGiveawayEntries, deleteUserTrip, listUserTrips, publicWinnerFor, s
 import { lookupFuel } from "@/lib/fuel/providers";
 import { currentWeek, previousWeekKey, PRIZE_LABEL } from "@/lib/giveaway/week";
 import { roadsideInfo } from "@/lib/roadside/info";
+import { submitRoadsideRequest } from "@/lib/roadside/requests";
+import { listMyRoadside } from "@/lib/db";
 import { buildItinerary, normalizeInput, parseTripRequest, type Itinerary, type PlanInput } from "@/lib/travel/itinerary";
 import { forecast, geocodeUs } from "@/lib/weather/fetch";
 import { pickOutfit } from "@/lib/weather/outfit";
@@ -136,8 +138,8 @@ export const AI_TOOLS: AiTool[] = [
     name: "roadside_help_info",
     title: "Roadside help guide",
     description:
-      "Safety steps and nearby-service links for flat_tire, jump_start, out_of_gas, lockout, wont_start, or accident. Guidance only: LifeSaver does not dispatch anyone and nothing is guaranteed. Tell the user to call 911 if they are in danger.",
-    inputSchema: { type: "object", properties: { issue: { type: "string", enum: ["flat_tire", "jump_start", "out_of_gas", "lockout", "wont_start", "accident"] } }, additionalProperties: false },
+      `Safety steps and nearby-service links for flat_tire, breakdown, out_of_gas, lockout, jump_start (dead battery), or accident. The user can open ${SITE}/roadside?issue=<issue> for location sharing, tow links, and nearby helpers. Guidance only: LifeSaver does not dispatch anyone and nothing is guaranteed. Tell the user to call 911 if they are in danger.`,
+    inputSchema: { type: "object", properties: { issue: { type: "string", enum: ["flat_tire", "breakdown", "out_of_gas", "lockout", "jump_start", "accident"] } }, additionalProperties: false },
     auth: false,
     readOnly: true,
     async run(args) {
@@ -167,6 +169,43 @@ export const AI_TOOLS: AiTool[] = [
         rules: `${SITE}/giveaway/rules`,
         note: "Free to enter. The user must enter themselves on the giveaway page.",
       };
+    },
+  },
+  {
+    name: "create_help_request",
+    title: "Ask nearby Lend a Hand helpers (roadside)",
+    description:
+      "Posts a roadside help request so nearby LifeSaver Lend a Hand members can see it and accept. Helpers are community members, not professionals; nobody is guaranteed to respond and no tow or pro is dispatched. If anyone is in danger, tell the user to call 911 first. Needs the user's token. Get their exact location and consent before calling.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        issue: { type: "string", enum: ["flat_tire", "breakdown", "out_of_gas", "lockout", "jump_start", "accident"] },
+        lat: { type: "number" },
+        lng: { type: "number" },
+        name: { type: "string", description: "Requester's first name" },
+        phone: { type: "string", description: "Phone a helper can call or text" },
+        note: { type: "string", description: "Where exactly, the car, what they need (max 300 chars)" },
+      },
+      required: ["issue", "lat", "lng", "name", "phone"],
+      additionalProperties: false,
+    },
+    auth: true,
+    readOnly: false,
+    async run(args, ownerId) {
+      const result = submitRoadsideRequest(ownerId!, args);
+      if (!result.ok) throw new ToolError(result.message);
+      return { request: result.request, statusPage: `${SITE}/roadside`, note: "Posted to nearby helpers. Not guaranteed. Keep calling a tow or 911 if needed." };
+    },
+  },
+  {
+    name: "list_my_help_requests",
+    title: "My roadside help requests",
+    description: "Status of the user's roadside help requests (open, accepted with helper name and phone, done, cancelled). Needs the user's token.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    auth: true,
+    readOnly: true,
+    async run(_args, ownerId) {
+      return { requests: listMyRoadside(ownerId!).filter((r) => r.role === "requester"), statusPage: `${SITE}/roadside` };
     },
   },
   {
