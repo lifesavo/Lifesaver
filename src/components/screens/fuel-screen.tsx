@@ -54,15 +54,27 @@ export function FuelScreen() {
   }, [profile, radius]);
 
   const grades = lookup ? availableGrades(lookup) : [];
-  const mapSrc = useMemo(() => {
-    if (!lookup) return "";
-    const pad = radius.meters / 111320;
-    const south = lookup.center.lat - pad;
-    const north = lookup.center.lat + pad;
-    const west = lookup.center.lng - pad;
-    const east = lookup.center.lng + pad;
-    return `https://www.openstreetmap.org/export/embed.html?bbox=${west}%2C${south}%2C${east}%2C${north}&layer=mapnik&marker=${lookup.center.lat}%2C${lookup.center.lng}`;
-  }, [lookup, radius.meters]);
+  const pins = useMemo(() => {
+    if (!lookup) return null;
+    const points = lookup.stations.slice(0, 8);
+    const lats = [lookup.center.lat, ...points.map((station) => station.lat)];
+    const lngs = [lookup.center.lng, ...points.map((station) => station.lng)];
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+    const xFor = (lng: number) => ((lng - minLng) / Math.max(0.0001, maxLng - minLng)) * 84 + 8;
+    const yFor = (lat: number) => ((maxLat - lat) / Math.max(0.0001, maxLat - minLat)) * 76 + 12;
+    return {
+      you: { x: xFor(lookup.center.lng), y: yFor(lookup.center.lat) },
+      stations: points.map((station) => ({
+        id: station.id,
+        name: station.name,
+        x: xFor(station.lng),
+        y: yFor(station.lat),
+      })),
+    };
+  }, [lookup]);
 
   if (!profile) return null;
 
@@ -100,9 +112,20 @@ export function FuelScreen() {
       {lookup && (
         <>
           <p className="text-sm text-muted-foreground">{lookup.notice}</p>
-          <iframe title="Map of this search area" className="h-56 w-full rounded-3xl border border-ink/10" src={mapSrc} />
+          {pins && (
+            <div className="relative h-56 overflow-hidden rounded-3xl border border-ink/10 bg-[#d7ead8]" role="img" aria-label="Map of nearby gas stations">
+              <span className="absolute rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white" style={{ left: `${pins.you.x}%`, top: `${pins.you.y}%`, transform: "translate(-50%, -50%)" }}>
+                You
+              </span>
+              {pins.stations.map((station) => (
+                <span key={station.id} className="absolute max-w-24 truncate rounded-full bg-ink px-2 py-0.5 text-[10px] font-bold text-white" style={{ left: `${station.x}%`, top: `${station.y}%`, transform: "translate(-50%, -50%)" }}>
+                  {station.name}
+                </span>
+              ))}
+            </div>
+          )}
           <p className="text-xs text-muted-foreground">
-            Map tiles and station places © OpenStreetMap contributors. The pin is your search center.
+            Station places are from OpenStreetMap. Pins show your search center and the nearest names.
           </p>
           <GradeToggle grade={grade} onChange={setGrade} available={grades} />
           <StationRows lookup={lookup} grade={grade} />
