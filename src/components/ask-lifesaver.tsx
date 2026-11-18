@@ -30,6 +30,7 @@ const tabbed = new Set([
   "/travel",
   "/nights",
   "/plan",
+  "/weather",
 ]);
 
 export function AskLifeSaver() {

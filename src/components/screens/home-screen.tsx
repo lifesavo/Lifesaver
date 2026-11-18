@@ -6,6 +6,7 @@ import { FuelCard } from "@/components/fuel-card";
 import { GetAHand } from "@/components/get-a-hand";
 import { GiveawayCard } from "@/components/giveaway/giveaway-card";
 import { PlanChip } from "@/components/plan-chip";
+import { WeatherCard } from "@/components/weather-card";
 import { alerts, bills, DEMO_AS_OF, institutions, ledger, MONTH_SAVED } from "@/lib/demo-data";
 import { areaLabel, money } from "@/lib/money";
 import { PREMIUM_PRICE_LABEL } from "@/lib/pricing";
@@ -46,6 +47,8 @@ export function HomeScreen() {
         </h2>
         <p className="mt-1 text-sm leading-6">{tip}</p>
       </section>
+
+      <WeatherCard zip={profile.zip} />
 
       <GiveawayCard email={profile.email} />
 
