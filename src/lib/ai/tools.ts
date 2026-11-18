@@ -7,6 +7,8 @@ import { listMyRoadside } from "@/lib/db";
 import { buildItinerary, normalizeInput, parseTripRequest, type Itinerary, type PlanInput } from "@/lib/travel/itinerary";
 import { forecast, geocodeUs } from "@/lib/weather/fetch";
 import { pickOutfit } from "@/lib/weather/outfit";
+import { alertsAt } from "@/lib/weather/alerts";
+import { tripAlerts } from "@/lib/weather/trip-alerts";
 
 export const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://golifesaver.com").replace(/\/$/, "");
 
@@ -120,6 +122,30 @@ export const AI_TOOLS: AiTool[] = [
         report = await forecast(place.lat, place.lng, place.name);
       } else throw new ToolError("Send a place (ZIP or city) or lat and lng.");
       return { weather: report, outfit: pickOutfit(report), moreAt: `${SITE}/weather` };
+    },
+  },
+  {
+    name: "get_alerts",
+    title: "Weather and travel alerts",
+    description:
+      "Active National Weather Service watches, warnings, and advisories for a US place or coordinates. With destination (and optional origin), checks the destination plus a few points on a straight line along the way and returns state road-conditions/511 links. Alerts can be missed or delayed; in an emergency follow local officials.",
+    inputSchema: {
+      type: "object",
+      properties: { place: { type: "string", description: "ZIP or 'City, ST'" }, ...point, destination: { type: "string" }, origin: { type: "string" } },
+      additionalProperties: false,
+    },
+    auth: false,
+    readOnly: true,
+    async run(args) {
+      if (str(args.destination)) return { ...(await tripAlerts(str(args.destination), str(args.origin) || undefined)), moreAt: `${SITE}/alerts` };
+      const lat = num(args.lat);
+      const lng = num(args.lng);
+      if (lat != null && lng != null) return { alerts: await alertsAt(lat, lng), moreAt: `${SITE}/alerts` };
+      if (str(args.place).length >= 2) {
+        const place = await geocodeUs(str(args.place));
+        return { place: place.name, alerts: await alertsAt(place.lat, place.lng), moreAt: `${SITE}/alerts` };
+      }
+      throw new ToolError("Send a place, lat and lng, or a destination.");
     },
   },
   {

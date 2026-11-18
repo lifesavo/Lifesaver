@@ -5,6 +5,8 @@ import { money } from "@/lib/money";
 import { cheapest, deliveryOptions, rideOptions } from "@/lib/rides";
 import { offersFor, type TaskCategory } from "@/lib/tasks";
 import { searchTrip } from "@/lib/travel/search";
+import { alertsAt } from "@/lib/weather/alerts";
+import { geocodeUs } from "@/lib/weather/fetch";
 import { detectRoadside, ROADSIDE, ROADSIDE_SAFETY, type RoadsideIssue } from "@/lib/roadside/info";
 import { buildItinerary, normalizeInput, parseTripRequest, summarize, type PlanInput } from "@/lib/travel/itinerary";
 import type { PaidPlan } from "@/lib/pricing";
@@ -115,6 +117,26 @@ export async function runTool(
         },
       ].filter(Boolean) as ToolCard[],
     };
+  }
+
+  if (name === "weather_alerts") {
+    const place = typeof args.place === "string" && args.place.trim().length >= 2 ? args.place.trim() : context.zip;
+    if (!place) return { text: "Tell me a ZIP or city and I'll check the National Weather Service.", cards: [{ title: "Open Alerts", body: "Uses your location.", href: "/alerts" }] };
+    try {
+      const spot = await geocodeUs(place);
+      const alerts = await alertsAt(spot.lat, spot.lng);
+      if (!alerts.length) {
+        return { text: `No active National Weather Service alerts for ${spot.name} right now.`, cards: [{ title: "Open Alerts", body: "Check another place or turn on severe-alert notifications.", href: "/alerts" }] };
+      }
+      return {
+        text: `${alerts.length} active alert${alerts.length === 1 ? "" : "s"} for ${spot.name} from the National Weather Service:`,
+        cards: [
+          ...alerts.slice(0, 3).map((a) => ({ title: `${a.severity}: ${a.event}`, body: `${a.headline}${a.instruction ? ` ${a.instruction.slice(0, 160)}…` : ""}`, href: "/alerts" })),
+        ],
+      };
+    } catch (cause) {
+      return { text: cause instanceof Error ? cause.message : "I couldn't check alerts right now.", cards: [{ title: "Open Alerts", body: "Try again there.", href: "/alerts" }] };
+    }
   }
 
   if (name === "roadside_help") {

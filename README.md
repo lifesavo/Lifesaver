@@ -181,3 +181,10 @@ Tasks have a category, title, timing, ZIP, and status. Offers have a helper, pri
 - MCP: `create_help_request` and `list_my_help_requests` (token required), plus `roadside_help_info`.
 - Helper acceptance is not limited to paid members yet (no payments). Helping is included with Lend a Hand.
 - TODO(dispatch-partner): integrate a professional roadside dispatch API (HONK, Motify, Urgently, or similar). LifeSaver never claims a pro is dispatched or that help is guaranteed.
+
+## Weather and travel alerts
+
+- `/alerts` lists active NWS alerts (api.weather.gov, User-Agent set) for the user's location or a ZIP/city, with severity, headline, instructions, and expiry. A red (Severe/Extreme) or orange banner shows at the top of Home and `/weather` when anything is active.
+- Saved trips show alerts at the destination and at a few points sampled on a straight line from the origin, plus state road-conditions/511 links (FHWA directory as fallback).
+- Optional browser notifications for new Severe/Extreme alerts while the app is open (polls every 10 minutes). Not guaranteed.
+- Ask LifeSaver answers "any weather alerts?"; MCP tool `get_alerts`; REST `/api/alerts` and `/api/alerts/trip`.

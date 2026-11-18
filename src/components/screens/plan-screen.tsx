@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { PlanChip } from "@/components/plan-chip";
 import { INTERESTS, isoDate, itineraryToIcs, type Interest, type Itinerary, type PlanInput } from "@/lib/travel/itinerary";
 import { useProfile } from "@/lib/profile";
+import { TripAlerts } from "@/components/alerts";
 
 const SAVED_KEY = "lifesaver.itineraries.v1";
 
@@ -97,6 +98,8 @@ function PlanView({ plan, saved, onSave }: { plan: Itinerary; saved: boolean; on
           </ol>
         </section>
       ))}
+
+      <TripAlerts destination={plan.input.destination} origin={plan.input.origin} />
 
       <section className="space-y-2">
         <h2 className="font-serif text-2xl">Compare prices</h2>

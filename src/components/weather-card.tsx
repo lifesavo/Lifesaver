@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { LocateFixed } from "lucide-react";
 import { conditionFor, type Outfit, type WeatherReport } from "@/lib/weather/outfit";
+import { AlertsBanner } from "@/components/alerts";
 
 type State = { report: WeatherReport; outfit: Outfit; via: "location" | "place" } | null;
 
@@ -101,6 +102,8 @@ export function WeatherScreen({ zip }: { zip: string }) {
         <h1 className="font-serif text-3xl tracking-tight">What to wear</h1>
         <p className="mt-1 text-sm text-muted-foreground">Today&apos;s weather turned into an outfit. Works anywhere in the US.</p>
       </header>
+
+      <AlertsBanner zip={zip} />
 
       <form
         className="flex gap-2"

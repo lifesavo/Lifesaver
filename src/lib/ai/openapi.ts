@@ -65,6 +65,29 @@ export function openApiSpec() {
           responses: { "200": ok("plan: days, budget (estimates), packing, links"), "400": err },
         },
       },
+      "/api/alerts": {
+        get: {
+          operationId: "getAlerts",
+          summary: "Active National Weather Service alerts for a place",
+          parameters: [
+            { name: "q", in: "query", description: "US ZIP or 'City, ST'", schema: { type: "string" } },
+            { name: "lat", in: "query", schema: { type: "number" } },
+            { name: "lng", in: "query", schema: { type: "number" } },
+          ],
+          responses: { "200": ok("alerts sorted by severity"), "400": err, "502": err },
+        },
+      },
+      "/api/alerts/trip": {
+        get: {
+          operationId: "getTripAlerts",
+          summary: "Alerts at a destination and sampled points along the way, plus state road-conditions links",
+          parameters: [
+            { name: "destination", in: "query", required: true, schema: { type: "string" } },
+            { name: "origin", in: "query", schema: { type: "string" } },
+          ],
+          responses: { "200": ok("destination, route, roads"), "400": err, "502": err },
+        },
+      },
       "/api/roadside": {
         get: {
           operationId: "roadsideHelpInfo",
@@ -163,6 +186,7 @@ Rules for assistants:
 - plan_trip: POST ${SITE}/api/itinerary {"text":"Plan a 3-day trip to Nashville Dec 5-7 for 2, $800"}
 - roadside_help_info: GET ${SITE}/api/roadside?issue=flat_tire
 - giveaway_info: GET ${SITE}/api/giveaway
+- get_alerts: GET ${SITE}/api/alerts?q=Denver,%20CO or ${SITE}/api/alerts/trip?origin=Kansas%20City&destination=Denver
 
 ## With the user's token
 - list_my_trips: GET ${SITE}/api/me/trips

@@ -8,6 +8,7 @@ import { GiveawayCard } from "@/components/giveaway/giveaway-card";
 import { AiBadge, AiSection } from "@/components/ai/ai-badge";
 import { PlanChip } from "@/components/plan-chip";
 import { WeatherCard } from "@/components/weather-card";
+import { AlertsBanner } from "@/components/alerts";
 import { alerts, bills, DEMO_AS_OF, institutions, ledger, MONTH_SAVED } from "@/lib/demo-data";
 import { areaLabel, money } from "@/lib/money";
 import { PREMIUM_PRICE_LABEL } from "@/lib/pricing";
@@ -49,6 +50,8 @@ export function HomeScreen() {
         </h2>
         <p className="mt-1 text-sm leading-6">{tip}</p>
       </section>
+
+      <AlertsBanner zip={profile.zip} />
 
       <Link href="/roadside" className="flex items-center gap-3 rounded-3xl bg-[#dc2626] px-4 py-4 text-white shadow-[4px_4px_0_#2a1038]">
         <span className="text-4xl" aria-hidden="true">🛞</span>

@@ -16,6 +16,7 @@ const toolDefs = [
   { name: "cheapest_trip", description: "Search a trip from, to, dates, and travelers.", parameters: { from: "string", to: "string", depart: "string", returnDate: "string", travelers: "number" } },
   { name: "plan_trip", description: "Build a day-by-day travel itinerary with budget split, packing list, and price-comparison links. Pass the user's full trip request in request (destination, dates, travelers, budget, interests).", parameters: { request: "string" } },
   { name: "roadside_help", description: "Someone is stranded: flat or blown tire, breakdown, out of gas, locked out, dead battery, or accident. Returns safety steps and links into Roadside Help.", parameters: { issue: "string", message: "string" } },
+  { name: "weather_alerts", description: "Active National Weather Service alerts near the user's ZIP or a named place.", parameters: { place: "string" } },
   { name: "cut_bills", description: "List sample subscriptions worth canceling.", parameters: {} },
   { name: "local_deals", description: "Show sample local deals.", parameters: {} },
   { name: "build_budget", description: "Build a simple monthly budget from take-home income.", parameters: { income: "number" } },
@@ -26,6 +27,10 @@ function pickTool(message: string): { name: string; args: Record<string, unknown
   const text = message.toLowerCase();
   const roadside = detectRoadside(message);
   if (roadside) return { name: "roadside_help", args: { issue: roadside, message } };
+  if (/\b(weather )?(alerts?|warnings?|watch(es)?|advisor(y|ies))\b/.test(text) && /weather|alert|storm|tornado|warning|advisor|flood|snow|ice|wind|heat/.test(text)) {
+    const place = message.match(/\b(?:in|for|near|at)\s+([A-Za-z][A-Za-z .'-]+(?:,\s*[A-Za-z]{2})?|\d{5})/)?.[1]?.trim();
+    return { name: "weather_alerts", args: { place } };
+  }
   const income = text.match(/\$?\s*(\d{3,6})/);
   if (/budget|take-home|paycheck|i make|i earn/.test(text)) {
     return { name: "build_budget", args: { income: income ? Number(income[1]) : 0 } };
