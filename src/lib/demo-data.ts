@@ -226,7 +226,7 @@ export const alerts = [
     billId: "planet",
     kicker: "Unused subscription",
     title: "Planet Fitness is idle",
-    body: "No visits in 46 days. The membership is $24.99 a month.",
+    body: "No visits in 46 days. The membership is $19.99 a month.",
   },
 ] as const;
 

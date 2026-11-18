@@ -62,7 +62,7 @@ export function ShareCard() {
                 fontSize: 28,
               }}
             >
-              Lend a Hand $20.00
+              Lend a Hand $14.99
             </div>
           </div>
         </div>

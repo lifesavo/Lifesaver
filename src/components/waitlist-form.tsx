@@ -129,9 +129,9 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
         founding: Boolean(data.founding),
         shareCode: data.shareCode || "",
         foundingPremium: data.foundingPremium || "$7.99",
-        foundingHand: data.foundingHand || "$20.00",
+        foundingHand: data.foundingHand || "$14.99",
         regularPremium: data.regularPremium || "$9.99",
-        regularHand: data.regularHand || "$24.99",
+        regularHand: data.regularHand || "$19.99",
       });
       if (typeof data.count === "number") setCount(data.count);
     } catch {

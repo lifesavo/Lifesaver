@@ -93,7 +93,7 @@ export async function runTool(
     if (!to) return { text: "Tell me where you want to go.", cards: [{ title: "Open travel", body: "Enter the trip there.", href: "/travel" }] };
     if (context.plan !== "hand") {
       return {
-        text: "Cheapest trips are part of Lend a Hand at $24.99 a month after launch, or $20.00 for life if you joined the waitlist. I can still point you there.",
+        text: "Cheapest trips are part of Lend a Hand at $19.99 a month after launch, or $14.99 for life if you joined the waitlist. I can still point you there.",
         cards: [{ title: "See Lend a Hand", body: "Flights, stays, and cars.", href: "/pricing" }],
       };
     }
@@ -195,7 +195,7 @@ export async function runTool(
     if (context.plan !== "hand") {
       return {
         text: `Try this first:\n${tips.map((tip, index) => `${index + 1}. ${tip}`).join("\n")}\n\nPosting a helper is part of Lend a Hand.`,
-        cards: [{ title: "Upgrade to Lend a Hand", body: "$24.99/mo after launch. Founding members lock $20.00/mo for life.", href: "/pricing" }],
+        cards: [{ title: "Upgrade to Lend a Hand", body: "$19.99/mo after launch. Founding members lock $14.99/mo for life.", href: "/pricing" }],
       };
     }
     const offers = offersFor(category).slice(0, 2);
