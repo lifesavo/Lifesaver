@@ -35,7 +35,7 @@ export function GiveawayScreen() {
         <p className="flex items-center gap-1.5 text-xs font-bold tracking-wide uppercase">
           <Gift className="size-4" aria-hidden="true" /> LifeSaver Weekly Giveaway
         </p>
-        <h1 className="mt-2 font-serif text-4xl leading-tight tracking-tight">$100 every week — free to enter</h1>
+        <h1 className="mt-2 font-serif text-4xl leading-tight tracking-tight">One winner gets $100 every week — free to enter</h1>
         <p className="mt-2 text-sm leading-6 text-white/90">
           One winner, drawn at random every Sunday at 8 PM Central. Everyone gets the same single entry.
         </p>
@@ -111,7 +111,7 @@ export function GiveawayScreen() {
         NO PURCHASE NECESSARY. A purchase will not increase your chances of winning. Open to legal U.S. residents 18+.
         Void where prohibited. Odds depend on the number of eligible entries. This is a free promotional sweepstakes,
         not a game of chance you pay to play. Not sponsored by or affiliated with TikTok, Meta, Apple, or Google.{" "}
-        <Link href="/giveaway/rules" className="font-semibold text-primary underline">
+        <Link href="/giveaway-rules" className="font-semibold text-primary underline">
           Official Rules
         </Link>
       </p>

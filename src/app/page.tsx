@@ -198,25 +198,41 @@ export default function HomePage() {
         </section>
 
         <section className="mx-auto w-full max-w-6xl px-4 pb-14">
-          <Link
-            href="/giveaway"
-            className="block rounded-3xl bg-gradient-to-br from-[#ffb800] via-[#ff4fa3] to-[#7c3aed] px-6 py-6 text-white shadow-lg"
-          >
-            <p className="text-xs font-bold tracking-wide uppercase">Weekly giveaway</p>
-            <p className="mt-1 font-serif text-3xl leading-tight sm:text-4xl">$100 every week — free to enter</p>
-            <p className="mt-1 text-sm text-white/90">
-              One entry per person, drawn every Sunday at 8 PM Central. No purchase necessary. See Official Rules.
+          <div className="rounded-3xl bg-gradient-to-br from-[#ffb800] via-[#ff4fa3] to-[#7c3aed] px-6 py-6 text-white shadow-lg">
+            <Link href="/giveaway" className="block">
+              <p className="text-xs font-bold tracking-wide uppercase">Weekly giveaway</p>
+              <p className="mt-1 font-serif text-3xl leading-tight sm:text-4xl">
+                One winner gets $100 every week — free to enter
+              </p>
+              <p className="mt-1 text-sm text-white/90">
+                One entry per person, drawn every Sunday at 8 PM Central. No purchase necessary.
+              </p>
+            </Link>
+            <p className="mt-3 text-sm text-white/90">
+              <Link href="/giveaway-rules" className="font-semibold underline">
+                Official Rules
+              </Link>
             </p>
-          </Link>
+          </div>
         </section>
       </main>
 
       <footer className="border-t-2 border-ink/10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-8 sm:flex-row sm:items-center sm:justify-between">
           <Wordmark compact />
-          <p className="max-w-md text-sm text-muted-foreground">
-            Gas and deal prices are estimates, so check at the pump or store. Rides open Uber, Lyft, and others in their own apps.
-          </p>
+          <div className="max-w-md space-y-2 text-sm text-muted-foreground">
+            <p>
+              Gas and deal prices are estimates, so check at the pump or store. Rides open Uber, Lyft, and others in their own apps.
+            </p>
+            <p className="flex flex-wrap gap-x-4 gap-y-1">
+              <Link href="/giveaway" className="font-semibold text-foreground underline">
+                Weekly $100 giveaway
+              </Link>
+              <Link href="/giveaway-rules" className="font-semibold text-foreground underline">
+                Official Rules
+              </Link>
+            </p>
+          </div>
         </div>
       </footer>
     </div>

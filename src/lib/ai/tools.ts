@@ -192,7 +192,7 @@ export const AI_TOOLS: AiTool[] = [
         entrants: countGiveawayEntries(week.key),
         lastWinner: winner ? (winner.firstName ? `${winner.firstName}${winner.lastInitial ? ` ${winner.lastInitial}.` : ""}` : "A LifeSaver member") : null,
         enterAt: `${SITE}/giveaway`,
-        rules: `${SITE}/giveaway/rules`,
+        rules: `${SITE}/giveaway-rules`,
         note: "Free to enter. The user must enter themselves on the giveaway page.",
       };
     },

@@ -103,7 +103,7 @@ export function GiveawayEntryForm({
         />
         <span>
           I&apos;m a legal U.S. resident, 18 or older, and I agree to the{" "}
-          <Link href="/giveaway/rules" className="font-semibold text-primary underline">
+          <Link href="/giveaway-rules" className="font-semibold text-primary underline">
             Official Rules
           </Link>
           .
