@@ -4,7 +4,7 @@ A mobile-first prototype that helps people keep more money: a bill and subscript
 
 **Premium is $9.99/month** and includes the whole money product: auto-cancel, bill negotiation, instant alerts, all deals, and savings goals.
 
-**Lend a Hand is $24.99/month after launch** and includes everything in Premium, plus posting odd jobs (yard work, moving, assembly, cleanup, errands), seeing helper offers, and booking one. Founding members who join the waitlist lock it at **$20.00/month for life**. Helpers in the demo are sample people. The task and offer shape is generic so it can later connect to Work For All, a separate gig platform. LifeSaver does not pretend that network is live.
+**Lend a Hand is $25.99/month after launch** and includes everything in Premium, plus posting odd jobs (yard work, moving, assembly, cleanup, errands), seeing helper offers, and booking one. Founding members who join the waitlist lock it at **$20.00/month for life**. Helpers in the demo are sample people. The task and offer shape is generic so it can later connect to Work For All, a separate gig platform. LifeSaver does not pretend that network is live.
 
 Free is a short on-ramp: track bills, a few deals, and manual reminders.
 
@@ -34,7 +34,7 @@ Set `ADMIN_TOKEN` in `.env.local` before using the admin count.
 - `/savings` history and goals
 - `/hand` post a task, see offers, book
 - `/rides` sample Uber / Lyft / Uber Eats / DoorDash links
-- `/pricing` free, Premium at $9.99 after launch ($7.99 founding), Lend a Hand at $24.99 after launch ($20.00 founding)
+- `/pricing` free, Premium at $9.99 after launch ($7.99 founding), Lend a Hand at $25.99 after launch ($20.00 founding)
 
 On the first onboarding step, **Sample profile** opens the app as `alex@example.com` in 94110.
 
@@ -61,7 +61,7 @@ npm start
 }
 ```
 
-The landing page reads `?ref=` plus `utm_source`, `utm_medium`, and `utm_campaign` from the URL and sends them with the signup. Known sources are `tiktok`, `instagram`, `x` (also `twitter`), `reddit`, and `facebook`. The first signup for an email keeps its tags. A repeat email is “already on the list.” Every waitlist row is stored with `founding = 1`, which locks Premium at $7.99/month for life and Lend a Hand at $20.00/month for life. After launch, people who did not join pay $9.99 and $24.99. The confirmation includes a referral share message with those locked rates.
+The landing page reads `?ref=` plus `utm_source`, `utm_medium`, and `utm_campaign` from the URL and sends them with the signup. Known sources are `tiktok`, `instagram`, `x` (also `twitter`), `reddit`, and `facebook`. The first signup for an email keeps its tags. A repeat email is “already on the list.” Every waitlist row is stored with `founding = 1`, which locks Premium at $7.99/month for life and Lend a Hand at $20.00/month for life. After launch, people who did not join pay $9.99 and $25.99. The confirmation includes a referral share message with those locked rates.
 
 `GET /api/waitlist` returns `{ "count": N }` and does not list emails.
 
@@ -160,7 +160,7 @@ Tasks have a category, title, timing, ZIP, and status. Offers have a helper, pri
 
 **Gas, grocery, and food deals.** Swap samples for a gas-price feed and grocery or affiliate offer APIs. Keep distance and a clear fallback label.
 
-**Stripe.** Bill Premium at $9.99/month after launch, or $7.99/month for life for founding members. Bill Lend a Hand at $24.99/month after launch, or $20.00/month for life for founding members. The demo switch does not charge a card.
+**Stripe.** Bill Premium at $9.99/month after launch, or $7.99/month for life for founding members. Bill Lend a Hand at $25.99/month after launch, or $20.00/month for life for founding members. The demo switch does not charge a card.
 
 **Work For All.** Send booked tasks to that platform when the owner connects it. Keep vetting and payouts there.
 

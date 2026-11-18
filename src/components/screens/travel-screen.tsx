@@ -190,6 +190,10 @@ export function TravelScreen() {
         <PlanChip />
       </header>
 
+      <Link href="/plan" className="block rounded-2xl bg-lime px-4 py-3 text-sm font-bold text-ink">
+        Need a day-by-day plan? Open the free Trip planner
+      </Link>
+
       <form className="space-y-3 rounded-3xl border-2 border-ink/10 bg-card p-4" onSubmit={search}>
         <div className="grid grid-cols-2 gap-2">
           <div>

@@ -63,6 +63,11 @@ export function HomeScreen() {
           <p className="mt-1 text-xs text-white/80">Girls&apos; Night and Guys&apos; Night. Coming soon until posted.</p>
         </Link>
       </div>
+      <Link href="/plan" className="block rounded-3xl bg-gradient-to-br from-[#ff7a18] via-[#e01470] to-[#6d28d9] px-4 py-4 text-white">
+        <p className="text-xs font-bold tracking-wide text-lime uppercase">New · Free</p>
+        <p className="font-serif text-2xl leading-tight">Plan a trip in seconds</p>
+        <p className="mt-1 text-sm text-white/90">Day-by-day itinerary, budget split, packing list, and it drops right into your calendar.</p>
+      </Link>
       <Link href="/travel" className="block rounded-3xl bg-cyan px-4 py-4 text-ink">
         <p className="text-xs font-bold tracking-wide uppercase">Lend a Hand</p>
         <p className="font-serif text-2xl leading-tight">Cheapest flights, hotels, and cars</p>
@@ -179,7 +184,7 @@ export function HomeScreen() {
             {PREMIUM_PRICE_LABEL}.
           </p>
           <p className="mt-3 text-sm leading-6 text-white/80">
-            Premium is $9.99 after launch. Lend a Hand is $24.99 after launch, or $20.00 for life on the waitlist.
+            Premium is $9.99 after launch. Lend a Hand is $25.99 after launch, or $20.00 for life on the waitlist.
           </p>
         </Link>
       ) : (

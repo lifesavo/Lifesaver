@@ -1,7 +1,10 @@
 export const PREMIUM_PRICE = 9.99;
 export const PREMIUM_PRICE_LABEL = "$9.99";
-export const HAND_PRICE = 24.99;
-export const HAND_PRICE_LABEL = "$24.99";
+export const HAND_PRICE = 25.99;
+export const HAND_PRICE_LABEL = "$25.99";
+/** Helper plan: for people who earn money accepting Lend a Hand and roadside requests. */
+export const HELPER_PRICE = 50;
+export const HELPER_PRICE_LABEL = "$50.00";
 export const FOUNDING_PREMIUM_LABEL = "$7.99";
 export const FOUNDING_HAND_LABEL = "$20.00";
 
@@ -32,6 +35,21 @@ export const handIncludes = [
   {
     title: "Book and confirm",
     body: "A booking stays on the task. The live network can later plug into Work For All.",
+  },
+] as const;
+
+export const helperIncludes = [
+  {
+    title: "Earn helping neighbors",
+    body: "See nearby Lend a Hand requests, like yard work, moving, and errands, and send your price.",
+  },
+  {
+    title: "Accept requests",
+    body: "An active Helper plan is required to accept Lend a Hand and roadside requests.",
+  },
+  {
+    title: "Your helper profile",
+    body: "Skills, area, and ratings from the people you help.",
   },
 ] as const;
 

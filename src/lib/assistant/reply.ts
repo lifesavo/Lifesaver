@@ -13,6 +13,7 @@ const toolDefs = [
   { name: "cheapest_gas", description: "Find the cheapest gas stations near a ZIP.", parameters: { zip: "string" } },
   { name: "compare_rides", description: "Compare sample Uber and Lyft prices.", parameters: {} },
   { name: "cheapest_trip", description: "Search a trip from, to, dates, and travelers.", parameters: { from: "string", to: "string", depart: "string", returnDate: "string", travelers: "number" } },
+  { name: "plan_trip", description: "Build a day-by-day travel itinerary with budget split, packing list, and price-comparison links. Pass the user's full trip request in request (destination, dates, travelers, budget, interests).", parameters: { request: "string" } },
   { name: "cut_bills", description: "List sample subscriptions worth canceling.", parameters: {} },
   { name: "local_deals", description: "Show sample local deals.", parameters: {} },
   { name: "build_budget", description: "Build a simple monthly budget from take-home income.", parameters: { income: "number" } },
@@ -30,6 +31,11 @@ function pickTool(message: string): { name: string; args: Record<string, unknown
     const zip = text.match(/\b(\d{5})\b/);
     return { name: "cheapest_gas", args: { zip: zip?.[1] } };
   }
+  const wantsPlan =
+    /itinerar|vacation|getaway|road trip|honeymoon|things to do in/.test(text) ||
+    (/\bplan\b/.test(text) && /trip|travel|visit|weekend|days?\b|nights?\b/.test(text)) ||
+    (/\btrip\b/.test(text) && !/cheap|flight|hotel|fare|car rental|price/.test(text));
+  if (wantsPlan) return { name: "plan_trip", args: { request: message } };
   if (/flight|hotel|trip|travel|car rental/.test(text)) {
     const to = text.match(/\bto\s+([a-z][a-z .'-]{2,30})/i)?.[1]?.trim() ?? "";
     return { name: "cheapest_trip", args: { from: "SFO", to, depart: "2026-12-04", returnDate: "2026-12-08", travelers: 1 } };
@@ -90,7 +96,7 @@ async function modelReply(
   const chat: Array<Record<string, unknown>> = [
     {
       role: "system",
-      content: `You are Ask LifeSaver. Help people save money. Use tools for gas, rides, trips, bills, deals, budgets, and helper requests. ZIP is ${context.zip || "unknown"}. Plan is ${context.plan}. Never call an estimated or sample price a live price. Keep replies short.`,
+      content: `You are Ask LifeSaver. Help people save money. Use tools for gas, rides, trips, trip itineraries (plan_trip), bills, deals, budgets, and helper requests. ZIP is ${context.zip || "unknown"}. Plan is ${context.plan}. Never call an estimated or sample price a live price. Keep replies short.`,
     },
     ...messages.slice(-8).map((message) => ({ role: message.role, content: message.content })),
   ];

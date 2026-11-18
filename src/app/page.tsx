@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { Wordmark } from "@/components/wordmark";
-import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
+import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, HELPER_PRICE_LABEL, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 
 const stickers = [
   { text: "price hike? caught", className: "bg-lime text-ink -top-4 -left-6", tilt: "-8deg" },
@@ -161,6 +161,13 @@ export default function HomePage() {
                 </ul>
               </article>
             </div>
+            <article className="mt-4 rounded-3xl bg-lime p-6 text-ink">
+              <p className="text-xs font-bold tracking-wide uppercase">Helper · Earn money</p>
+              <p className="mt-2 font-serif text-4xl">{HELPER_PRICE_LABEL}<span className="text-lg">/mo</span></p>
+              <p className="text-sm">
+                Get paid helping people near you. Accepting Lend a Hand and roadside requests needs an active Helper plan. Join the waitlist below.
+              </p>
+            </article>
             <p className="mt-4 text-sm text-muted-foreground">
               Free is the on-ramp: track bills, peek at a few deals, set a reminder. Rides open Uber,
               Lyft, Uber Eats, and DoorDash in their own apps. LifeSaver is not their partner.

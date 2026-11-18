@@ -11,6 +11,8 @@ import {
   FOUNDING_PREMIUM_LABEL,
   HAND_PRICE_LABEL,
   handIncludes,
+  HELPER_PRICE_LABEL,
+  helperIncludes,
   PREMIUM_PRICE_LABEL,
   premiumIncludes,
 } from "@/lib/pricing";
@@ -112,6 +114,27 @@ export function PricingScreen() {
         <Button asChild variant="ghost" className="mt-2 h-11 w-full rounded-full text-white hover:bg-white/10 hover:text-white">
           <Link href="/hand">See the helper flow</Link>
         </Button>
+      </article>
+
+      <article id="helper" className="rounded-3xl bg-gradient-to-br from-[#ff7a18] via-[#e01470] to-[#6d28d9] p-4 text-white">
+        <p className="text-xs font-bold tracking-wide text-lime uppercase">Helper · Earn money</p>
+        <p className="font-serif text-4xl">{HELPER_PRICE_LABEL}<span className="text-lg text-white/75">/mo</span></p>
+        <p className="text-sm text-white/85">For people who want to get paid helping others. Accepting Lend a Hand and roadside requests needs an active Helper plan.</p>
+        <ul className="mt-3 space-y-2">
+          {helperIncludes.map((feature) => (
+            <li key={feature.title} className="flex gap-2 text-sm">
+              <Check className="mt-0.5 size-4 shrink-0 text-lime" aria-hidden="true" />
+              <span>
+                <span className="font-semibold">{feature.title}. </span>
+                {feature.body}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <Button asChild className="mt-4 h-12 w-full rounded-full bg-lime font-bold text-ink hover:bg-lime/90">
+          <Link href="/#waitlist">Join the Helper waitlist</Link>
+        </Button>
+        <p className="mt-2 text-xs text-white/75">Not live yet. Joining the waitlist does not charge a card.</p>
       </article>
 
       {notice === "premium" && (

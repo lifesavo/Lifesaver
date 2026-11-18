@@ -11,6 +11,7 @@ type Bubble = { role: "user" | "assistant"; content: string; cards?: ToolCard[];
 const prompts = [
   "Where's the cheapest gas near me?",
   "Should I take Uber or Lyft?",
+  "Plan a 3-day trip to Nashville for 2, $800",
   "Find me the cheapest trip to Los Angeles",
   "Help me cut my bills",
   "Build a budget from $3200 take-home",
@@ -28,6 +29,7 @@ const tabbed = new Set([
   "/fuel",
   "/travel",
   "/nights",
+  "/plan",
 ]);
 
 export function AskLifeSaver() {
@@ -40,7 +42,7 @@ export function AskLifeSaver() {
   const [messages, setMessages] = useState<Bubble[]>([
     {
       role: "assistant",
-      content: "Ask me about gas, rides, a trip, bills, a budget, or a mower that will not start.",
+      content: "Ask me about gas, rides, a trip plan, bills, a budget, or a mower that will not start.",
       mode: "demo",
     },
   ]);
@@ -132,7 +134,14 @@ export function AskLifeSaver() {
                     {message.content}
                   </p>
                   {message.cards?.map((card) => (
-                    <a key={card.title + card.body} href={card.href || "#"} className="mt-1 block rounded-2xl border px-3 py-2 text-left text-sm">
+                    <a
+                      key={card.title + card.body}
+                      href={card.href || "#"}
+                      {...(card.href?.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+                      onClick={() => {
+                        if (card.href?.startsWith("/")) setOpen(false);
+                      }}
+                      className="mt-1 block rounded-2xl border px-3 py-2 text-left text-sm">
                       <span className="block font-semibold">{card.title}</span>
                       <span className="text-muted-foreground">{card.body}</span>
                     </a>

@@ -5,6 +5,7 @@ import { money } from "@/lib/money";
 import { cheapest, deliveryOptions, rideOptions } from "@/lib/rides";
 import { offersFor, type TaskCategory } from "@/lib/tasks";
 import { searchTrip } from "@/lib/travel/search";
+import { buildItinerary, normalizeInput, parseTripRequest, summarize, type PlanInput } from "@/lib/travel/itinerary";
 import type { PaidPlan } from "@/lib/pricing";
 
 export type ToolCard = { title: string; body: string; href?: string };
@@ -92,7 +93,7 @@ export async function runTool(
     if (!to) return { text: "Tell me where you want to go.", cards: [{ title: "Open travel", body: "Enter the trip there.", href: "/travel" }] };
     if (context.plan !== "hand") {
       return {
-        text: "Cheapest trips are part of Lend a Hand at $24.99 a month after launch, or $20.00 for life if you joined the waitlist. I can still point you there.",
+        text: "Cheapest trips are part of Lend a Hand at $25.99 a month after launch, or $20.00 for life if you joined the waitlist. I can still point you there.",
         cards: [{ title: "See Lend a Hand", body: "Flights, stays, and cars.", href: "/pricing" }],
       };
     }
@@ -112,6 +113,37 @@ export async function runTool(
           href: "/travel",
         },
       ].filter(Boolean) as ToolCard[],
+    };
+  }
+
+  if (name === "plan_trip") {
+    const request = String(args.request ?? "").slice(0, 400);
+    const parsed = parseTripRequest(request);
+    const fields = Object.fromEntries(
+      ["destination", "origin", "start", "end", "travelers", "budget"].flatMap((key) => (args[key] != null && args[key] !== "" ? [[key, args[key]]] : [])),
+    );
+    const { missing: _missing, assumedDates: _assumed, ...known } = parsed;
+    void _missing;
+    void _assumed;
+    const merged: Record<string, unknown> & { destination?: unknown; start?: unknown; end?: unknown; travelers?: unknown; budget?: unknown } = { ...known, ...fields };
+    const plannerHref = `/plan?q=${encodeURIComponent(request || [merged.destination, merged.start, merged.end].filter(Boolean).join(" "))}`;
+    if (!merged.destination || !merged.start) {
+      const need = [!merged.destination && "where you're going", !merged.start && "your dates"].filter(Boolean).join(" and ");
+      return {
+        text: `I can build that itinerary. Tell me ${need}, plus how many people and your budget. Example: "Plan a 3-day trip to Nashville Dec 5-7 for 2, $800".`,
+        cards: [{ title: "Open the trip planner", body: "Fill in a quick form instead.", href: "/plan" }],
+      };
+    }
+    const input = normalizeInput({ ...(merged as Partial<PlanInput>), travelers: merged.travelers == null ? 1 : Number(merged.travelers), budget: merged.budget == null ? null : Number(merged.budget) });
+    if (typeof input === "string") return { text: input, cards: [{ title: "Open the trip planner", body: "Fix it in the form.", href: "/plan" }] };
+    const plan = buildItinerary(input);
+    const compare = plan.links.filter((link) => link.label.startsWith("Compare prices")).slice(0, 2);
+    return {
+      text: `${parsed.assumedDates && !args.start ? "No dates given, so I penciled in two weeks from now. Tell me your dates to change it.\n\n" : ""}${summarize(plan)}\n\nOpen the full plan to save it, add it to your calendar, and see the packing list. Prices open live on each site. LifeSaver doesn't show made-up fares.`,
+      cards: [
+        { title: "Open full itinerary", body: "Save it, add to calendar, packing list.", href: plannerHref },
+        ...compare.map((link) => ({ title: link.label, body: link.detail, href: link.href })),
+      ],
     };
   }
 
@@ -163,7 +195,7 @@ export async function runTool(
     if (context.plan !== "hand") {
       return {
         text: `Try this first:\n${tips.map((tip, index) => `${index + 1}. ${tip}`).join("\n")}\n\nPosting a helper is part of Lend a Hand.`,
-        cards: [{ title: "Upgrade to Lend a Hand", body: "$24.99/mo after launch. Founding members lock $20.00/mo for life.", href: "/pricing" }],
+        cards: [{ title: "Upgrade to Lend a Hand", body: "$25.99/mo after launch. Founding members lock $20.00/mo for life.", href: "/pricing" }],
       };
     }
     const offers = offersFor(category).slice(0, 2);
@@ -177,5 +209,5 @@ export async function runTool(
     };
   }
 
-  return { text: "I can look up gas, rides, trips, bills, deals, a budget, or a helper.", cards: [] };
+  return { text: "I can look up gas, rides, trips, bills, deals, a budget, or a helper, or plan a trip itinerary.", cards: [] };
 }
