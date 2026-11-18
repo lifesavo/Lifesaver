@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ROADSIDE, type RoadsideIssue } from "@/lib/roadside/info";
+import { proCategory } from "@/lib/help/types";
 
 export type Spot = { lat: number; lng: number; accuracy: number | null };
 
@@ -15,8 +16,16 @@ export const ISSUE_EMOJI: Record<RoadsideIssue, string> = {
   wont_start: "🚗",
 };
 
-export function issueLabel(issue: string) {
+export function issueLabel(issue: string, kind?: string) {
+  if (kind === "ride") return "Ride";
+  if (kind === "pro") return proCategory(issue).label;
   return ROADSIDE[issue as RoadsideIssue]?.label ?? issue;
+}
+
+export function issueEmoji(issue: string, kind?: string) {
+  if (kind === "ride") return "🚙";
+  if (kind === "pro") return proCategory(issue).emoji;
+  return ISSUE_EMOJI[issue as RoadsideIssue] ?? "🛞";
 }
 
 export function useSpot(auto = true) {
@@ -66,6 +75,9 @@ export function ago(sqlTime: string) {
 
 export type RoadsideRequestView = {
   id: string;
+  kind?: "roadside" | "ride" | "pro";
+  details?: { pickup?: string; dropoff?: string; when?: string; riders?: number; category?: string; address?: string; urgency?: string };
+  hasPhoto?: boolean;
   issue: string;
   status: "open" | "accepted" | "done" | "cancelled";
   note: string | null;

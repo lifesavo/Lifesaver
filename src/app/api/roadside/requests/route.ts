@@ -1,7 +1,7 @@
 import { connection } from "next/server";
-import { acceptRoadside, getRoadsideRequest, listMyRoadside, listOpenRoadside, takeGiveawayRate, updateRoadside } from "@/lib/db";
+import { acceptRoadside, getRoadsideRequest, listMyRoadside, listOpenRoadside, roadsidePhoto, takeGiveawayRate, updateRoadside } from "@/lib/db";
 import { requestOwner } from "@/lib/owner";
-import { submitRoadsideRequest } from "@/lib/roadside/requests";
+import { submitHelpRequest } from "@/lib/roadside/requests";
 
 function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -29,6 +29,12 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const viewer = await requestOwner(request);
   const id = url.searchParams.get("id");
+  if (id && url.searchParams.get("photo")) {
+    const photo = roadsidePhoto(id);
+    const m = photo?.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/);
+    if (!m) return new Response("Not found", { status: 404 });
+    return new Response(Buffer.from(m[2], "base64"), { headers: { "Content-Type": m[1], "Cache-Control": "private, max-age=300" } });
+  }
   if (id) {
     const found = getRoadsideRequest(id, viewer);
     return found ? json({ ok: true, request: found }) : json({ ok: false, message: "Request not found." }, 404);
@@ -40,7 +46,9 @@ export async function GET(request: Request) {
     return json({ ok: false, message: "Share your location to see requests near you." }, 400);
   }
   const radius = Math.min(100, Math.max(5, Number(url.searchParams.get("radius")) || 50));
+  const type = url.searchParams.get("type");
   const requests = listOpenRoadside(viewer)
+    .filter((r) => !type || type === "all" || r.kind === type)
     .map((r) => ({ ...r, miles: Math.round(miles(lat, lng, r.lat, r.lng) * 10) / 10 }))
     .filter((r) => r.miles <= radius)
     .sort((a, b) => a.miles - b.miles)
@@ -59,7 +67,7 @@ export async function POST(request: Request) {
   if (!takeGiveawayRate(`roadside:${ip(request)}`, 6)) return json({ ok: false, message: "Too many requests from here. If you're in danger, call 911." }, 429);
   const owner = await requestOwner(request, true);
   if (!owner) return json({ ok: false, message: "That token is not valid." }, 401);
-  const result = submitRoadsideRequest(owner, body);
+  const result = await submitHelpRequest(owner, body);
   return json(result, result.ok ? 200 : 400);
 }
 

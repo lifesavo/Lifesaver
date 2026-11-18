@@ -61,6 +61,12 @@ export function HomeScreen() {
         </span>
       </Link>
 
+      <Link href="/help" className="block rounded-3xl bg-gradient-to-br from-[#6d28d9] to-[#0891b2] px-4 py-4 text-white">
+        <p className="text-xs font-bold tracking-wide text-lime uppercase">Get a Hand</p>
+        <p className="font-serif text-2xl leading-tight">A ride, a plumber, a hand moving</p>
+        <p className="mt-1 text-sm text-white/90">Ask Lend a Hand members nearby, or find a licensed pro. You&apos;ll see when someone accepts.</p>
+      </Link>
+
       <WeatherCard zip={profile.zip} />
 
       <GiveawayCard email={profile.email} />

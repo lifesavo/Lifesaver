@@ -6,6 +6,7 @@ import { cheapest, deliveryOptions, rideOptions } from "@/lib/rides";
 import { offersFor, type TaskCategory } from "@/lib/tasks";
 import { searchTrip } from "@/lib/travel/search";
 import { alertsAt } from "@/lib/weather/alerts";
+import { HELP_DISCLAIMER, PRO_CATEGORIES, proCategory } from "@/lib/help/types";
 import { geocodeUs } from "@/lib/weather/fetch";
 import { detectRoadside, ROADSIDE, ROADSIDE_SAFETY, type RoadsideIssue } from "@/lib/roadside/info";
 import { buildItinerary, normalizeInput, parseTripRequest, summarize, type PlanInput } from "@/lib/travel/itinerary";
@@ -116,6 +117,29 @@ export async function runTool(
           href: "/travel",
         },
       ].filter(Boolean) as ToolCard[],
+    };
+  }
+
+  if (name === "get_a_hand_request") {
+    if (String(args.type) === "ride") {
+      const dropoff = String(args.dropoff ?? "").trim();
+      return {
+        text: `I can post a ride request to nearby Lend a Hand members${dropoff ? ` going to ${dropoff}` : ""}, or you can compare Uber and Lyft right now. ${HELP_DISCLAIMER}`,
+        cards: [
+          { title: "Ask nearby helpers for a ride", body: "Pickup, drop-off, time, riders.", href: `/help?type=ride${dropoff ? `&dropoff=${encodeURIComponent(dropoff)}` : ""}` },
+          { title: "Compare Uber and Lyft", body: "Opens their apps. LifeSaver isn't their partner.", href: "/rides" },
+        ],
+      };
+    }
+    const id = PRO_CATEGORIES.some((c) => c.id === args.category) ? String(args.category) : "other";
+    const cat = proCategory(id);
+    const near = context.zip ? ` near ${context.zip}` : " near me";
+    return {
+      text: `For ${cat.label.toLowerCase()} help you can ask nearby Lend a Hand members, or find a licensed pro. For electrical, gas, plumbing, HVAC, or roofing work, hire a licensed pro. ${HELP_DISCLAIMER}`,
+      cards: [
+        { title: `Ask nearby helpers · ${cat.label}`, body: "Describe it, add a photo, pick how soon.", href: `/help?type=pro&category=${cat.id}` },
+        { title: `Find licensed ${cat.label.toLowerCase()} on Google Maps`, body: "Check license, insurance, and reviews.", href: `https://www.google.com/maps/search/${encodeURIComponent(cat.search + near)}` },
+      ],
     };
   }
 

@@ -10,6 +10,8 @@ type Bubble = { role: "user" | "assistant"; content: string; cards?: ToolCard[];
 
 const prompts = [
   "I blew a tire on I-70",
+  "I need a plumber",
+  "I need a ride to the airport",
   "Where's the cheapest gas near me?",
   "Should I take Uber or Lyft?",
   "Plan a 3-day trip to Nashville for 2, $800",

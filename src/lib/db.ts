@@ -145,6 +145,11 @@ function ensureSchema(db: Database.Database) {
     )
   `);
   db.exec("CREATE INDEX IF NOT EXISTS roadside_status ON roadside_requests (status, created_at)");
+  // Get a Hand: the same table holds roadside, ride, and pro-help requests.
+  const cols = new Set((db.prepare("PRAGMA table_info(roadside_requests)").all() as { name: string }[]).map((c) => c.name));
+  if (!cols.has("kind")) db.exec("ALTER TABLE roadside_requests ADD COLUMN kind TEXT NOT NULL DEFAULT 'roadside'");
+  if (!cols.has("details")) db.exec("ALTER TABLE roadside_requests ADD COLUMN details TEXT");
+  if (!cols.has("photo")) db.exec("ALTER TABLE roadside_requests ADD COLUMN photo TEXT");
   db.exec(`
     CREATE TABLE IF NOT EXISTS user_trips (
       owner_id TEXT NOT NULL,
@@ -647,10 +652,31 @@ export function deleteUserTrip(ownerId: string, tripId: string) {
 
 // ---- Roadside help requests from people stranded, answered by nearby Lend a Hand helpers. ----
 
+const RS_COLS =
+  "id, kind, details, (photo IS NOT NULL) AS photo, public_id, owner_id, issue, lat, lng, note, contact_name, contact_phone, status, helper_owner_id, helper_name, helper_phone, created_at, accepted_at, updated_at";
+
 export type RoadsideStatus = "open" | "accepted" | "done" | "cancelled";
+
+export type HelpKind = "roadside" | "ride" | "pro";
+
+/** Per-kind extra fields. "private" keys are shown only to the requester and the accepted helper. */
+export type HelpDetails = {
+  pickup?: string; // private
+  dropoff?: string;
+  when?: string;
+  riders?: number;
+  category?: string;
+  address?: string; // private
+  urgency?: "now" | "today" | "this_week" | "flexible";
+};
+
+const PRIVATE_DETAILS: (keyof HelpDetails)[] = ["pickup", "address"];
 
 type RoadsideRow = {
   id: number;
+  kind: HelpKind;
+  details: string | null;
+  photo: string | null;
   public_id: string;
   owner_id: string;
   issue: string;
@@ -668,11 +694,15 @@ type RoadsideRow = {
   updated_at: string;
 };
 
-/** Open requests older than this drop off the helper list. */
+/** Open roadside/ride requests drop off the helper list after 6 hours; pro-help requests after 7 days. */
 const ROADSIDE_OPEN_HOURS = 6;
+const PRO_OPEN_HOURS = 24 * 7;
 
 export type RoadsideView = {
   id: string;
+  kind: HelpKind;
+  details: HelpDetails;
+  hasPhoto: boolean;
   issue: string;
   status: RoadsideStatus;
   note: string | null;
@@ -693,8 +723,18 @@ function roadsideView(row: RoadsideRow, viewer: string | null): RoadsideView {
   const role = viewer && row.owner_id === viewer ? "requester" : viewer && row.helper_owner_id === viewer ? "helper" : "viewer";
   const exact = role !== "viewer";
   const ageHours = (Date.now() - Date.parse(`${row.created_at.replace(" ", "T")}Z`)) / 3600000;
+  let details: HelpDetails = {};
+  try {
+    details = row.details ? (JSON.parse(row.details) as HelpDetails) : {};
+  } catch {
+    details = {};
+  }
+  if (!exact) for (const key of PRIVATE_DETAILS) delete details[key];
   return {
     id: row.public_id,
+    kind: row.kind ?? "roadside",
+    details,
+    hasPhoto: Boolean(row.photo),
     issue: row.issue,
     status: row.status,
     note: row.note,
@@ -707,12 +747,15 @@ function roadsideView(row: RoadsideRow, viewer: string | null): RoadsideView {
     role,
     requester: role === "helper" ? { name: row.contact_name, phone: row.contact_phone } : undefined,
     helper: role === "requester" ? (row.helper_name ? { name: row.helper_name, phone: row.helper_phone ?? "" } : null) : undefined,
-    expired: row.status === "open" && ageHours > ROADSIDE_OPEN_HOURS,
+    expired: row.status === "open" && ageHours > (row.kind === "pro" ? PRO_OPEN_HOURS : ROADSIDE_OPEN_HOURS),
   };
 }
 
 export function createRoadsideRequest(input: {
   ownerId: string;
+  kind?: HelpKind;
+  details?: HelpDetails;
+  photo?: string | null;
   issue: string;
   lat: number;
   lng: number;
@@ -722,42 +765,62 @@ export function createRoadsideRequest(input: {
 }) {
   const db = getDb();
   const openMine = db
-    .prepare("SELECT COUNT(*) AS n FROM roadside_requests WHERE owner_id = ? AND status IN ('open','accepted') AND created_at > datetime('now', '-6 hours')")
+    .prepare("SELECT COUNT(*) AS n FROM roadside_requests WHERE owner_id = ? AND status IN ('open','accepted') AND created_at > datetime('now', '-7 days')")
     .get(input.ownerId) as { n: number };
-  if (openMine.n >= 3) return { ok: false as const, message: "You already have 3 open requests. Cancel one first." };
+  if (openMine.n >= 5) return { ok: false as const, message: "You already have 5 open requests. Cancel one first." };
   const publicId = `rh_${crypto.randomBytes(9).toString("base64url")}`;
   db.prepare(
-    `INSERT INTO roadside_requests (public_id, owner_id, issue, lat, lng, note, contact_name, contact_phone)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(publicId, input.ownerId, input.issue, input.lat, input.lng, input.note, input.name, input.phone);
+    `INSERT INTO roadside_requests (public_id, owner_id, kind, issue, lat, lng, note, contact_name, contact_phone, details, photo)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(
+    publicId,
+    input.ownerId,
+    input.kind ?? "roadside",
+    input.issue,
+    input.lat,
+    input.lng,
+    input.note,
+    input.name,
+    input.phone,
+    input.details ? JSON.stringify(input.details) : null,
+    input.photo ?? null,
+  );
   return { ok: true as const, request: getRoadsideRequest(publicId, input.ownerId)! };
 }
 
 export function getRoadsideRequest(publicId: string, viewer: string | null) {
-  const row = getDb().prepare("SELECT * FROM roadside_requests WHERE public_id = ?").get(publicId) as RoadsideRow | undefined;
+  const row = getDb().prepare(`SELECT ${RS_COLS} FROM roadside_requests WHERE public_id = ?`).get(publicId) as RoadsideRow | undefined;
   return row ? roadsideView(row, viewer) : null;
 }
 
 export function listMyRoadside(viewer: string) {
   const rows = getDb()
-    .prepare("SELECT * FROM roadside_requests WHERE owner_id = ? OR helper_owner_id = ? ORDER BY id DESC LIMIT 20")
+    .prepare(`SELECT ${RS_COLS} FROM roadside_requests WHERE owner_id = ? OR helper_owner_id = ? ORDER BY id DESC LIMIT 20`)
     .all(viewer, viewer) as RoadsideRow[];
   return rows.map((row) => roadsideView(row, viewer));
+}
+
+/** Photo for a request (data URL). Anyone who can see the request on the board can see its photo. */
+export function roadsidePhoto(publicId: string) {
+  const row = getDb().prepare("SELECT photo FROM roadside_requests WHERE public_id = ? AND status IN ('open','accepted')").get(publicId) as
+    | { photo: string | null }
+    | undefined;
+  return row?.photo ?? null;
 }
 
 export function listOpenRoadside(viewer: string | null) {
   const rows = getDb()
     .prepare(
-      `SELECT * FROM roadside_requests WHERE status = 'open' AND created_at > datetime('now', '-${ROADSIDE_OPEN_HOURS} hours')
-       ORDER BY id DESC LIMIT 200`,
+      `SELECT ${RS_COLS} FROM roadside_requests WHERE status = 'open' AND created_at > datetime('now', '-${PRO_OPEN_HOURS} hours')
+       ORDER BY id DESC LIMIT 300`,
     )
     .all() as RoadsideRow[];
-  return rows.map((row) => roadsideView(row, viewer));
+  return rows.map((row) => roadsideView(row, viewer)).filter((view) => !view.expired);
 }
 
 export function acceptRoadside(publicId: string, helper: { ownerId: string; name: string; phone: string }) {
   const db = getDb();
-  const row = db.prepare("SELECT * FROM roadside_requests WHERE public_id = ?").get(publicId) as RoadsideRow | undefined;
+  const row = db.prepare(`SELECT ${RS_COLS} FROM roadside_requests WHERE public_id = ?`).get(publicId) as RoadsideRow | undefined;
   if (!row) return { ok: false as const, message: "That request is gone." };
   if (row.owner_id === helper.ownerId) return { ok: false as const, message: "You can't accept your own request." };
   const info = db
@@ -773,7 +836,7 @@ export function acceptRoadside(publicId: string, helper: { ownerId: string; name
 /** Requester can cancel or mark done; the helper can mark done or release it back to open. */
 export function updateRoadside(publicId: string, viewer: string, action: "cancel" | "done" | "release") {
   const db = getDb();
-  const row = db.prepare("SELECT * FROM roadside_requests WHERE public_id = ?").get(publicId) as RoadsideRow | undefined;
+  const row = db.prepare(`SELECT ${RS_COLS} FROM roadside_requests WHERE public_id = ?`).get(publicId) as RoadsideRow | undefined;
   if (!row) return { ok: false as const, message: "That request is gone." };
   const isOwner = row.owner_id === viewer;
   const isHelper = row.helper_owner_id === viewer;

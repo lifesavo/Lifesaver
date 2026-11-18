@@ -79,7 +79,7 @@ function StatusCard({ request, onChange }: { request: RoadsideRequestView; onCha
   async function act(action: "cancel" | "done") {
     setBusy(true);
     try {
-      const response = await fetch("/api/roadside/requests", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: request.id, action }) });
+      const response = await fetch("/api/help/requests", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: request.id, action }) });
       const data = (await response.json()) as { request?: RoadsideRequestView };
       if (data.request) onChange(data.request);
     } finally {
@@ -135,12 +135,12 @@ export function RoadsideScreen() {
   const [error, setError] = useState("");
   const [mine, setMine] = useState<RoadsideRequestView[]>([]);
 
-  const active = mine.filter((r) => r.role === "requester" && (r.status === "open" || r.status === "accepted") && !r.expired);
-  const recentClosed = mine.filter((r) => r.role === "requester" && !active.includes(r)).slice(0, 1);
+  const active = mine.filter((r) => r.role === "requester" && (r.kind ?? "roadside") === "roadside" && (r.status === "open" || r.status === "accepted") && !r.expired);
+  const recentClosed = mine.filter((r) => r.role === "requester" && (r.kind ?? "roadside") === "roadside" && !active.includes(r)).slice(0, 1);
 
   const refresh = useCallback(async () => {
     try {
-      const response = await fetch("/api/roadside/requests?mine=1");
+      const response = await fetch("/api/help/requests?mine=1");
       const data = (await response.json()) as { requests?: RoadsideRequestView[] };
       if (Array.isArray(data.requests)) setMine(data.requests);
     } catch {
@@ -172,7 +172,7 @@ export function RoadsideScreen() {
     setSending(true);
     setError("");
     try {
-      const response = await fetch("/api/roadside/requests", {
+      const response = await fetch("/api/help/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ issue, lat: spot.lat, lng: spot.lng, note, name, phone }),
@@ -345,7 +345,7 @@ export function RoadsideScreen() {
           </button>
         </form>
         <p className="text-xs text-white/70">{COMMUNITY_NOTE}</p>
-        <Link href="/roadside/helpers" className="block text-sm font-semibold text-lime underline">Are you a helper? See requests near you</Link>
+        <Link href="/helpers?type=roadside" className="block text-sm font-semibold text-lime underline">Are you a helper? See requests near you</Link>
       </section>
 
       <Call911 />

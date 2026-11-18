@@ -1,5 +1,6 @@
 import { runTool, type ToolCard } from "@/lib/assistant/tools";
 import { detectRoadside } from "@/lib/roadside/info";
+import { detectPro, detectRide } from "@/lib/help/types";
 import type { PaidPlan } from "@/lib/pricing";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -17,6 +18,7 @@ const toolDefs = [
   { name: "plan_trip", description: "Build a day-by-day travel itinerary with budget split, packing list, and price-comparison links. Pass the user's full trip request in request (destination, dates, travelers, budget, interests).", parameters: { request: "string" } },
   { name: "roadside_help", description: "Someone is stranded: flat or blown tire, breakdown, out of gas, locked out, dead battery, or accident. Returns safety steps and links into Roadside Help.", parameters: { issue: "string", message: "string" } },
   { name: "weather_alerts", description: "Active National Weather Service alerts near the user's ZIP or a named place.", parameters: { place: "string" } },
+  { name: "get_a_hand_request", description: "The user needs a ride (type=ride, dropoff) or help at home or work from a pro or a neighbor (type=pro, category: plumber, electrician, hvac, handyman, roofing, cleaning, lawn_snow, moving, pest, locksmith, auto_mechanic, other). Links into Get a Hand.", parameters: { type: "string", dropoff: "string", category: "string" } },
   { name: "cut_bills", description: "List sample subscriptions worth canceling.", parameters: {} },
   { name: "local_deals", description: "Show sample local deals.", parameters: {} },
   { name: "build_budget", description: "Build a simple monthly budget from take-home income.", parameters: { income: "number" } },
@@ -27,6 +29,10 @@ function pickTool(message: string): { name: string; args: Record<string, unknown
   const text = message.toLowerCase();
   const roadside = detectRoadside(message);
   if (roadside) return { name: "roadside_help", args: { issue: roadside, message } };
+  const ride = detectRide(message);
+  if (ride) return { name: "get_a_hand_request", args: { type: "ride", dropoff: ride.dropoff } };
+  const pro = detectPro(message);
+  if (pro) return { name: "get_a_hand_request", args: { type: "pro", category: pro } };
   if (/\b(weather )?(alerts?|warnings?|watch(es)?|advisor(y|ies))\b/.test(text) && /weather|alert|storm|tornado|warning|advisor|flood|snow|ice|wind|heat/.test(text)) {
     const place = message.match(/\b(?:in|for|near|at)\s+([A-Za-z][A-Za-z .'-]+(?:,\s*[A-Za-z]{2})?|\d{5})/)?.[1]?.trim();
     return { name: "weather_alerts", args: { place } };

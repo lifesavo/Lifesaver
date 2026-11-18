@@ -96,6 +96,49 @@ export function openApiSpec() {
           responses: { "200": ok("safety copy and per-issue steps and links") },
         },
       },
+      "/api/help/requests": {
+        post: {
+          operationId: "createGetAHandRequest",
+          summary: "Get a Hand request for roadside, ride, or pro help (community helpers, not vetted or licensed; not guaranteed)",
+          security: [{ bearer: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["type", "name", "phone"],
+                  properties: {
+                    type: { type: "string", enum: ["roadside", "ride", "pro"] },
+                    issue: { type: "string", description: "roadside: flat_tire, breakdown, out_of_gas, lockout, jump_start, accident" },
+                    category: { type: "string", description: "pro: plumber, electrician, hvac, handyman, roofing, cleaning, lawn_snow, moving, pest, locksmith, auto_mechanic, other" },
+                    pickup: { type: "string" },
+                    dropoff: { type: "string" },
+                    when: { type: "string" },
+                    riders: { type: "integer" },
+                    address: { type: "string" },
+                    urgency: { type: "string", enum: ["now", "today", "this_week", "flexible"] },
+                    description: { type: "string" },
+                    lat: { type: "number" },
+                    lng: { type: "number" },
+                    zip: { type: "string" },
+                    name: { type: "string" },
+                    phone: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          responses: { "200": ok("request"), "400": err, "401": err, "429": err },
+        },
+        get: {
+          operationId: "listMyGetAHandRequests",
+          summary: "The user's requests and status",
+          security: [{ bearer: [] }],
+          parameters: [{ name: "mine", in: "query", required: true, schema: { type: "string", enum: ["1"] } }],
+          responses: { "200": ok("requests") },
+        },
+      },
       "/api/roadside/requests": {
         get: {
           operationId: "listMyHelpRequests",
@@ -192,8 +235,11 @@ Rules for assistants:
 - list_my_trips: GET ${SITE}/api/me/trips
 - save_trip: POST ${SITE}/api/me/trips (plan object) or MCP save_trip
 - delete_my_trip: DELETE ${SITE}/api/me/trips?id=trip-...
-- create_help_request: POST ${SITE}/api/roadside/requests {"issue":"flat_tire","lat":39.1,"lng":-94.5,"name":"Sam","phone":"555-555-0100","note":"I-70 WB exit 49"}. Helpers are community members, not pros; not guaranteed.
-- list_my_help_requests: GET ${SITE}/api/roadside/requests?mine=1
+- create_help_request: POST ${SITE}/api/help/requests with type roadside ({"type":"roadside","issue":"flat_tire","lat":39.1,"lng":-94.5,"name":"Sam","phone":"555-555-0100","note":"I-70 WB exit 49"}), ride (pickup, dropoff, when, riders), or pro (category, description, address, urgency). Helpers are community members, not vetted or licensed by LifeSaver; not guaranteed.
+- list_my_help_requests: GET ${SITE}/api/help/requests?mine=1
+
+## Get a Hand
+- ${SITE}/help?type=ride&dropoff=Airport or ${SITE}/help?type=pro&category=plumber. Helper board: ${SITE}/helpers
 
 ## Roadside
 - People who are stranded can open ${SITE}/roadside?issue=flat_tire (or breakdown, out_of_gas, lockout, jump_start, accident).

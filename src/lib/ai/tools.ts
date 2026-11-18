@@ -2,7 +2,7 @@ import { countGiveawayEntries, deleteUserTrip, listUserTrips, publicWinnerFor, s
 import { lookupFuel } from "@/lib/fuel/providers";
 import { currentWeek, previousWeekKey, PRIZE_LABEL } from "@/lib/giveaway/week";
 import { roadsideInfo } from "@/lib/roadside/info";
-import { submitRoadsideRequest } from "@/lib/roadside/requests";
+import { submitHelpRequest } from "@/lib/roadside/requests";
 import { listMyRoadside } from "@/lib/db";
 import { buildItinerary, normalizeInput, parseTripRequest, type Itinerary, type PlanInput } from "@/lib/travel/itinerary";
 import { forecast, geocodeUs } from "@/lib/weather/fetch";
@@ -199,39 +199,52 @@ export const AI_TOOLS: AiTool[] = [
   },
   {
     name: "create_help_request",
-    title: "Ask nearby Lend a Hand helpers (roadside)",
+    title: "Get a Hand: ask nearby Lend a Hand helpers",
     description:
-      "Posts a roadside help request so nearby LifeSaver Lend a Hand members can see it and accept. Helpers are community members, not professionals; nobody is guaranteed to respond and no tow or pro is dispatched. If anyone is in danger, tell the user to call 911 first. Needs the user's token. Get their exact location and consent before calling.",
+      "Posts a Get a Hand request so nearby LifeSaver Lend a Hand members can see and accept it. type=roadside (issue: flat_tire, breakdown, out_of_gas, lockout, jump_start, accident), type=ride (pickup, dropoff, when, riders), or type=pro (category: plumber, electrician, hvac, handyman, roofing, cleaning, lawn_snow, moving, pest, locksmith, auto_mechanic, other; description, address, urgency). Helpers are community members, not vetted or licensed by LifeSaver; nobody is guaranteed to respond and no professional is dispatched. For licensed work suggest a licensed pro. If anyone is in danger, tell the user to call 911 first. Needs the user's token and their consent. Location: lat/lng, or zip ('64067' or 'City, ST').",
     inputSchema: {
       type: "object",
       properties: {
-        issue: { type: "string", enum: ["flat_tire", "breakdown", "out_of_gas", "lockout", "jump_start", "accident"] },
+        type: { type: "string", enum: ["roadside", "ride", "pro"] },
+        issue: { type: "string", enum: ["flat_tire", "breakdown", "out_of_gas", "lockout", "jump_start", "accident"], description: "roadside only" },
+        category: { type: "string", enum: ["plumber", "electrician", "hvac", "handyman", "roofing", "cleaning", "lawn_snow", "moving", "pest", "locksmith", "auto_mechanic", "other"], description: "pro only" },
+        pickup: { type: "string", description: "ride only; shown only to the helper who accepts" },
+        dropoff: { type: "string", description: "ride only" },
+        when: { type: "string", description: "ride only, e.g. 'now' or 'Fri 3 PM'" },
+        riders: { type: "integer", minimum: 1, maximum: 8 },
+        address: { type: "string", description: "pro only; shown only to the helper who accepts" },
+        urgency: { type: "string", enum: ["now", "today", "this_week", "flexible"] },
+        description: { type: "string", description: "What they need (pro), or a note (max 500 chars)" },
         lat: { type: "number" },
         lng: { type: "number" },
+        zip: { type: "string" },
         name: { type: "string", description: "Requester's first name" },
         phone: { type: "string", description: "Phone a helper can call or text" },
-        note: { type: "string", description: "Where exactly, the car, what they need (max 300 chars)" },
       },
-      required: ["issue", "lat", "lng", "name", "phone"],
+      required: ["type", "name", "phone"],
       additionalProperties: false,
     },
     auth: true,
     readOnly: false,
     async run(args, ownerId) {
-      const result = submitRoadsideRequest(ownerId!, args);
+      const result = await submitHelpRequest(ownerId!, args);
       if (!result.ok) throw new ToolError(result.message);
-      return { request: result.request, statusPage: `${SITE}/roadside`, note: "Posted to nearby helpers. Not guaranteed. Keep calling a tow or 911 if needed." };
+      return {
+        request: result.request,
+        statusPage: `${SITE}/help`,
+        note: "Posted to nearby Lend a Hand helpers. Not guaranteed, and helpers are not vetted or licensed by LifeSaver. For roadside danger call 911.",
+      };
     },
   },
   {
     name: "list_my_help_requests",
-    title: "My roadside help requests",
-    description: "Status of the user's roadside help requests (open, accepted with helper name and phone, done, cancelled). Needs the user's token.",
+    title: "My Get a Hand requests",
+    description: "Status of the user's Get a Hand requests (roadside, ride, pro help) (open, accepted with helper name and phone, done, cancelled). Needs the user's token.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     auth: true,
     readOnly: true,
     async run(_args, ownerId) {
-      return { requests: listMyRoadside(ownerId!).filter((r) => r.role === "requester"), statusPage: `${SITE}/roadside` };
+      return { requests: listMyRoadside(ownerId!).filter((r) => r.role === "requester"), statusPage: `${SITE}/help` };
     },
   },
   {

@@ -115,7 +115,7 @@ export function detectRoadside(text: string): RoadsideIssue | null {
   if (/\b(accident|crash(ed)?|wreck(ed)?|hit (a|another|by)|rear[- ]ended|collision)\b/.test(t)) return "accident";
   if (/\b(blew|blown|blowout|flat)\b.*\btire|\btire\b.*\b(blew|blown|flat|popped|burst)|\bflat tire\b|\bblowout\b/.test(t)) return "flat_tire";
   if (/\b(ran|run|running) out of (gas|fuel)|\bout of (gas|fuel)\b|\bno gas\b|\bempty tank\b/.test(t)) return "out_of_gas";
-  if (/\blocked (my )?(keys|myself)|\bkeys? (locked )?in (the|my) (car|truck)|\blocked out\b/.test(t)) return "lockout";
+  if (!/\b(house|home|apartment|office)\b/.test(t) && /\blocked (my )?(keys|myself)|\bkeys? (locked )?in (the|my) (car|truck)|\blocked out\b/.test(t)) return "lockout";
   if (/\bdead battery\b|\bbattery (is )?dead\b|\bneed a jump\b|\bjump ?start\b/.test(t)) return "jump_start";
   if (/\b(broke|broken) down\b|\bbreakdown\b|\bstranded\b|\b(car|truck|van|suv) (won'?t|will not|wont) (start|run|go)\b|\bneed a tow\b|\bon the side of the (road|highway)\b/.test(t)) return "breakdown";
   return null;
