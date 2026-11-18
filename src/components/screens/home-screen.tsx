@@ -85,6 +85,14 @@ export function HomeScreen() {
           <p className="mt-1 text-xs text-white/80">Girls&apos; Night and Guys&apos; Night. Coming soon until posted.</p>
         </Link>
       </div>
+      <Link href="/grocery" className="flex items-center gap-3 rounded-3xl bg-lime px-4 py-4 text-ink">
+        <span className="text-4xl" aria-hidden="true">🛒</span>
+        <span>
+          <span className="block text-xs font-bold tracking-wide uppercase">New · Free</span>
+          <span className="block font-serif text-2xl leading-tight">Grocery list</span>
+          <span className="block text-sm">Check it off in the aisle and see which store is cheaper for your cart.</span>
+        </span>
+      </Link>
       <Link href="/plan" className="block rounded-3xl bg-gradient-to-br from-[#ff7a18] via-[#e01470] to-[#6d28d9] px-4 py-4 text-white">
         <p className="text-xs font-bold tracking-wide text-lime uppercase">New · Free</p>
         <p className="font-serif text-2xl leading-tight">Plan a trip in seconds</p>
