@@ -131,7 +131,7 @@ export function WaitlistForm({ idPrefix = "waitlist" }: { idPrefix?: string }) {
         foundingPremium: data.foundingPremium || "$7.99",
         foundingHand: data.foundingHand || "$20.00",
         regularPremium: data.regularPremium || "$9.99",
-        regularHand: data.regularHand || "$25.99",
+        regularHand: data.regularHand || "$24.99",
       });
       if (typeof data.count === "number") setCount(data.count);
     } catch {

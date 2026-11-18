@@ -1,7 +1,7 @@
 export const PREMIUM_PRICE = 9.99;
 export const PREMIUM_PRICE_LABEL = "$9.99";
-export const HAND_PRICE = 25.99;
-export const HAND_PRICE_LABEL = "$25.99";
+export const HAND_PRICE = 24.99;
+export const HAND_PRICE_LABEL = "$24.99";
 /** Helper plan: for people who earn money accepting Lend a Hand and roadside requests. */
 export const HELPER_PRICE = 50;
 export const HELPER_PRICE_LABEL = "$50.00";

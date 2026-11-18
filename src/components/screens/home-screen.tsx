@@ -184,7 +184,7 @@ export function HomeScreen() {
             {PREMIUM_PRICE_LABEL}.
           </p>
           <p className="mt-3 text-sm leading-6 text-white/80">
-            Premium is $9.99 after launch. Lend a Hand is $25.99 after launch, or $20.00 for life on the waitlist.
+            Premium is $9.99 after launch. Lend a Hand is $24.99 after launch, or $20.00 for life on the waitlist.
           </p>
         </Link>
       ) : (
