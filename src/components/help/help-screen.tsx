@@ -279,7 +279,7 @@ export function HelpScreen() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={photo} alt="Your photo" className="mt-2 max-h-40 rounded-2xl" />
                 )}
-                <p className="text-xs text-muted-foreground">Nearby helpers can see the photo.</p>
+                <p className="text-xs text-muted-foreground">Only you and the helper who accepts your request can see the photo.</p>
               </div>
               <div className="rounded-2xl bg-cyan/60 p-3 text-sm text-ink">
                 <p className="font-semibold">Want a licensed pro?</p>

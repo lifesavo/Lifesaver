@@ -191,7 +191,7 @@ Tasks have a category, title, timing, ZIP, and status. Offers have a helper, pri
 
 ## Get a Hand
 
-- `/help`: one place to ask nearby Lend a Hand members for help. Roadside links to `/roadside`. Ride takes pickup (private until accepted), drop-off, time, and riders, with Uber/Lyft links. Home & pro takes a category (plumber, electrician, HVAC, handyman, roofing, cleaning, lawn/snow, moving, pest, locksmith, auto mechanic, other), a description, an address (private until accepted), urgency, and an optional photo (shrunk client-side, ≤ ~400 KB). Google Maps "find nearby" links for licensed pros.
+- `/help`: one place to ask nearby Lend a Hand members for help. Roadside links to `/roadside`. Ride takes pickup (private until accepted), drop-off, time, and riders, with Uber/Lyft links. Home & pro takes a category (plumber, electrician, HVAC, handyman, roofing, cleaning, lawn/snow, moving, pest, locksmith, auto mechanic, other), a description, an address (private until accepted), urgency, and an optional photo (shrunk client-side, ≤ ~400 KB; visible only to the requester and the accepted helper, never on the open board, list API, or MCP). Google Maps "find nearby" links for licensed pros.
 - `/helpers` is the helper board for all types, with filters. `/roadside/helpers` redirects there.
 - All types share the `roadside_requests` table (`kind`, `details`, `photo` columns) and `/api/help/requests` (alias of `/api/roadside/requests`).
 - Disclaimer everywhere: helpers are community members, not vetted, licensed, insured, or employed by LifeSaver. For licensed work, hire a licensed pro.

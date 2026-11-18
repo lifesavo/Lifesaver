@@ -734,7 +734,8 @@ function roadsideView(row: RoadsideRow, viewer: string | null): RoadsideView {
     id: row.public_id,
     kind: row.kind ?? "roadside",
     details,
-    hasPhoto: Boolean(row.photo),
+    // Photos are private: only the requester and the accepted helper learn one exists or can load it.
+    hasPhoto: exact && Boolean(row.photo),
     issue: row.issue,
     status: row.status,
     note: row.note,
@@ -800,11 +801,14 @@ export function listMyRoadside(viewer: string) {
   return rows.map((row) => roadsideView(row, viewer));
 }
 
-/** Photo for a request (data URL). Anyone who can see the request on the board can see its photo. */
-export function roadsidePhoto(publicId: string) {
-  const row = getDb().prepare("SELECT photo FROM roadside_requests WHERE public_id = ? AND status IN ('open','accepted')").get(publicId) as
-    | { photo: string | null }
-    | undefined;
+/** Photo for a request (data URL), only for the requester or the helper who accepted it. */
+export function roadsidePhoto(publicId: string, viewer: string | null) {
+  if (!viewer) return null;
+  const row = getDb()
+    .prepare(
+      "SELECT photo FROM roadside_requests WHERE public_id = ? AND status IN ('open','accepted') AND (owner_id = ? OR (helper_owner_id = ? AND status = 'accepted'))",
+    )
+    .get(publicId, viewer, viewer) as { photo: string | null } | undefined;
   return row?.photo ?? null;
 }
 
