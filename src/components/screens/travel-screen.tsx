@@ -120,7 +120,7 @@ export function TravelScreen() {
   async function search(event?: React.FormEvent) {
     event?.preventDefault();
     if (!member) {
-      setUpgrade(true);
+      setDismissedUpgrade(false);
       return;
     }
     setPending(true);

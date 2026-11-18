@@ -111,7 +111,7 @@ export async function runTool(
           body: result.drive.note,
           href: "/travel",
         },
-      ].filter((card): card is ToolCard => Boolean(card)),
+      ].filter(Boolean) as ToolCard[],
     };
   }
 
