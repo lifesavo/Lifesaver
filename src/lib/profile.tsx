@@ -4,6 +4,8 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
 } from "react";
@@ -36,6 +38,28 @@ type ProfileContextValue = {
   setAction: (billId: string, action: BillAction) => void;
   clearAction: (billId: string) => void;
   reset: () => void;
+  /** The server account signed in on this browser, if any. */
+  account: AccountUser | null;
+  accountChecked: boolean;
+  emailLogin: boolean;
+  billingOpen: boolean;
+  /** A local profile exists but its email already has an account this browser is not signed in to. */
+  needsSignIn: boolean;
+  /** Save the signed-in account into this browser's profile. */
+  applyAccount: (user: AccountUser) => void;
+  refreshAccount: () => Promise<void>;
+  signOut: () => Promise<void>;
+};
+
+export type AccountUser = {
+  id: string;
+  email: string;
+  zip: string | null;
+  plan: Profile["plan"];
+  founding: boolean;
+  emailVerified: boolean;
+  subscriptionStatus: string | null;
+  hasBilling: boolean;
 };
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
@@ -77,16 +101,101 @@ function readProfile(): Profile | null {
   }
 }
 
+const DEFAULT_INSTITUTIONS: InstitutionId[] = ["chase", "capitalone", "pge"];
+
+function profileFromAccount(user: AccountUser, local: Profile | null): Profile {
+  const sameUser = local && local.email === user.email;
+  return {
+    email: user.email,
+    zip: user.zip || (sameUser ? local.zip : "") || local?.zip || "",
+    institutions: sameUser && local.institutions.length ? local.institutions : DEFAULT_INSTITUTIONS,
+    plan: user.plan,
+    actions: sameUser ? local.actions : {},
+  };
+}
+
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
-  const ready = useIsClient();
+  const isClient = useIsClient();
   const [version, setVersion] = useState(0);
-  const profile = ready && version >= 0 ? readProfile() : null;
+  const [account, setAccount] = useState<AccountUser | null>(null);
+  const [accountChecked, setAccountChecked] = useState(false);
+  const [emailLogin, setEmailLogin] = useState(false);
+  const [billingOpen, setBillingOpen] = useState(false);
+  const [needsSignIn, setNeedsSignIn] = useState(false);
+  const started = useRef(false);
+  const local = isClient && version >= 0 ? readProfile() : null;
+  // Show the app at once when this browser has a profile; otherwise wait for the account check.
+  const ready = isClient && (local !== null || accountChecked);
+  const profile = local;
 
   const write = useCallback((next: Profile | null) => {
     if (next) localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     else localStorage.removeItem(STORAGE_KEY);
     setVersion((current) => current + 1);
   }, []);
+
+  const applyAccount = useCallback(
+    (user: AccountUser) => {
+      setAccount(user);
+      setNeedsSignIn(false);
+      write(profileFromAccount(user, readProfile()));
+    },
+    [write],
+  );
+
+  const refreshAccount = useCallback(async () => {
+    try {
+      const response = await fetch("/api/account", { cache: "no-store" });
+      const data = (await response.json()) as { user: AccountUser | null; emailLogin: boolean; billingOpen: boolean };
+      setEmailLogin(Boolean(data.emailLogin));
+      setBillingOpen(Boolean(data.billingOpen));
+      if (data.user) {
+        applyAccount(data.user);
+        return;
+      }
+      setAccount(null);
+      // Older browser-only profiles: turn them into an account when the email is free.
+      const existing = readProfile();
+      if (existing && /^\d{5}$/.test(existing.zip) && existing.email !== "alex@example.com") {
+        const signup = await fetch("/api/account/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: existing.email, zip: existing.zip }),
+        });
+        const result = (await signup.json()) as { ok?: boolean; exists?: boolean; user?: AccountUser };
+        if (result.ok && result.user) {
+          if (existing.plan !== "free" && !data.billingOpen) {
+            await fetch("/api/account", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ plan: existing.plan }),
+            });
+            result.user.plan = existing.plan;
+          }
+          applyAccount(result.user);
+        } else if (result.exists) {
+          setNeedsSignIn(true);
+        }
+      }
+    } catch {
+      // Offline or server hiccup: the browser profile keeps working.
+    } finally {
+      setAccountChecked(true);
+    }
+  }, [applyAccount]);
+
+  useEffect(() => {
+    if (!isClient || started.current) return;
+    started.current = true;
+    void refreshAccount();
+  }, [isClient, refreshAccount]);
+
+  const signOut = useCallback(async () => {
+    await fetch("/api/account/logout", { method: "POST" }).catch(() => null);
+    setAccount(null);
+    setNeedsSignIn(false);
+    write(null);
+  }, [write]);
 
   const update = useCallback((change: (current: Profile) => Profile) => {
     const current = readProfile();
@@ -110,8 +219,16 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const setPlan = useCallback(
     (plan: Profile["plan"]) => {
       update((current) => ({ ...current, plan }));
+      if (account && !billingOpen) {
+        setAccount({ ...account, plan });
+        void fetch("/api/account", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan }),
+        }).catch(() => null);
+      }
     },
-    [update],
+    [update, account, billingOpen],
   );
 
   const setAction = useCallback(
@@ -147,6 +264,14 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
         setAction,
         clearAction,
         reset,
+        account,
+        accountChecked,
+        emailLogin,
+        billingOpen,
+        needsSignIn,
+        applyAccount,
+        refreshAccount,
+        signOut,
       }}
     >
       {children}

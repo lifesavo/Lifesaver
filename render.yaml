@@ -25,6 +25,22 @@ services:
         sync: false
       - key: XAI_API_KEY
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_PREMIUM_FOUNDING
+        sync: false
+      - key: STRIPE_PRICE_PREMIUM
+        sync: false
+      - key: STRIPE_PRICE_HAND_FOUNDING
+        sync: false
+      - key: STRIPE_PRICE_HAND
+        sync: false
     disk:
       name: lifesaver-data
       mountPath: /data

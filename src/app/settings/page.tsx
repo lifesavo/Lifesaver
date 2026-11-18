@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PhoneFrame } from "@/components/phone-frame";
 import { TokenManager } from "@/components/ai/token-manager";
+import { AccountPanel } from "@/components/account/account-panel";
 
 export const metadata: Metadata = {
   title: "Settings",
-  description: "Create and revoke personal access tokens so your own AI can use your LifeSaver trips.",
+  description: "Your LifeSaver account, signing in on other devices, and personal access tokens for your AI.",
 };
 
 export default function SettingsPage() {
@@ -19,6 +20,7 @@ export default function SettingsPage() {
             <Link href="/ai" className="font-semibold text-primary underline">Works with your AI</Link>.
           </p>
         </header>
+        <AccountPanel />
         <TokenManager />
         <Link href="/home" className="block text-center text-sm font-semibold text-primary">Back to LifeSaver</Link>
       </div>

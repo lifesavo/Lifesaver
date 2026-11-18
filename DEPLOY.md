@@ -28,3 +28,30 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" https://your-service.onrender.com/a
 ```
 
 Open `/?utm_source=tiktok&ref=creator` and join the waitlist. The row should remain after a restart because it is on the disk.
+
+## Accounts and sign-in
+
+Accounts live in the same SQLite file (`users`, `sessions`, `login_codes`). Sign-up is email + ZIP. Signing in on another device uses a 6-digit code:
+
+- **Device code (always on):** on a signed-in device, Settings → *Show a sign-in code*. Type the email and code on the new device (for example the iPhone home-screen app).
+- **Email code (optional):** set both of these and the sign-in screen gets an *Email me a code* button.
+
+| Variable | Purpose |
+| --- | --- |
+| `RESEND_API_KEY` | Resend API key (resend.com) |
+| `EMAIL_FROM` | Sender on a domain verified in Resend, e.g. `LifeSaver <hello@golifesaver.com>` |
+
+## Stripe billing (off until every key is set)
+
+| Variable | Purpose |
+| --- | --- |
+| `STRIPE_SECRET_KEY` | `sk_live_…` (or `sk_test_…` to try it) |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_…` from the webhook endpoint below |
+| `STRIPE_PRICE_PREMIUM_FOUNDING` | Recurring monthly price, $7.99 |
+| `STRIPE_PRICE_PREMIUM` | Recurring monthly price, $9.99 |
+| `STRIPE_PRICE_HAND_FOUNDING` | Recurring monthly price, $14.99 |
+| `STRIPE_PRICE_HAND` | Recurring monthly price, $19.99 |
+
+Webhook endpoint: `https://golifesaver.com/api/billing/webhook`, events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`. Turn on the Customer Portal in Stripe so *Manage billing* works.
+
+Founding price: anyone whose account was created before billing opened, or whose email is on the waitlist. While any key is missing, plan buttons save founding-rate interest (`plan_interest` table) and nothing is charged.

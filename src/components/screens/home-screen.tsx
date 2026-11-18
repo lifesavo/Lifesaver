@@ -15,7 +15,7 @@ import { PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 import { useProfile } from "@/lib/profile";
 
 export function HomeScreen() {
-  const { profile } = useProfile();
+  const { profile, account } = useProfile();
   if (!profile) return null;
 
   const upcoming = [...bills].sort((a, b) => a.renewsOn.localeCompare(b.renewsOn)).slice(0, 4);
@@ -41,7 +41,12 @@ export function HomeScreen() {
           <p className="font-serif text-2xl tracking-tight">Today</p>
           <AiBadge className="mt-1" />
         </div>
-        <PlanChip />
+        <div className="flex flex-col items-end gap-2">
+          <PlanChip />
+          <Link href="/settings" className="text-xs font-semibold text-primary underline">
+            {account ? "Account" : "Sign in"}
+          </Link>
+        </div>
       </header>
 
       <section aria-labelledby="tip-heading" className="rounded-3xl bg-lime px-4 py-4 text-ink">
