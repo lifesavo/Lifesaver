@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 // Jason: replace this placeholder with the sponsor's legal entity name and
 // mailing address before promoting the giveaway.
-const SPONSOR = "[SPONSOR LEGAL NAME & ADDRESS]";
+const SPONSOR = "Royal Contracting LLC, 160 Hwy 224, Lexington, MO 64067";
 
 function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
@@ -45,7 +45,7 @@ export default function GiveawayRulesPage() {
 
         <Section n={1} title="Sponsor">
           <p>
-            The LifeSaver $100 Weekly Giveaway (the &ldquo;Giveaway&rdquo;) is sponsored by LifeSaver, {SPONSOR}
+            The LifeSaver $100 Weekly Giveaway (the &ldquo;Giveaway&rdquo;) is sponsored by {SPONSOR}
             (&ldquo;Sponsor&rdquo;).
           </p>
         </Section>
