@@ -37,7 +37,7 @@ function ensureSchema(db: Database.Database) {
       (column) => column.name,
     ),
   );
-  for (const column of ["ref_code", "utm_source", "utm_medium", "utm_campaign"]) {
+  for (const column of ["ref_code", "utm_source", "utm_medium", "utm_campaign", "source"]) {
     if (!columns.has(column)) db.exec(`ALTER TABLE waitlist ADD COLUMN ${column} TEXT`);
   }
   if (!columns.has("founding")) {
@@ -206,8 +206,8 @@ export function addSignup(
   }
   const info = db
     .prepare(
-      `INSERT INTO waitlist (email, zip, ref_code, utm_source, utm_medium, utm_campaign, founding)
-       VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      `INSERT INTO waitlist (email, zip, ref_code, utm_source, utm_medium, utm_campaign, source, founding)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
     )
     .run(
       email,
@@ -216,6 +216,7 @@ export function addSignup(
       attribution.utmSource,
       attribution.utmMedium,
       attribution.utmCampaign,
+      attribution.source ?? null,
     );
   const id = Number(info.lastInsertRowid);
   return {

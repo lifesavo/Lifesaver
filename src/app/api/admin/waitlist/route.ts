@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { connection } from "next/server";
 import { waitlistStats } from "@/lib/db";
+import { trackStats } from "@/lib/track";
 
 function json(body: unknown, status = 200) {
   return Response.json(body, {
@@ -33,5 +34,5 @@ export async function GET(request: Request) {
     return json({ ok: false, message: "That admin token does not match." }, 401);
   }
 
-  return json({ ok: true, ...waitlistStats() });
+  return json({ ok: true, ...waitlistStats(), track: trackStats() });
 }

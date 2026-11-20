@@ -153,7 +153,7 @@ export function StartScreen() {
     try {
       const { status, data } = await post<{ ok?: boolean; url?: string; message?: string }>(
         "/api/billing/checkout",
-        { plan: "premium", trial: true },
+        { plan: "premium", trial: true, utm_source: params.get("utm_source") ?? undefined, ref: params.get("ref") ?? undefined },
       );
       if (data.url) {
         window.location.href = data.url;
@@ -192,7 +192,7 @@ export function StartScreen() {
     try {
       const { status, data } = await post<{ ok?: boolean; exists?: boolean; user?: AccountUser; message?: string }>(
         "/api/account/signup",
-        { email, zip, ref: params.get("ref") ?? undefined },
+        { email, zip, ref: params.get("ref") ?? undefined, utm_source: params.get("utm_source") ?? undefined, trial },
       );
       if (data.ok && data.user) {
         applyAccount(data.user);

@@ -62,8 +62,11 @@ assert(
 assert(founding.customer === "cus_123", "existing customer id is reused");
 assert(!("customer_email" in founding) || founding.customer_email == null, "no email when customer id is set");
 
+assert(regular["metadata[trial]"] === "1", "trial flag on checkout metadata");
+assert(regular["subscription_data[metadata][trial]"] === "1", "trial flag on subscription metadata");
 assert(noTrial["subscription_data[trial_period_days]"] === undefined, "no trial on Lend a Hand by default");
 assert(noTrial.payment_method_collection === undefined, "no forced card collection without trial");
+assert(noTrial["metadata[trial]"] === undefined, "no trial flag without a trial");
 assert(String(noTrial.success_url).includes("/pricing?checkout=success"), "non-trial success stays on pricing");
 
 const failed = checks.filter((line) => line.startsWith("FAIL"));

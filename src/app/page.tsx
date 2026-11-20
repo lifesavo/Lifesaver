@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TryItFreeLink } from "@/components/try-it-free";
 import { AiBadge, AiSection } from "@/components/ai/ai-badge";
 import { InstallButton } from "@/components/pwa/install-button";
 import { WaitlistForm } from "@/components/waitlist-form";
@@ -33,12 +34,12 @@ export default function HomePage() {
               label="Get the app"
               className="h-11 rounded-full border-2 border-ink/15 px-3 text-sm font-bold"
             />
-            <Link
-              href="/start?trial=1"
+            <TryItFreeLink
+              event="try_it_free_header"
               className="inline-flex h-11 items-center rounded-full bg-ink px-4 text-sm font-bold text-white"
             >
               Try it free
-            </Link>
+            </TryItFreeLink>
           </div>
         </div>
       </header>
@@ -58,12 +59,12 @@ export default function HomePage() {
               </h1>
               <p className="mt-4 max-w-md text-xl font-semibold">Open the app, see the cheapest gas near you.</p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                <Link
-                  href="/start?trial=1"
+                <TryItFreeLink
+                  event="try_it_free_hero"
                   className="inline-flex h-16 items-center justify-center rounded-full bg-lime px-8 text-xl font-bold text-ink shadow-[4px_4px_0_#14081f]"
                 >
                   Try it free
-                </Link>
+                </TryItFreeLink>
                 <InstallButton className="h-14 rounded-full border-2 border-white px-6 text-lg font-bold text-white" />
               </div>
               <p className="mt-3 max-w-md text-sm leading-6 text-white/90">
@@ -223,12 +224,12 @@ export default function HomePage() {
       </main>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-ink/10 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.15)] sm:hidden">
-        <Link
-          href="/start?trial=1"
+        <TryItFreeLink
+          event="try_it_free_sticky"
           className="flex h-14 items-center justify-center rounded-full bg-lime text-lg font-bold text-ink shadow-[3px_3px_0_#14081f]"
         >
           Try it free
-        </Link>
+        </TryItFreeLink>
         <p className="mt-1.5 text-center text-[11px] leading-4 text-muted-foreground">
           7 days free, then {PREMIUM_PRICE_LABEL}/month. Cancel anytime before your trial ends and you won&apos;t be charged.
         </p>

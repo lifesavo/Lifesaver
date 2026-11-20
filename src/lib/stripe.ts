@@ -44,6 +44,8 @@ export type CheckoutSessionInput = {
   siteUrl: string;
   /** When set (Premium trial), card is collected up front and the first charge waits this many days. */
   trialPeriodDays?: number;
+  /** Optional first-party traffic source (utm/ref) stored on the session for webhook counts. */
+  trafficSource?: string;
 };
 
 function priceLabelFor(plan: BillingPlan, founding: boolean) {
@@ -69,6 +71,12 @@ export function checkoutSessionParams(input: CheckoutSessionInput) {
     "metadata[founding]": input.founding ? "1" : "0",
     "subscription_data[metadata][user_id]": input.userId,
     "subscription_data[metadata][plan]": input.plan,
+    ...(input.trafficSource
+      ? {
+          "metadata[source]": input.trafficSource,
+          "subscription_data[metadata][source]": input.trafficSource,
+        }
+      : {}),
     success_url: `${input.siteUrl}${successPath}`,
     cancel_url: `${input.siteUrl}${cancelPath}`,
     allow_promotion_codes: false,
@@ -78,6 +86,8 @@ export function checkoutSessionParams(input: CheckoutSessionInput) {
     params["subscription_data[trial_period_days]"] = trialDays;
     params.payment_method_collection = "always";
     params["custom_text[submit][message]"] = trialDisclosure(priceLabelFor(input.plan, input.founding));
+    params["metadata[trial]"] = "1";
+    params["subscription_data[metadata][trial]"] = "1";
   }
   return params;
 }

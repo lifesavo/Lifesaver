@@ -27,6 +27,9 @@ The Docker start command listens on Render’s `PORT`. Health checks hit `/`.
 curl -H "Authorization: Bearer $ADMIN_TOKEN" https://your-service.onrender.com/api/admin/waitlist
 ```
 
+First-party trial counters (no third-party analytics) are also on that response as `track`, or at `GET /api/admin/stats` with the same token. They count "Try it free" clicks, `/start?trial=1` views, trial sign-ups, and trial Checkout sessions by day and `utm_source` / `ref` in America/Chicago. Signup and checkout totals omit test emails (`trial.verify*`, `*@example.com`, `*@mail.grokbot.com`). The tables store only counts — no IP or email.
+
+
 Open `/?utm_source=tiktok&ref=creator` and join the waitlist. The row should remain after a restart because it is on the disk.
 
 ## Accounts and sign-in
