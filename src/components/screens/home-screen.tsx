@@ -106,6 +106,14 @@ export function HomeScreen() {
           <span className="block text-sm">Tip and who owes what, evenly or by what each person ordered.</span>
         </span>
       </Link>
+      <Link href="/todo" className="flex items-center gap-3 rounded-3xl bg-sun px-4 py-4 text-ink">
+        <span className="text-4xl" aria-hidden="true">✅</span>
+        <span>
+          <span className="block text-xs font-bold tracking-wide uppercase">New · Free</span>
+          <span className="block font-serif text-2xl leading-tight">To-do &amp; reminders</span>
+          <span className="block text-sm">Due dates, repeating chores, and reminders in your phone&apos;s calendar.</span>
+        </span>
+      </Link>
       <Link href="/plan" className="block rounded-3xl bg-gradient-to-br from-[#ff7a18] via-[#e01470] to-[#6d28d9] px-4 py-4 text-white">
         <p className="text-xs font-bold tracking-wide text-lime uppercase">New · Free</p>
         <p className="font-serif text-2xl leading-tight">Plan a trip in seconds</p>
