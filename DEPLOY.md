@@ -52,6 +52,8 @@ Accounts live in the same SQLite file (`users`, `sessions`, `login_codes`). Sign
 | `STRIPE_PRICE_HAND_FOUNDING` | Recurring monthly price, $14.99 |
 | `STRIPE_PRICE_HAND` | Recurring monthly price, $19.99 |
 
-Webhook endpoint: `https://golifesaver.com/api/billing/webhook`, events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`. Turn on the Customer Portal in Stripe so *Manage billing* works.
+Webhook endpoint: `https://golifesaver.com/api/billing/webhook`, events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`. Turn on the Customer Portal in Stripe so *Manage billing* works (this is how people cancel a trial).
+
+The landing-page **Try it free** button starts a 7-day Premium trial (`subscription_data.trial_period_days=7`) and always collects a card (`payment_method_collection=always`). After 7 days Stripe charges the founding or regular Premium price unless they cancel in the Customer Portal.
 
 Founding price: anyone whose account was created before billing opened, or whose email is on the waitlist. While any key is missing, plan buttons save founding-rate interest (`plan_interest` table) and nothing is charged.

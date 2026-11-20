@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { DemoNote, ExampleTag } from "@/components/demo-note";
 import { FuelCard } from "@/components/fuel-card";
 import { GetAHand } from "@/components/get-a-hand";
@@ -13,6 +14,7 @@ import { alerts, bills, institutions, ledger, MONTH_SAVED } from "@/lib/demo-dat
 import { money } from "@/lib/money";
 import { PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 import { useProfile } from "@/lib/profile";
+import { TrialBanner } from "@/components/trial-banner";
 
 export function HomeScreen() {
   const { profile, account } = useProfile();
@@ -35,6 +37,7 @@ export function HomeScreen() {
 
   return (
     <div className="space-y-5">
+      <Suspense fallback={null}><TrialBanner /></Suspense>
       <header className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm text-muted-foreground">Hello, {firstName}</p>

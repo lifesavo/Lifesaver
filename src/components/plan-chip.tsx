@@ -4,10 +4,16 @@ import Link from "next/link";
 import { useProfile } from "@/lib/profile";
 
 export function PlanChip() {
-  const { profile } = useProfile();
+  const { profile, account } = useProfile();
   if (!profile) return null;
   const label =
-    profile.plan === "hand" ? "Lend a Hand" : profile.plan === "premium" ? "Premium" : "Free";
+    account?.subscriptionStatus === "trialing"
+      ? "Premium trial"
+      : profile.plan === "hand"
+        ? "Lend a Hand"
+        : profile.plan === "premium"
+          ? "Premium"
+          : "Free";
   return (
     <Link
       href="/pricing"

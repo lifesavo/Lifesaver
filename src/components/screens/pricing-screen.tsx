@@ -69,7 +69,7 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
         const response = await fetch("/api/billing/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ plan, email: current.email }),
+          body: JSON.stringify({ plan, email: current.email, trial: plan === "premium" }),
         });
         const data = (await response.json()) as { ok?: boolean; url?: string; message?: string };
         if (!response.ok || !data.url) throw new Error(data.message || "Checkout didn't open. Try again.");
@@ -133,7 +133,7 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
 
       {checkout === "success" ? (
         <p className="rounded-2xl bg-lime px-4 py-3 text-sm font-medium text-ink" role="status">
-          Thanks! Your plan is active. It can take a few seconds to show here.
+          Thanks! If you started a trial, nothing is charged today. Your plan can take a few seconds to show here. Cancel in Settings under Manage billing before the trial ends if you don&apos;t want to be charged.
         </p>
       ) : null}
       {checkout === "canceled" ? (
@@ -159,6 +159,12 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
           <span className="text-lg text-muted-foreground">/mo for life</span>
         </p>
         <p className="text-sm text-muted-foreground">Founding rate. Regular price {PREMIUM_PRICE_LABEL}/mo.</p>
+        {billingOpen ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            7 days free, then {premiumPrice}/month. Cancel anytime before your trial ends and you won&apos;t be charged.
+            You can cancel in Settings under Manage billing.
+          </p>
+        ) : null}
         <FeatureList items={premiumIncludes} tone="light" />
         {current.plan === "premium" ? (
           <p className="mt-4 rounded-2xl bg-secondary px-3 py-2 text-sm" role="status">
@@ -174,7 +180,7 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
             {busy === "premium"
               ? "Saving…"
               : billingOpen
-                ? `Start Premium at ${premiumPrice}/mo`
+                ? `Try Premium free for 7 days`
                 : `Lock in ${FOUNDING_PREMIUM_LABEL}/mo for life`}
           </Button>
         )}

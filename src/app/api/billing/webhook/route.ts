@@ -47,12 +47,20 @@ export async function POST(request: Request) {
     const user = userId ? userById(userId) : undefined;
     if (user) {
       const plan = (object.metadata as Record<string, string> | undefined)?.plan === "hand" ? "hand" : "premium";
+      const paymentStatus = object.payment_status as string;
+      // Trials usually come through as no_payment_required (nothing is due today).
+      const status =
+        paymentStatus === "paid"
+          ? "active"
+          : paymentStatus === "no_payment_required" || object.subscription
+            ? "trialing"
+            : "incomplete";
       updateUser(user.id, {
         stripe_customer_id: (object.customer as string) || user.stripe_customer_id,
         stripe_subscription_id: (object.subscription as string) || user.stripe_subscription_id,
-        subscription_status: object.payment_status === "paid" ? "active" : "incomplete",
+        subscription_status: status,
         subscription_plan: plan,
-        plan: object.payment_status === "paid" ? plan : user.plan,
+        plan: status === "incomplete" ? user.plan : plan,
       });
     }
   } else if (

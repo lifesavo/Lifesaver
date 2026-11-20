@@ -54,6 +54,8 @@ export function AskLifeSaver() {
 
   const lifted = tabbed.has(pathname);
   const plan = profile?.plan ?? "free";
+  // Keep the landing and trial sign-up screens clear for the Try it free CTA and disclosure.
+  if (pathname === "/" || pathname.startsWith("/start")) return null;
 
   async function send(text: string) {
     const question = text.trim();

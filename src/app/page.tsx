@@ -8,12 +8,12 @@ import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, PREMIUM_
 const stickers = [
   { text: "price hike? caught", className: "bg-lime text-ink -top-4 -left-6", tilt: "-8deg" },
   { text: "$4.19 gas", className: "bg-cyan text-ink -right-4 top-16", tilt: "6deg" },
-  { text: "trial? nope", className: "bg-sun text-ink -bottom-3 left-8", tilt: "-3deg" },
+  { text: "double charge", className: "bg-sun text-ink -bottom-3 left-8", tilt: "-3deg" },
 ];
 
 export default function HomePage() {
   return (
-    <div className="min-h-dvh bg-background text-foreground">
+    <div className="min-h-dvh bg-background pb-28 text-foreground sm:pb-0">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-white"
@@ -34,10 +34,10 @@ export default function HomePage() {
               className="h-11 rounded-full border-2 border-ink/15 px-3 text-sm font-bold"
             />
             <Link
-              href="/start"
+              href="/start?trial=1"
               className="inline-flex h-11 items-center rounded-full bg-ink px-4 text-sm font-bold text-white"
             >
-              Try it
+              Try it free
             </Link>
           </div>
         </div>
@@ -45,7 +45,7 @@ export default function HomePage() {
 
       <main id="main">
         <section className="gradient-move overflow-hidden bg-gradient-to-br from-[#e01470] via-[#6d28d9] to-[#0891b2] text-white">
-          <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-8 sm:py-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
               <a
                 href="#waitlist"
@@ -57,7 +57,27 @@ export default function HomePage() {
                 Stop getting robbed by your bills.
               </h1>
               <p className="mt-4 max-w-md text-xl font-semibold">Open the app, see the cheapest gas near you.</p>
-              <p className="mt-3 max-w-md text-lg font-semibold">Need a hand fixing the mower? Tap once.</p>
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <Link
+                  href="/start?trial=1"
+                  className="inline-flex h-16 items-center justify-center rounded-full bg-lime px-8 text-xl font-bold text-ink shadow-[4px_4px_0_#14081f]"
+                >
+                  Try it free
+                </Link>
+                <InstallButton className="h-14 rounded-full border-2 border-white px-6 text-lg font-bold text-white" />
+              </div>
+              <p className="mt-3 max-w-md text-sm leading-6 text-white/90">
+                7 days free, then {PREMIUM_PRICE_LABEL}/month. Cancel anytime before your trial ends and you won&apos;t be charged.
+                You can cancel in Settings under Manage billing, which opens Stripe&apos;s billing portal.
+              </p>
+              <p className="mt-3 max-w-md text-sm text-white/80">
+                <Link href="/giveaway" className="font-semibold underline decoration-white/50 underline-offset-2 hover:decoration-white">
+                  Enter this week&apos;s giveaway
+                </Link>
+                {" "}
+                — free to enter, no purchase necessary.
+              </p>
+              <p className="mt-6 max-w-md text-lg font-semibold">Need a hand fixing the mower? Tap once.</p>
               <p className="mt-2 max-w-md text-lg font-semibold">Cheapest flights, hotels, and cars, all in one app.</p>
               <p className="mt-2 max-w-md text-lg font-semibold">Your own AI money-saver in your pocket.</p>
               <p className="mt-2 max-w-md text-lg font-semibold">Plan a whole trip and know what to wear today.</p>
@@ -69,21 +89,6 @@ export default function HomePage() {
                 LifeSaver sorts nearby gas by price, tells you what to wear, warns you about storms,
                 and connects you with neighbors who can lend a hand. Bill tracking is rolling out next.
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/start"
-                  className="inline-flex h-14 items-center justify-center rounded-full bg-lime px-6 text-lg font-bold text-ink shadow-[4px_4px_0_#14081f]"
-                >
-                  Get started
-                </Link>
-                <a
-                  href="#waitlist"
-                  className="inline-flex h-14 items-center justify-center rounded-full bg-white px-6 text-lg font-bold text-ink"
-                >
-                  Get on the list
-                </a>
-                <InstallButton className="h-14 rounded-full border-2 border-white px-6 text-lg font-bold text-white" />
-              </div>
             </div>
             <div className="relative mx-auto w-full max-w-sm">
               <div className="rounded-[2rem] bg-white p-5 text-ink shadow-[8px_8px_0_rgba(0,0,0,0.25)]">
@@ -216,6 +221,18 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-ink/10 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(0,0,0,0.15)] sm:hidden">
+        <Link
+          href="/start?trial=1"
+          className="flex h-14 items-center justify-center rounded-full bg-lime text-lg font-bold text-ink shadow-[3px_3px_0_#14081f]"
+        >
+          Try it free
+        </Link>
+        <p className="mt-1.5 text-center text-[11px] leading-4 text-muted-foreground">
+          7 days free, then {PREMIUM_PRICE_LABEL}/month. Cancel anytime before your trial ends and you won&apos;t be charged.
+        </p>
+      </div>
 
       <footer className="border-t-2 border-ink/10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-8 sm:flex-row sm:items-center sm:justify-between">

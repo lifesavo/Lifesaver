@@ -5,6 +5,20 @@ export const HAND_PRICE_LABEL = "$19.99";
 export const FOUNDING_PREMIUM_LABEL = "$7.99";
 export const FOUNDING_HAND_LABEL = "$14.99";
 
+export const TRIAL_DAYS = 7;
+
+/** Public trial price for new visitors. Founding members are charged the founding rate at checkout. */
+export function trialPriceLabel(founding = false) {
+  return founding ? FOUNDING_PREMIUM_LABEL : PREMIUM_PRICE_LABEL;
+}
+
+export function trialDisclosure(priceLabel: string) {
+  return `7 days free, then ${priceLabel}/month. Cancel anytime before your trial ends and you won't be charged.`;
+}
+
+export const TRIAL_CANCEL_HINT =
+  "You can cancel in Settings under Manage billing, which opens Stripe's billing portal. Cancel before your trial ends and you won't be charged.";
+
 export function foundingShareMessage(origin: string, shareCode: string) {
   const root = origin.replace(/\/$/, "");
   return `Founding Member: Premium is locked at ${FOUNDING_PREMIUM_LABEL}/mo for life (after launch ${PREMIUM_PRICE_LABEL}). Lend a Hand is locked at ${FOUNDING_HAND_LABEL}/mo for life (after launch ${HAND_PRICE_LABEL}). Join LifeSaver with my link: ${root}/?ref=${shareCode}`;

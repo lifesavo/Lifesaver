@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type InstitutionId } from "@/lib/demo-data";
 import { useProfile, type AccountUser } from "@/lib/profile";
+import { TRIAL_CANCEL_HINT, TRIAL_DAYS, trialDisclosure, trialPriceLabel } from "@/lib/pricing";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Example bill set shown (and labeled "Example") until bank linking opens.
@@ -31,7 +32,7 @@ async function post<T>(url: string, body: unknown): Promise<{ status: number; da
 export function StartScreen() {
   const router = useRouter();
   const params = useSearchParams();
-  const { ready, profile, account, emailLogin, needsSignIn, completeOnboarding, applyAccount, signOut } = useProfile();
+  const { ready, profile, account, emailLogin, needsSignIn, completeOnboarding, applyAccount, signOut, billingOpen } = useProfile();
   const emailId = useId();
   const zipId = useId();
   const codeId = useId();
@@ -45,6 +46,8 @@ export function StartScreen() {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState(false);
+  const trial = params.get("trial") === "1";
+  const checkoutState = params.get("checkout");
 
   if (!ready) {
     return (
@@ -74,8 +77,33 @@ export function StartScreen() {
               This email already has a LifeSaver account. Sign in to sync it here.
             </p>
           ) : null}
+          {checkoutState === "canceled" ? (
+            <p className="mt-4 rounded-2xl bg-secondary px-3 py-2 text-sm" role="status">
+              Checkout canceled. Nothing was charged.
+            </p>
+          ) : null}
+          {trial ? (
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">
+              {trialDisclosure(trialPriceLabel(Boolean(account?.founding)))} {TRIAL_CANCEL_HINT}
+            </p>
+          ) : null}
+          {error ? (
+            <p className="mt-3 text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          ) : null}
           <div className="mt-8 flex flex-col gap-3">
-            <Button asChild className="h-12 rounded-full text-base">
+            {trial && account && !["active", "trialing", "past_due"].includes(account.subscriptionStatus || "") ? (
+              <Button
+                type="button"
+                className="h-12 rounded-full text-base"
+                disabled={pending}
+                onClick={() => void startTrialCheckout()}
+              >
+                {pending ? "Opening checkout…" : billingOpen ? `Start ${TRIAL_DAYS}-day free trial` : "Continue"}
+              </Button>
+            ) : null}
+            <Button asChild className="h-12 rounded-full text-base" variant={trial && account && !["active", "trialing", "past_due"].includes(account.subscriptionStatus || "") ? "outline" : "default"}>
               <Link href="/home">Go to the dashboard</Link>
             </Button>
             {!account ? (
@@ -119,6 +147,30 @@ export function StartScreen() {
     router.push("/home");
   }
 
+  async function startTrialCheckout() {
+    setError("");
+    setPending(true);
+    try {
+      const { status, data } = await post<{ ok?: boolean; url?: string; message?: string }>(
+        "/api/billing/checkout",
+        { plan: "premium", trial: true },
+      );
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      if (status === 503) {
+        setError("Billing isn't open on this server yet, so checkout didn't start. Your account is ready — you can open the app now.");
+        return;
+      }
+      setError(data.message || "Checkout didn't open. Try again in a minute.");
+    } catch {
+      setError("You look offline. Try again when you have a signal.");
+    } finally {
+      setPending(false);
+    }
+  }
+
   function checkEmail() {
     const value = email.trim().toLowerCase();
     if (!EMAIL.test(value) || value.length > 254) {
@@ -142,7 +194,14 @@ export function StartScreen() {
         "/api/account/signup",
         { email, zip, ref: params.get("ref") ?? undefined },
       );
-      if (data.ok && data.user) return finishWith(data.user, email, zip);
+      if (data.ok && data.user) {
+        applyAccount(data.user);
+        if (trial) {
+          await startTrialCheckout();
+          return;
+        }
+        return finishWith(data.user, email, zip);
+      }
       if (status === 409 && data.exists) {
         setMode("signin");
         setCodeSent(false);
@@ -284,6 +343,84 @@ export function StartScreen() {
               >
                 New here? Create an account
               </Button>
+            </div>
+          </form>
+        </div>
+      </PhoneFrame>
+    );
+  }
+
+  if (trial) {
+    const price = trialPriceLabel(Boolean(account?.founding));
+    return (
+      <PhoneFrame>
+        <div className="flex min-h-full flex-col">
+          <div className="flex items-center justify-between gap-3">
+            <Wordmark compact />
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-10 rounded-full px-3"
+              onClick={() => {
+                setMode("signin");
+                setError("");
+              }}
+            >
+              Sign in
+            </Button>
+          </div>
+          <form
+            className="mt-6 flex flex-1 flex-col"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!checkEmail()) return;
+              void finishSignup();
+            }}
+          >
+            <h1 className="font-serif text-4xl leading-[1.05] tracking-tight">Try Premium free for {TRIAL_DAYS} days.</h1>
+            {checkoutState === "canceled" ? (
+              <p className="mt-3 rounded-2xl bg-secondary px-3 py-2 text-sm" role="status">
+                Checkout canceled. Nothing was charged. You can try again below.
+              </p>
+            ) : null}
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              {trialDisclosure(price)} {TRIAL_CANCEL_HINT}
+            </p>
+            <div className="mt-6 space-y-1.5">
+              <Label htmlFor={emailId}>Email</Label>
+              <Input
+                id={emailId}
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="alex@example.com"
+                aria-invalid={error ? true : undefined}
+                className="h-12 rounded-2xl px-4 text-base"
+              />
+            </div>
+            <div className="mt-4 space-y-1.5">
+              <Label htmlFor={zipId}>ZIP code</Label>
+              <Input
+                id={zipId}
+                inputMode="numeric"
+                autoComplete="postal-code"
+                maxLength={5}
+                value={zip}
+                onChange={(event) => setZip(event.target.value.replace(/\D/g, "").slice(0, 5))}
+                placeholder="94110"
+                aria-invalid={error ? true : undefined}
+                className="h-12 rounded-2xl px-4 text-base"
+              />
+            </div>
+            {errorLine}
+            <div className="mt-auto flex flex-col gap-3 pt-8">
+              <Button type="submit" className="h-12 rounded-full text-base" disabled={pending}>
+                {pending ? "Starting your trial…" : "Try it free"}
+              </Button>
+              <p className="text-center text-xs leading-5 text-muted-foreground">
+                You&apos;ll enter your card on the next screen. You won&apos;t be charged today.
+              </p>
             </div>
           </form>
         </div>

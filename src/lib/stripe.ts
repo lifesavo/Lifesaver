@@ -1,5 +1,12 @@
 import crypto from "node:crypto";
 import { priceIdFor, stripeSecret, type BillingPlan } from "@/lib/billing-config";
+import {
+  FOUNDING_HAND_LABEL,
+  FOUNDING_PREMIUM_LABEL,
+  HAND_PRICE_LABEL,
+  PREMIUM_PRICE_LABEL,
+  trialDisclosure,
+} from "@/lib/pricing";
 
 /** Minimal Stripe REST client (no SDK). Only used when billing keys are set. */
 function form(data: Record<string, string | number | boolean | undefined | null>) {
@@ -28,16 +35,30 @@ export async function stripeRequest<T>(method: "GET" | "POST", path: string, dat
   return json;
 }
 
-export async function createCheckoutSession(input: {
+export type CheckoutSessionInput = {
   plan: BillingPlan;
   founding: boolean;
   userId: string;
   email: string;
   customerId: string | null;
   siteUrl: string;
-}) {
+  /** When set (Premium trial), card is collected up front and the first charge waits this many days. */
+  trialPeriodDays?: number;
+};
+
+function priceLabelFor(plan: BillingPlan, founding: boolean) {
+  if (plan === "premium") return founding ? FOUNDING_PREMIUM_LABEL : PREMIUM_PRICE_LABEL;
+  return founding ? FOUNDING_HAND_LABEL : HAND_PRICE_LABEL;
+}
+
+/** Body sent to Stripe Checkout. Exported so it can be checked without calling Stripe. */
+export function checkoutSessionParams(input: CheckoutSessionInput) {
   const price = priceIdFor(input.plan, input.founding);
-  return stripeRequest<{ id: string; url: string }>("POST", "/checkout/sessions", {
+  const trialDays = input.trialPeriodDays && input.trialPeriodDays > 0 ? input.trialPeriodDays : 0;
+  const trial = trialDays > 0;
+  const successPath = trial ? "/home?checkout=success" : "/pricing?checkout=success";
+  const cancelPath = trial ? "/start?trial=1&checkout=canceled" : "/pricing?checkout=canceled";
+  const params: Record<string, string | number | boolean | undefined | null> = {
     mode: "subscription",
     "line_items[0][price]": price,
     "line_items[0][quantity]": 1,
@@ -48,10 +69,21 @@ export async function createCheckoutSession(input: {
     "metadata[founding]": input.founding ? "1" : "0",
     "subscription_data[metadata][user_id]": input.userId,
     "subscription_data[metadata][plan]": input.plan,
-    success_url: `${input.siteUrl}/pricing?checkout=success`,
-    cancel_url: `${input.siteUrl}/pricing?checkout=canceled`,
+    success_url: `${input.siteUrl}${successPath}`,
+    cancel_url: `${input.siteUrl}${cancelPath}`,
     allow_promotion_codes: false,
-  });
+  };
+  if (trial) {
+    // Collect the card now so Stripe can charge automatically when the trial ends.
+    params["subscription_data[trial_period_days]"] = trialDays;
+    params.payment_method_collection = "always";
+    params["custom_text[submit][message]"] = trialDisclosure(priceLabelFor(input.plan, input.founding));
+  }
+  return params;
+}
+
+export async function createCheckoutSession(input: CheckoutSessionInput) {
+  return stripeRequest<{ id: string; url: string }>("POST", "/checkout/sessions", checkoutSessionParams(input));
 }
 
 export async function createPortalSession(customerId: string, siteUrl: string) {

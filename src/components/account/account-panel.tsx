@@ -84,6 +84,11 @@ export function AccountPanel() {
         Signed in as <span className="font-semibold">{account.email}</span>
         {account.founding ? " · Founding member" : ""}
       </p>
+      {account.subscriptionStatus === "trialing" ? (
+        <p className="rounded-2xl bg-lime px-3 py-2 text-sm text-ink" role="status">
+          You&apos;re on a 7-day free trial of Premium. Cancel in Manage billing before your trial ends and you won&apos;t be charged.
+        </p>
+      ) : null}
 
       <div className="rounded-2xl bg-secondary p-3">
         <p className="font-semibold">Sign in on another device</p>
