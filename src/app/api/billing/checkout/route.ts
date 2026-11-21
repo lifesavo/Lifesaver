@@ -5,7 +5,7 @@ import { TRIAL_DAYS } from "@/lib/pricing";
 import { readAttribution } from "@/lib/attribution";
 import { createCheckoutSession, siteUrl } from "@/lib/stripe";
 import { sessionUser } from "@/lib/session";
-import { isTestEmail, recordUniqueTrackedEvent } from "@/lib/track";
+import { isTestEmail, recordTrackedEvent, recordUniqueTrackedEvent } from "@/lib/track";
 
 /** Start Stripe Checkout for Premium or Lend a Hand. Founding members get the founding price. */
 export async function POST(request: Request) {
@@ -21,8 +21,8 @@ export async function POST(request: Request) {
   }
   // 7-day free trial is for Premium sign-ups from Try it free (card is still collected up front).
   const trialPeriodDays = body?.trial && plan === "premium" ? TRIAL_DAYS : undefined;
+  const attribution = readAttribution({ utm_source: body?.utm_source, ref: body?.ref });
   try {
-    const attribution = readAttribution({ utm_source: body?.utm_source, ref: body?.ref });
     const session = await createCheckoutSession({
       plan,
       founding: user.founding !== 0,
@@ -42,6 +42,9 @@ export async function POST(request: Request) {
     return json({ ok: true, url: session.url });
   } catch (error) {
     console.error("checkout failed", error);
+    if (trialPeriodDays && !isTestEmail(user.email)) {
+      recordTrackedEvent("trial_checkout_failed", { utm_source: attribution.utmSource, ref: attribution.ref });
+    }
     return json({ ok: false, message: "Checkout didn't open. Try again in a minute." }, 502);
   }
 }

@@ -5,13 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useId, useState } from "react";
 import { cn } from "cn";
 import { PhoneFrame } from "@/components/phone-frame";
+import { TrialSignupForm, trialErrorMessage } from "@/components/trial-signup-form";
 import { Wordmark } from "@/components/wordmark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type InstitutionId } from "@/lib/demo-data";
 import { useProfile, type AccountUser } from "@/lib/profile";
-import { TRIAL_CANCEL_HINT, TRIAL_DAYS, trialDisclosure, trialPriceLabel } from "@/lib/pricing";
+import { TRIAL_DAYS, trialDisclosureShort, trialPriceLabel } from "@/lib/pricing";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Example bill set shown (and labeled "Example") until bank linking opens.
@@ -29,27 +30,55 @@ async function post<T>(url: string, body: unknown): Promise<{ status: number; da
   return { status: response.status, data };
 }
 
-export function StartScreen() {
+function isSubscribed(account: AccountUser | null) {
+  return Boolean(account && ["active", "trialing", "past_due"].includes(account.subscriptionStatus || ""));
+}
+
+export function StartScreen({
+  trialDefault = false,
+  utmSource = "",
+  refCode = "",
+  checkoutCanceled = false,
+  initialError = "",
+}: {
+  trialDefault?: boolean;
+  utmSource?: string;
+  refCode?: string;
+  checkoutCanceled?: boolean;
+  initialError?: string;
+} = {}) {
   const router = useRouter();
   const params = useSearchParams();
   const { ready, profile, account, emailLogin, needsSignIn, completeOnboarding, applyAccount, signOut, billingOpen } = useProfile();
   const emailId = useId();
   const zipId = useId();
   const codeId = useId();
-  const [mode, setMode] = useState<Mode>(params.get("mode") === "signin" ? "signin" : "signup");
+  const trial = trialDefault || params.get("trial") === "1";
+  const checkoutState = params.get("checkout") || (checkoutCanceled ? "canceled" : null);
+  const errorCode = params.get("error") || initialError;
+  const [mode, setMode] = useState<Mode>(
+    params.get("mode") === "signin" || initialError === "exists" || errorCode === "exists" ? "signin" : "signup",
+  );
   const [step, setStep] = useState(0);
   const [email, setEmail] = useState("");
+  const [emailEdited, setEmailEdited] = useState(false);
   const [zip, setZip] = useState("");
   const [code, setCode] = useState("");
   const [codeSent, setCodeSent] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [error, setError] = useState("");
+  const [notice, setNotice] = useState(
+    initialError === "exists" || errorCode === "exists"
+      ? "That email already has a LifeSaver account. Sign in with a code below."
+      : "",
+  );
+  const [error, setError] = useState(trialErrorMessage(errorCode));
   const [pending, setPending] = useState(false);
   const [editing, setEditing] = useState(false);
-  const trial = params.get("trial") === "1";
-  const checkoutState = params.get("checkout");
+  const source = params.get("utm_source") || utmSource;
+  const referral = params.get("ref") || refCode;
 
-  if (!ready) {
+  const trialEmail = emailEdited ? email : email || profile?.email || "";
+
+  if (!ready && !trial) {
     return (
       <PhoneFrame>
         <p className="pt-16 text-sm text-muted-foreground" role="status">
@@ -59,7 +88,9 @@ export function StartScreen() {
     );
   }
 
-  if (profile && !editing) {
+  const showSignedIn = Boolean(ready && profile && !editing && (!trial || isSubscribed(account) || account));
+
+  if (showSignedIn && profile) {
     return (
       <PhoneFrame>
         <div className="flex min-h-full flex-col pt-6">
@@ -84,7 +115,7 @@ export function StartScreen() {
           ) : null}
           {trial ? (
             <p className="mt-4 text-sm leading-6 text-muted-foreground">
-              {trialDisclosure(trialPriceLabel(Boolean(account?.founding)))} {TRIAL_CANCEL_HINT}
+              {trialDisclosureShort(trialPriceLabel(Boolean(account?.founding)))}
             </p>
           ) : null}
           {error ? (
@@ -147,28 +178,45 @@ export function StartScreen() {
     router.push("/home");
   }
 
-  async function startTrialCheckout() {
+  async function startTrialFromEmail(value?: string) {
+    const address = (value ?? trialEmail).trim().toLowerCase();
+    if (!EMAIL.test(address) || address.length > 254) {
+      setError("Enter an email like alex@example.com.");
+      return;
+    }
+    setEmail(address);
     setError("");
     setPending(true);
     try {
-      const { status, data } = await post<{ ok?: boolean; url?: string; message?: string }>(
-        "/api/billing/checkout",
-        { plan: "premium", trial: true, utm_source: params.get("utm_source") ?? undefined, ref: params.get("ref") ?? undefined },
-      );
+      const { status, data } = await post<{
+        ok?: boolean;
+        url?: string;
+        message?: string;
+        exists?: boolean;
+        user?: AccountUser;
+        error?: string;
+      }>("/api/account/trial", { email: address, utm_source: source || undefined, ref: referral || undefined });
+      if (data.user) applyAccount(data.user);
       if (data.url) {
         window.location.href = data.url;
         return;
       }
-      if (status === 503) {
-        setError("Billing isn't open on this server yet, so checkout didn't start. Your account is ready — you can open the app now.");
+      if (status === 409 && data.exists) {
+        setMode("signin");
+        setCodeSent(false);
+        setNotice("That email already has a LifeSaver account. Sign in with a code below.");
         return;
       }
-      setError(data.message || "Checkout didn't open. Try again in a minute.");
+      setError(data.message || trialErrorMessage(data.error) || "Checkout didn't open. Try again in a minute.");
     } catch {
       setError("You look offline. Try again when you have a signal.");
     } finally {
       setPending(false);
     }
+  }
+
+  async function startTrialCheckout() {
+    await startTrialFromEmail(account?.email || email || profile?.email || "");
   }
 
   function checkEmail() {
@@ -208,9 +256,19 @@ export function StartScreen() {
         setNotice("That email already has a LifeSaver account. Sign in with a code below.");
         return;
       }
-      if (status >= 500 || status === 0) return finishWith(null, email, zip); // server down: keep going on this phone
+      if (status >= 500 || status === 0) {
+        if (trial) {
+          setError("That didn't work. Try again in a minute.");
+          return;
+        }
+        return finishWith(null, email, zip); // server down: keep going on this phone
+      }
       setError(data.message || "That didn't work. Try again.");
     } catch {
+      if (trial) {
+        setError("You look offline. Try again when you have a signal.");
+        return;
+      }
       finishWith(null, email, zip);
     } finally {
       setPending(false);
@@ -251,7 +309,14 @@ export function StartScreen() {
         email: value,
         code: digits,
       });
-      if (data.ok && data.user) return finishWith(data.user, value, data.user.zip || "");
+      if (data.ok && data.user) {
+        if (trial) {
+          applyAccount(data.user);
+          await startTrialCheckout();
+          return;
+        }
+        return finishWith(data.user, value, data.user.zip || "");
+      }
       setError(data.message || "That code didn't match. Try again.");
     } catch {
       setError("You look offline. Try again when you have a signal.");
@@ -351,80 +416,29 @@ export function StartScreen() {
   }
 
   if (trial) {
-    const price = trialPriceLabel(Boolean(account?.founding));
     return (
-      <PhoneFrame>
-        <div className="flex min-h-full flex-col">
-          <div className="flex items-center justify-between gap-3">
-            <Wordmark compact />
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-10 rounded-full px-3"
-              onClick={() => {
-                setMode("signin");
-                setError("");
-              }}
-            >
-              Sign in
-            </Button>
-          </div>
-          <form
-            className="mt-6 flex flex-1 flex-col"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (!checkEmail()) return;
-              void finishSignup();
-            }}
-          >
-            <h1 className="font-serif text-4xl leading-[1.05] tracking-tight">Try Premium free for {TRIAL_DAYS} days.</h1>
-            {checkoutState === "canceled" ? (
-              <p className="mt-3 rounded-2xl bg-secondary px-3 py-2 text-sm" role="status">
-                Checkout canceled. Nothing was charged. You can try again below.
-              </p>
-            ) : null}
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              {trialDisclosure(price)} {TRIAL_CANCEL_HINT}
-            </p>
-            <div className="mt-6 space-y-1.5">
-              <Label htmlFor={emailId}>Email</Label>
-              <Input
-                id={emailId}
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="alex@example.com"
-                aria-invalid={error ? true : undefined}
-                className="h-12 rounded-2xl px-4 text-base"
-              />
-            </div>
-            <div className="mt-4 space-y-1.5">
-              <Label htmlFor={zipId}>ZIP code</Label>
-              <Input
-                id={zipId}
-                inputMode="numeric"
-                autoComplete="postal-code"
-                maxLength={5}
-                value={zip}
-                onChange={(event) => setZip(event.target.value.replace(/\D/g, "").slice(0, 5))}
-                placeholder="94110"
-                aria-invalid={error ? true : undefined}
-                className="h-12 rounded-2xl px-4 text-base"
-              />
-            </div>
-            {errorLine}
-            <div className="mt-auto flex flex-col gap-3 pt-8">
-              <Button type="submit" className="h-12 rounded-full text-base" disabled={pending}>
-                {pending ? "Starting your trial…" : "Try it free"}
-              </Button>
-              <p className="text-center text-xs leading-5 text-muted-foreground">
-                You&apos;ll enter your card on the next screen. You won&apos;t be charged today.
-              </p>
-            </div>
-          </form>
-        </div>
-      </PhoneFrame>
+      <TrialSignupForm
+        email={trialEmail}
+        onEmailChange={(value) => {
+          setEmailEdited(true);
+          setEmail(value);
+        }}
+        error={error}
+        pending={pending}
+        canceled={checkoutState === "canceled"}
+        utmSource={source}
+        refCode={referral}
+        priceLabel={trialPriceLabel(Boolean(account?.founding))}
+        emailId={emailId}
+        onSignIn={() => {
+          setMode("signin");
+          setError("");
+        }}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void startTrialFromEmail();
+        }}
+      />
     );
   }
 

@@ -34,7 +34,7 @@ Open `/?utm_source=tiktok&ref=creator` and join the waitlist. The row should rem
 
 ## Accounts and sign-in
 
-Accounts live in the same SQLite file (`users`, `sessions`, `login_codes`). Sign-up is email + ZIP. Signing in on another device uses a 6-digit code:
+Accounts live in the same SQLite file (`users`, `sessions`, `login_codes`). The public trial at `/start?trial=1` is email only, then Stripe Checkout. Regular in-app sign-up still asks for a ZIP. Signing in on another device uses a 6-digit code:
 
 - **Device code (always on):** on a signed-in device, Settings → *Show a sign-in code*. Type the email and code on the new device (for example the iPhone home-screen app).
 - **Email code (optional):** set both of these and the sign-in screen gets an *Email me a code* button.

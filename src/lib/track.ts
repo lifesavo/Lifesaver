@@ -6,8 +6,10 @@ import { getDb } from "@/lib/db";
 export const BEACON_EVENTS = ["try_it_free_hero", "try_it_free_sticky", "try_it_free_header"] as const;
 export const SERVER_EVENTS = [
   "trial_start_view",
+  "trial_form_submit",
   "trial_signup",
   "trial_checkout_created",
+  "trial_checkout_failed",
   "trial_checkout_completed",
 ] as const;
 export const TRACK_EVENTS = [...BEACON_EVENTS, ...SERVER_EVENTS] as const;

@@ -28,6 +28,8 @@ assert(isBeaconEvent("try_it_free_hero"), "hero click is a beacon event");
 assert(isBeaconEvent("try_it_free_sticky"), "sticky click is a beacon event");
 assert(isBeaconEvent("try_it_free_header"), "header click is a beacon event");
 assert(!isBeaconEvent("trial_signup"), "signup is not a public beacon event");
+assert(!isBeaconEvent("trial_form_submit"), "form submit is not a public beacon event");
+assert(!isBeaconEvent("trial_checkout_failed"), "checkout failed is not a public beacon event");
 assert(!isBeaconEvent("not_a_real_event"), "unknown events are rejected");
 
 assert(isTestEmail("trial.verify.ad31266.1@somewhere.com"), "trial.verify prefix is a test email");

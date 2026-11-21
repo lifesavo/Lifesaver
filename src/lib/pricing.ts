@@ -16,6 +16,11 @@ export function trialDisclosure(priceLabel: string) {
   return `7 days free, then ${priceLabel}/month. Cancel anytime before your trial ends and you won't be charged.`;
 }
 
+/** Short trial terms for the sign-up screen. Keep the longer disclosure on Stripe Checkout. */
+export function trialDisclosureShort(priceLabel: string) {
+  return `7 days free, then ${priceLabel}/month, cancel anytime.`;
+}
+
 export const TRIAL_CANCEL_HINT =
   "You can cancel in Settings under Manage billing, which opens Stripe's billing portal. Cancel before your trial ends and you won't be charged.";
 

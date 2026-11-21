@@ -21,3 +21,22 @@ export function cleanEmail(value: unknown) {
 export function cleanZip(value: unknown) {
   return typeof value === "string" && /^\d{5}$/.test(value) ? value : null;
 }
+
+export async function readFormOrJson<T>(request: Request): Promise<Partial<T> | null> {
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) return readBody<T>(request);
+  try {
+    const form = await request.formData();
+    const body: Record<string, string> = {};
+    form.forEach((value, key) => {
+      if (typeof value === "string") body[key] = value;
+    });
+    return body as Partial<T>;
+  } catch {
+    return null;
+  }
+}
+
+export function isJsonRequest(request: Request) {
+  return (request.headers.get("content-type") || "").includes("application/json");
+}
