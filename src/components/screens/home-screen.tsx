@@ -125,6 +125,14 @@ export function HomeScreen() {
           <span className="block text-sm">Set what you want to spend, log it in two taps, see what&apos;s left.</span>
         </span>
       </Link>
+      <Link href="/car" className="flex items-center gap-3 rounded-3xl bg-mint px-4 py-4 text-ink">
+        <span className="text-4xl" aria-hidden="true">🚗</span>
+        <span>
+          <span className="block text-xs font-bold tracking-wide uppercase">New · Free</span>
+          <span className="block font-serif text-2xl leading-tight">Car care</span>
+          <span className="block text-sm">Oil changes, tires, and filters by miles or months, plus what you spent.</span>
+        </span>
+      </Link>
       <Link href="/plan" className="block rounded-3xl bg-gradient-to-br from-[#ff7a18] via-[#e01470] to-[#6d28d9] px-4 py-4 text-white">
         <p className="text-xs font-bold tracking-wide text-lime uppercase">New · Free</p>
         <p className="font-serif text-2xl leading-tight">Plan a trip in seconds</p>
