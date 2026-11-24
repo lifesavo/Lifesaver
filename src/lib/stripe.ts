@@ -42,7 +42,7 @@ export type CheckoutSessionInput = {
   email: string;
   customerId: string | null;
   siteUrl: string;
-  /** When set (Premium trial), card is collected up front and the first charge waits this many days. */
+  /** When set (Premium trial), first charge waits this many days. No card is collected up front. */
   trialPeriodDays?: number;
   /** Optional first-party traffic source (utm/ref) stored on the session for webhook counts. */
   trafficSource?: string;
@@ -82,9 +82,10 @@ export function checkoutSessionParams(input: CheckoutSessionInput) {
     allow_promotion_codes: false,
   };
   if (trial) {
-    // Collect the card now so Stripe can charge automatically when the trial ends.
+    // No card up front. If they never add one, Stripe cancels at the end of the trial and nothing is charged.
     params["subscription_data[trial_period_days]"] = trialDays;
-    params.payment_method_collection = "always";
+    params.payment_method_collection = "if_required";
+    params["subscription_data[trial_settings][end_behavior][missing_payment_method]"] = "cancel";
     params["custom_text[submit][message]"] = trialDisclosure(priceLabelFor(input.plan, input.founding));
     params["metadata[trial]"] = "1";
     params["subscription_data[metadata][trial]"] = "1";
@@ -94,6 +95,48 @@ export function checkoutSessionParams(input: CheckoutSessionInput) {
 
 export async function createCheckoutSession(input: CheckoutSessionInput) {
   return stripeRequest<{ id: string; url: string }>("POST", "/checkout/sessions", checkoutSessionParams(input));
+}
+
+export type CardSetupInput = {
+  userId: string;
+  customerId: string;
+  siteUrl: string;
+};
+
+/** Body sent to Stripe Checkout in setup mode, to add a card during or after a trial. */
+export function cardSetupSessionParams(input: CardSetupInput) {
+  return {
+    mode: "setup",
+    customer: input.customerId,
+    client_reference_id: input.userId,
+    "metadata[user_id]": input.userId,
+    "metadata[purpose]": "trial_card",
+    success_url: `${input.siteUrl}/home?checkout=card_added`,
+    cancel_url: `${input.siteUrl}/home`,
+  } as Record<string, string | number | boolean | undefined | null>;
+}
+
+export async function createCardSetupSession(input: CardSetupInput) {
+  return stripeRequest<{ id: string; url: string }>("POST", "/checkout/sessions", cardSetupSessionParams(input));
+}
+
+export async function attachDefaultPaymentMethod(customerId: string, paymentMethodId: string, subscriptionId?: string | null) {
+  await stripeRequest("POST", `/customers/${encodeURIComponent(customerId)}`, {
+    "invoice_settings[default_payment_method]": paymentMethodId,
+  });
+  if (subscriptionId) {
+    await stripeRequest("POST", `/subscriptions/${encodeURIComponent(subscriptionId)}`, {
+      default_payment_method: paymentMethodId,
+    });
+  }
+}
+
+export async function retrieveSetupIntent(id: string) {
+  return stripeRequest<{
+    id: string;
+    payment_method?: string | { id?: string } | null;
+    customer?: string | null;
+  }>("GET", `/setup_intents/${encodeURIComponent(id)}`);
 }
 
 export async function createPortalSession(customerId: string, siteUrl: string) {

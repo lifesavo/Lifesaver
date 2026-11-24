@@ -6,6 +6,8 @@ export const FOUNDING_PREMIUM_LABEL = "$7.99";
 export const FOUNDING_HAND_LABEL = "$14.99";
 
 export const TRIAL_DAYS = 7;
+/** Show a stronger "add a card" prompt this many days before the trial ends. */
+export const TRIAL_CARD_REMIND_DAYS = 3;
 
 /** Public trial price for new visitors. Founding members are charged the founding rate at checkout. */
 export function trialPriceLabel(founding = false) {
@@ -13,16 +15,34 @@ export function trialPriceLabel(founding = false) {
 }
 
 export function trialDisclosure(priceLabel: string) {
-  return `7 days free, then ${priceLabel}/month. Cancel anytime before your trial ends and you won't be charged.`;
+  return `No card needed. ${TRIAL_DAYS} days free, then ${priceLabel}/month. Add a card before your trial ends to keep Premium. If you don't, your trial ends and you won't be charged.`;
 }
 
 /** Short trial terms for the sign-up screen. Keep the longer disclosure on Stripe Checkout. */
 export function trialDisclosureShort(priceLabel: string) {
-  return `7 days free, then ${priceLabel}/month, cancel anytime.`;
+  return `No card needed. ${TRIAL_DAYS} days free, then ${priceLabel}/month. Add a card to keep Premium after your trial.`;
 }
 
 export const TRIAL_CANCEL_HINT =
-  "You can cancel in Settings under Manage billing, which opens Stripe's billing portal. Cancel before your trial ends and you won't be charged.";
+  "You can cancel in Settings under Manage billing, which opens Stripe's billing portal. If you add a card, cancel before your trial ends and you won't be charged.";
+
+/** Whole days left on a trial, in America/Chicago. 0 once the end day has arrived or passed. */
+export function trialDaysRemaining(trialEndsAt: string | null | undefined, now = new Date()) {
+  if (!trialEndsAt) return null;
+  const end = new Date(trialEndsAt);
+  if (Number.isNaN(end.getTime())) return null;
+  const ms = end.getTime() - now.getTime();
+  return Math.max(0, Math.ceil(ms / 86_400_000));
+}
+
+export function formatTrialEndDate(trialEndsAt: string) {
+  return new Date(trialEndsAt).toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone: "America/Chicago",
+  });
+}
 
 export function foundingShareMessage(origin: string, shareCode: string) {
   const root = origin.replace(/\/$/, "");

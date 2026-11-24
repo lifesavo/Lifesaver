@@ -124,7 +124,7 @@ export function TrialSignupForm({
               {pending ? "Starting your trial…" : "Try it free"}
             </Button>
             <p className="text-center text-xs leading-5 text-muted-foreground">
-              You&apos;ll add a card next. You won&apos;t be charged today. Cancel anytime in Settings.
+              No card needed. You won&apos;t be charged today. Add a card before your 7-day trial ends to keep Premium.
             </p>
           </div>
         </form>

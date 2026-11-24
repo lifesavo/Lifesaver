@@ -60,6 +60,8 @@ export type AccountUser = {
   emailVerified: boolean;
   subscriptionStatus: string | null;
   hasBilling: boolean;
+  trialEndsAt: string | null;
+  hasPaymentMethod: boolean;
 };
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);

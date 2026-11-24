@@ -34,7 +34,7 @@ Open `/?utm_source=tiktok&ref=creator` and join the waitlist. The row should rem
 
 ## Accounts and sign-in
 
-Accounts live in the same SQLite file (`users`, `sessions`, `login_codes`). The public trial at `/start?trial=1` is email only, then Stripe Checkout. Regular in-app sign-up still asks for a ZIP. Signing in on another device uses a 6-digit code:
+Accounts live in the same SQLite file (`users`, `sessions`, `login_codes`). The public trial at `/start?trial=1` is email only, then Stripe Checkout with no card required. Regular in-app sign-up still asks for a ZIP. Signing in on another device uses a 6-digit code:
 
 - **Device code (always on):** on a signed-in device, Settings → *Show a sign-in code*. Type the email and code on the new device (for example the iPhone home-screen app).
 - **Email code (optional):** set both of these and the sign-in screen gets an *Email me a code* button.
@@ -57,6 +57,6 @@ Accounts live in the same SQLite file (`users`, `sessions`, `login_codes`). The 
 
 Webhook endpoint: `https://golifesaver.com/api/billing/webhook`, events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`. Turn on the Customer Portal in Stripe so *Manage billing* works (this is how people cancel a trial).
 
-The landing-page **Try it free** button starts a 7-day Premium trial (`subscription_data.trial_period_days=7`) and always collects a card (`payment_method_collection=always`). After 7 days Stripe charges the founding or regular Premium price unless they cancel in the Customer Portal.
+The landing-page **Try it free** button starts a 7-day Premium trial (`subscription_data.trial_period_days=7`) with no card up front (`payment_method_collection=if_required` and `trial_settings.end_behavior.missing_payment_method=cancel`). After 7 days, Premium locks unless they add a card. If they add a card, Stripe charges the founding or regular Premium price unless they cancel in the Customer Portal. An in-app banner reminds them a few days before the trial ends.
 
 Founding price: anyone whose account was created before billing opened, or whose email is on the waitlist. While any key is missing, plan buttons save founding-rate interest (`plan_interest` table) and nothing is charged.

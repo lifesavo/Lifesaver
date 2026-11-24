@@ -4,7 +4,7 @@ import { AiBadge, AiSection } from "@/components/ai/ai-badge";
 import { InstallButton } from "@/components/pwa/install-button";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { Wordmark } from "@/components/wordmark";
-import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
+import { FOUNDING_HAND_LABEL, FOUNDING_PREMIUM_LABEL, HAND_PRICE_LABEL, PREMIUM_PRICE_LABEL, trialDisclosure, trialDisclosureShort } from "@/lib/pricing";
 
 const stickers = [
   { text: "price hike? caught", className: "bg-lime text-ink -top-4 -left-6", tilt: "-8deg" },
@@ -68,8 +68,7 @@ export default function HomePage() {
                 <InstallButton className="h-14 rounded-full border-2 border-white px-6 text-lg font-bold text-white" />
               </div>
               <p className="mt-3 max-w-md text-sm leading-6 text-white/90">
-                7 days free, then {PREMIUM_PRICE_LABEL}/month. Cancel anytime before your trial ends and you won&apos;t be charged.
-                You can cancel in Settings under Manage billing, which opens Stripe&apos;s billing portal.
+                {trialDisclosure(PREMIUM_PRICE_LABEL)} You can cancel in Settings under Manage billing, which opens Stripe&apos;s billing portal.
               </p>
               <p className="mt-3 max-w-md text-sm text-white/80">
                 <Link href="/giveaway" className="font-semibold underline decoration-white/50 underline-offset-2 hover:decoration-white">
@@ -231,7 +230,7 @@ export default function HomePage() {
           Try it free
         </TryItFreeLink>
         <p className="mt-1.5 text-center text-[11px] leading-4 text-muted-foreground">
-          7 days free, then {PREMIUM_PRICE_LABEL}/month. Cancel anytime before your trial ends and you won&apos;t be charged.
+          {trialDisclosureShort(PREMIUM_PRICE_LABEL)}
         </p>
       </div>
 

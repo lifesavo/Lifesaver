@@ -1,4 +1,4 @@
-import { checkoutSessionParams } from "../src/lib/stripe";
+import { cardSetupSessionParams, checkoutSessionParams } from "../src/lib/stripe";
 
 process.env.STRIPE_PRICE_PREMIUM = "price_premium_regular";
 process.env.STRIPE_PRICE_PREMIUM_FOUNDING = "price_premium_founding";
@@ -42,11 +42,15 @@ function assert(cond: unknown, msg: string) {
 
 assert(regular.mode === "subscription", "subscription mode");
 assert(regular["subscription_data[trial_period_days]"] === 7, "trial_period_days=7");
-assert(regular.payment_method_collection === "always", "card collected up front");
+assert(regular.payment_method_collection === "if_required", "no card collected up front");
+assert(
+  regular["subscription_data[trial_settings][end_behavior][missing_payment_method]"] === "cancel",
+  "trial cancels if no card is added",
+);
 assert(regular["line_items[0][price]"] === "price_premium_regular", "regular premium price id");
 assert(
   regular["custom_text[submit][message]"] ===
-    "7 days free, then $9.99/month. Cancel anytime before your trial ends and you won't be charged.",
+    "No card needed. 7 days free, then $9.99/month. Add a card before your trial ends to keep Premium. If you don't, your trial ends and you won't be charged.",
   "regular disclosure wording",
 );
 assert(String(regular.success_url).includes("/home?checkout=success"), "trial success goes into the app");
@@ -56,7 +60,7 @@ assert(regular.customer_email === "alex@example.com", "email when no customer id
 assert(founding["line_items[0][price]"] === "price_premium_founding", "founding premium price id");
 assert(
   founding["custom_text[submit][message]"] ===
-    "7 days free, then $7.99/month. Cancel anytime before your trial ends and you won't be charged.",
+    "No card needed. 7 days free, then $7.99/month. Add a card before your trial ends to keep Premium. If you don't, your trial ends and you won't be charged.",
   "founding disclosure wording",
 );
 assert(founding.customer === "cus_123", "existing customer id is reused");
@@ -68,6 +72,15 @@ assert(noTrial["subscription_data[trial_period_days]"] === undefined, "no trial 
 assert(noTrial.payment_method_collection === undefined, "no forced card collection without trial");
 assert(noTrial["metadata[trial]"] === undefined, "no trial flag without a trial");
 assert(String(noTrial.success_url).includes("/pricing?checkout=success"), "non-trial success stays on pricing");
+
+const setup = cardSetupSessionParams({
+  userId: "user_1",
+  customerId: "cus_123",
+  siteUrl: "https://golifesaver.com",
+});
+assert(setup.mode === "setup", "add-card session is setup mode");
+assert(setup.customer === "cus_123", "add-card session reuses the customer");
+assert(String(setup.success_url).includes("/home?checkout=card_added"), "add-card success returns home");
 
 const failed = checks.filter((line) => line.startsWith("FAIL"));
 console.log(checks.join("\n"));

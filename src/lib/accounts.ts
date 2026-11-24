@@ -15,6 +15,8 @@ export type UserRow = {
   stripe_subscription_id: string | null;
   subscription_status: string | null;
   subscription_plan: string | null;
+  trial_ends_at: string | null;
+  has_payment_method: number;
   created_at: string;
 };
 
@@ -27,6 +29,8 @@ export type PublicUser = {
   emailVerified: boolean;
   subscriptionStatus: string | null;
   hasBilling: boolean;
+  trialEndsAt: string | null;
+  hasPaymentMethod: boolean;
 };
 
 let ready = false;
@@ -46,10 +50,17 @@ function db(): Database.Database {
         stripe_subscription_id TEXT,
         subscription_status TEXT,
         subscription_plan TEXT,
+        trial_ends_at TEXT,
+        has_payment_method INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       )
     `);
+    const userCols = new Set(
+      (conn.prepare("PRAGMA table_info(users)").all() as { name: string }[]).map((column) => column.name),
+    );
+    if (!userCols.has("trial_ends_at")) conn.exec("ALTER TABLE users ADD COLUMN trial_ends_at TEXT");
+    if (!userCols.has("has_payment_method")) conn.exec("ALTER TABLE users ADD COLUMN has_payment_method INTEGER NOT NULL DEFAULT 0");
     conn.exec(`
       CREATE TABLE IF NOT EXISTS sessions (
         token_hash TEXT PRIMARY KEY,
@@ -99,6 +110,8 @@ export function toPublic(user: UserRow): PublicUser {
     emailVerified: user.email_verified !== 0,
     subscriptionStatus: user.subscription_status,
     hasBilling: Boolean(user.stripe_customer_id),
+    trialEndsAt: user.trial_ends_at,
+    hasPaymentMethod: user.has_payment_method !== 0,
   };
 }
 
@@ -126,7 +139,7 @@ export function createUser(input: { email: string; zip: string | null; ownerId: 
   return userById(id)!;
 }
 
-export function updateUser(id: string, change: Partial<Pick<UserRow, "zip" | "plan" | "email_verified" | "stripe_customer_id" | "stripe_subscription_id" | "subscription_status" | "subscription_plan">>) {
+export function updateUser(id: string, change: Partial<Pick<UserRow, "zip" | "plan" | "email_verified" | "stripe_customer_id" | "stripe_subscription_id" | "subscription_status" | "subscription_plan" | "trial_ends_at" | "has_payment_method">>) {
   const keys = Object.keys(change) as (keyof typeof change)[];
   if (!keys.length) return userById(id);
   const sets = keys.map((key) => `${key} = @${key}`).join(", ");

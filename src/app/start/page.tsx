@@ -9,7 +9,7 @@ import { trafficSource } from "@/lib/attribution";
 
 export const metadata: Metadata = {
   title: "Try it free",
-  description: "Start a 7-day free trial of LifeSaver Premium. Enter your email, then continue to checkout. 7 days free, then $9.99/month, cancel anytime.",
+  description: "Start a 7-day free trial of LifeSaver Premium. No card needed. Enter your email to begin. 7 days free, then $9.99/month. Add a card to keep Premium after your trial.",
 };
 
 function first(value: string | string[] | undefined) {

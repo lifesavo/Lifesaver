@@ -86,7 +86,11 @@ export function AccountPanel() {
       </p>
       {account.subscriptionStatus === "trialing" ? (
         <p className="rounded-2xl bg-lime px-3 py-2 text-sm text-ink" role="status">
-          You&apos;re on a 7-day free trial of Premium. Cancel in Manage billing before your trial ends and you won&apos;t be charged.
+          You&apos;re on a 7-day free trial of Premium. No card is needed to start. Add a card before your trial ends to keep Premium; if you don&apos;t, the trial ends and you won&apos;t be charged.
+        </p>
+      ) : account.trialEndsAt && !["active", "trialing", "past_due"].includes(account.subscriptionStatus || "") && !account.hasPaymentMethod ? (
+        <p className="rounded-2xl bg-sun/40 px-3 py-2 text-sm" role="status">
+          Your 7-day free trial has ended. Add a card on the Home screen to keep Premium. Until then, Premium features are locked and you won&apos;t be charged.
         </p>
       ) : null}
 

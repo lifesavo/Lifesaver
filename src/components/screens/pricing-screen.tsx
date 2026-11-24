@@ -13,6 +13,7 @@ import {
   handIncludes,
   PREMIUM_PRICE_LABEL,
   premiumIncludes,
+  trialDisclosure,
 } from "@/lib/pricing";
 import { useProfile, type Profile } from "@/lib/profile";
 
@@ -133,7 +134,7 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
 
       {checkout === "success" ? (
         <p className="rounded-2xl bg-lime px-4 py-3 text-sm font-medium text-ink" role="status">
-          Thanks! If you started a trial, nothing is charged today. Your plan can take a few seconds to show here. Cancel in Settings under Manage billing before the trial ends if you don&apos;t want to be charged.
+          Thanks! If you started a trial, no card was needed and nothing is charged today. Your plan can take a few seconds to show here. Add a card before the trial ends to keep Premium, or cancel in Settings under Manage billing and you won&apos;t be charged.
         </p>
       ) : null}
       {checkout === "canceled" ? (
@@ -161,8 +162,7 @@ export function PricingScreen({ billingOpen = false }: { billingOpen?: boolean }
         <p className="text-sm text-muted-foreground">Founding rate. Regular price {PREMIUM_PRICE_LABEL}/mo.</p>
         {billingOpen ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            7 days free, then {premiumPrice}/month. Cancel anytime before your trial ends and you won&apos;t be charged.
-            You can cancel in Settings under Manage billing.
+            {trialDisclosure(premiumPrice)} You can cancel in Settings under Manage billing.
           </p>
         ) : null}
         <FeatureList items={premiumIncludes} tone="light" />
