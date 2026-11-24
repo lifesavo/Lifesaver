@@ -45,6 +45,8 @@ export function TryItFreeLink({
 }) {
   const [href, setHref] = useState("/start?trial=1");
   useEffect(() => {
+    // Keep the trial link in sync with the current page's query (UTM, ref) after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHref(trialStartPath(window.location.search));
   }, []);
 

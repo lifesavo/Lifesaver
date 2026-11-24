@@ -32,6 +32,7 @@ Set `ADMIN_TOKEN` in `.env.local` before using the admin count.
 - `/bills` cancel, negotiate, and remind
 - `/deals` gas, groceries, and food
 - `/savings` history and goals
+- `/receipts` log shopping trips, snap them in Fetch for points, and track rewards you type in (not affiliated with Fetch)
 - `/hand` post a task, see offers, book
 - `/rides` sample Uber / Lyft / Uber Eats / DoorDash links
 - `/pricing` free, Premium at $9.99 after launch ($7.99 founding), Lend a Hand at $19.99 after launch ($14.99 founding)

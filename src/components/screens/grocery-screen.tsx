@@ -5,7 +5,9 @@ import { Check, Copy, Plus, Trash2, X } from "lucide-react";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FetchPrompt } from "@/components/fetch-prompt";
 import { money } from "@/lib/money";
+import { addReceiptTrip, hasTripOn, todayKey } from "@/lib/receipts";
 
 const STORAGE_KEY = "lifesaver.grocery.v1";
 const MAX_STORES = 3;
@@ -63,11 +65,13 @@ export function GroceryScreen() {
   const [storeDraft, setStoreDraft] = useState("");
   const [comparing, setComparing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [tripLogged, setTripLogged] = useState(false);
 
   useEffect(() => {
     // Load once on the client; localStorage is not available during SSR.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(readState());
+    setTripLogged(hasTripOn(todayKey(), "grocery"));
     setLoaded(true);
   }, []);
 
@@ -363,6 +367,30 @@ export function GroceryScreen() {
           </div>
           <ul className="overflow-hidden rounded-2xl border bg-card">{inCart.map(renderItem)}</ul>
         </section>
+      )}
+
+      {loaded && inCart.length > 0 && (
+        <FetchPrompt
+          title={toBuy.length === 0 ? "Done shopping? Snap this receipt in Fetch for points" : "Snap this receipt in Fetch for points"}
+          detail={
+            toBuy.length === 0
+              ? "Your list is checked off. Open Fetch and snap the paper receipt to earn points, then log the trip so LifeSaver can remind you and add the rewards you type in to your totals."
+              : "As you check items off, keep the receipt. When you're done, snap it in Fetch for points and log the trip here."
+          }
+          logged={tripLogged}
+          logLabel="Log this grocery trip"
+          onLogTrip={() => {
+            if (tripLogged) return;
+            const storeName = state.stores[0]?.name || "";
+            addReceiptTrip({
+              date: todayKey(),
+              store: storeName,
+              note: `${inCart.length} item${inCart.length === 1 ? "" : "s"} checked off`,
+              source: "grocery",
+            });
+            setTripLogged(true);
+          }}
+        />
       )}
 
       <section aria-labelledby="compare-heading" className="space-y-3 rounded-3xl bg-ink px-4 py-4 text-white">

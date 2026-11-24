@@ -5,7 +5,9 @@ import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FetchPrompt } from "@/components/fetch-prompt";
 import { money } from "@/lib/money";
+import { addReceiptTrip } from "@/lib/receipts";
 
 const STORE_KEY = "lifesaver.budget.v1";
 const MAX_SPENDS = 2000;
@@ -59,6 +61,11 @@ function toAmount(text: string) {
   return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
 }
 
+function isReceiptCategory(category: Category) {
+  const hay = `${category.id} ${category.name}`.toLowerCase();
+  return ["grocery", "groceries", "eating", "restaurant", "food", "shop", "gas", "fuel"].some((k) => hay.includes(k));
+}
+
 function load(): Store {
   try {
     const raw = localStorage.getItem(STORE_KEY);
@@ -84,9 +91,12 @@ export function BudgetScreen() {
   const [editing, setEditing] = useState(false);
   const [newCat, setNewCat] = useState("");
   const [flash, setFlash] = useState("");
+  const [receiptPrompt, setReceiptPrompt] = useState<{ date: string; store: string; note: string; logged: boolean } | null>(null);
 
   useEffect(() => {
     const t = todayKey();
+    // Load once on the client; localStorage is not available during SSR.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setToday(t);
     setDate(t);
     setMonth(t.slice(0, 7));
@@ -146,6 +156,14 @@ export function BudgetScreen() {
     }
     setAmount("");
     setNote("");
+    if (c && isReceiptCategory(c)) {
+      setReceiptPrompt({
+        date: when,
+        store: note.trim() || c.name,
+        note: `${c.name} · ${money(value)}`,
+        logged: false,
+      });
+    }
   }
 
   function setLimit(id: string, text: string) {
@@ -268,6 +286,25 @@ export function BudgetScreen() {
         <p aria-live="polite" className="rounded-2xl bg-sun px-4 py-2 text-sm font-semibold text-ink">
           {flash}
         </p>
+      )}
+
+      {receiptPrompt && (
+        <FetchPrompt
+          title="Snap this receipt in Fetch for points"
+          detail={`You just logged ${receiptPrompt.note}. If you have the paper receipt, snap it in Fetch, then log the trip so the points you type in can count toward your LifeSaver totals.`}
+          logged={receiptPrompt.logged}
+          logLabel="Log this purchase"
+          onLogTrip={() => {
+            if (receiptPrompt.logged) return;
+            addReceiptTrip({
+              date: receiptPrompt.date,
+              store: receiptPrompt.store,
+              note: receiptPrompt.note,
+              source: "budget",
+            });
+            setReceiptPrompt({ ...receiptPrompt, logged: true });
+          }}
+        />
       )}
 
       <section className="space-y-3 rounded-3xl border bg-card px-4 py-4 shadow-sm">

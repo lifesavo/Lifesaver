@@ -14,6 +14,7 @@ import {
 import { money } from "@/lib/money";
 import { includesPremium, PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 import { useProfile } from "@/lib/profile";
+import { ReceiptsSavingsCard } from "@/components/fetch-prompt";
 
 const maxMonth = Math.max(...savingsHistory.map((month) => month.amount));
 
@@ -31,6 +32,7 @@ export function SavingsScreen() {
         </div>
         <PlanChip />
       </header>
+      <ReceiptsSavingsCard />
       <DemoNote>
         An example year, not your accounts. Your own history fills in once bank linking opens.
         Savings goals are part of Premium ({PREMIUM_PRICE_LABEL}/mo).

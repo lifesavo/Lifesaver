@@ -15,6 +15,7 @@ import { money } from "@/lib/money";
 import { PREMIUM_PRICE_LABEL } from "@/lib/pricing";
 import { useProfile } from "@/lib/profile";
 import { TrialBanner } from "@/components/trial-banner";
+import { ReceiptsHomeCard } from "@/components/fetch-prompt";
 
 export function HomeScreen() {
   const { profile, account } = useProfile();
@@ -149,6 +150,7 @@ export function HomeScreen() {
           <span className="block text-sm">Plan the week&apos;s meals and send the ingredients to your Grocery list.</span>
         </span>
       </Link>
+      <ReceiptsHomeCard />
       <Link href="/plan" className="block rounded-3xl bg-gradient-to-br from-[#ff7a18] via-[#e01470] to-[#6d28d9] px-4 py-4 text-white">
         <p className="text-xs font-bold tracking-wide text-lime uppercase">New · Free</p>
         <p className="font-serif text-2xl leading-tight">Plan a trip in seconds</p>
