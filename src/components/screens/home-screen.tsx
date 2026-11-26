@@ -158,6 +158,14 @@ export function HomeScreen() {
           <span className="block text-sm">Every tracking number in one list, one tap to the carrier&apos;s tracking page.</span>
         </span>
       </Link>
+      <Link href="/notes" className="flex items-center gap-3 rounded-3xl bg-gold px-4 py-4 text-ink">
+        <span className="text-4xl" aria-hidden="true">📝</span>
+        <span>
+          <span className="block text-xs font-bold tracking-wide uppercase">New · Free</span>
+          <span className="block font-serif text-2xl leading-tight">Notes</span>
+          <span className="block text-sm">Quick notes and checklists you can pin, search, color, and share.</span>
+        </span>
+      </Link>
       <ReceiptsHomeCard />
       <Link href="/plan" className="block rounded-3xl bg-gradient-to-br from-[#ff7a18] via-[#e01470] to-[#6d28d9] px-4 py-4 text-white">
         <p className="text-xs font-bold tracking-wide text-lime uppercase">New · Free</p>
